@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiddom - IM v.360 Math K</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --black:#111;--dark:#333;--mid:#666;--light:#999;--border:#D0D0D0;--bg:#F5F5F5;--white:#fff;
+    --shadow:0 2px 8px rgba(0,0,0,.08);--shadow-lg:0 8px 24px rgba(0,0,0,.12);
+    --radius:10px;--radius-sm:6px;--transition:0.3s cubic-bezier(.4,0,.2,1);
+  }
+  body{font-family:'Lexend',sans-serif;background:var(--bg);color:var(--black);min-height:100vh;overflow-x:hidden}
+
+  /* Header */
+  .header{background:var(--black);color:#fff;padding:16px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+  .header-logo{font-weight:700;font-size:20px;letter-spacing:-.3px}
+  .header-divider{width:1px;height:24px;background:rgba(255,255,255,.2)}
+  .header-curriculum{font-size:14px;color:rgba(255,255,255,.7)}
+  .header-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+  .header-day{background:rgba(255,255,255,.15);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500}
+  .breadcrumb{padding:12px 32px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:13px}
+  .breadcrumb a{color:var(--mid);text-decoration:none;cursor:pointer}
+  .breadcrumb a:hover{color:var(--black)}
+  .breadcrumb .sep{color:#CCC}
+  .breadcrumb .current{color:var(--black);font-weight:600}
+
+  /* Container */
+  .container{max-width:1200px;margin:0 auto;padding:24px 32px}
+
+  /* Year View */
+  .year-view{animation:fadeIn .35s ease}
+  .year-title{font-size:26px;font-weight:700;margin-bottom:4px}
+  .year-subtitle{font-size:14px;color:var(--mid);margin-bottom:24px}
+
+  .timeline-wrapper{position:relative;margin-bottom:8px}
+  .timeline{display:flex;gap:2px;height:88px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+  .timeline-unit{position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;background:var(--white);color:var(--black);transition:var(--transition);overflow:hidden;
+    border-right:1px solid var(--border)}
+  .timeline-unit:last-child{border-right:none}
+  .timeline-unit:hover{background:#F0F0F0}
+  .timeline-unit .unit-num{font-size:10px;font-weight:700;opacity:.5;text-transform:uppercase;letter-spacing:.5px}
+  .timeline-unit .unit-short{font-size:10px;font-weight:600;line-height:1.25;text-align:center;
+    max-width:95%;word-wrap:break-word;overflow-wrap:break-word}
+  .timeline-unit .unit-days{font-size:10px;opacity:.5;margin-top:2px}
+
+  /* Day ruler */
+  .day-ruler{display:flex;gap:2px;height:22px;font-size:10px;color:var(--mid)}
+  .day-ruler-seg{display:flex;align-items:center;justify-content:flex-end;padding-right:4px;
+    border-right:1px solid var(--border);font-weight:500;position:relative;transition:background .3s ease}
+  .day-ruler-seg:last-child{border-right:none}
+  .day-ruler-seg.wk-changed{animation:wkFlash 2.5s ease}
+  .day-ruler-seg .wk-shift{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:9px;font-weight:700;color:var(--black);background:#E8E8E8;border-radius:3px;
+    animation:wkShiftFade 2.5s ease forwards;pointer-events:none}
+  @keyframes wkFlash{0%{background:#E8E8E8}40%{background:#E8E8E8}100%{background:transparent}}
+  @keyframes wkShiftFade{0%{opacity:1}60%{opacity:1}100%{opacity:0}}
+
+  /* Curriculum Overview + Pacing Intelligence panel */
+  .overview-panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px 24px;margin-top:20px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .overview-lbl{font-size:9px;font-weight:800;color:var(--light);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+  .overview-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #EEE}
+  .overview-row:last-child{border-bottom:none}
+  .overview-dot{width:9px;height:9px;border-radius:50%;background:var(--black);flex-shrink:0}
+  .overview-name{flex:1;font-size:12px;color:var(--black)}
+  .overview-meta{font-size:11px;color:var(--light);white-space:nowrap}
+  .pacing-intel{background:#F8F8F8;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+  .pacing-intel-title{font-size:12px;font-weight:700;color:var(--black);margin-bottom:10px}
+  .pacing-intel-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .pacing-intel-list li{font-size:12px;color:var(--dark);padding-left:14px;position:relative;line-height:1.5}
+  .pacing-intel-list li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--black)}
+
+  /* Unit View */
+  .unit-view{animation:fadeIn .35s ease}
+
+  /* Peek blocks */
+  .peek-nav{display:flex;justify-content:space-between;margin-bottom:20px;gap:12px}
+  .peek-block{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--white);
+    border-radius:var(--radius);cursor:pointer;border:1px solid var(--border);transition:var(--transition);font-size:13px;color:var(--mid)}
+  .peek-block:hover{border-color:var(--black);color:var(--black);box-shadow:var(--shadow)}
+  .peek-block .peek-label{font-weight:600;color:var(--black)}
+  .peek-block .peek-name{font-size:12px}
+  .peek-placeholder{visibility:hidden}
+
+  /* Hero tabs */
+  .hero-tabs{display:flex;gap:0;margin-bottom:0;border-bottom:1px solid var(--border);background:var(--white);border-radius:var(--radius) var(--radius) 0 0;overflow:hidden}
+  .hero-tab{flex:1;padding:12px 16px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;
+    background:var(--white);border:none;border-bottom:2px solid transparent;color:var(--mid);
+    transition:var(--transition);font-family:'Lexend',sans-serif}
+  .hero-tab:hover{background:#F8F8F8;color:var(--black)}
+  .hero-tab.active{color:var(--black);border-bottom-color:var(--black);background:var(--white)}
+  .hero-tab-label{font-size:9px;font-weight:400;color:var(--light);display:block;margin-top:2px}
+
+  /* Hero dashboard */
+  .hero-dashboard{background:var(--white);border-radius:0 0 var(--radius) var(--radius);padding:24px 28px;margin-bottom:24px;
+    box-shadow:var(--shadow);border:1px solid var(--border);border-top:none}
+  .hero-layout-row{display:flex;gap:32px;align-items:flex-start}
+  .hero-left{display:flex;flex-direction:column;align-items:center;min-width:180px}
+  .hero-label{font-size:13px;color:var(--mid);font-weight:500;margin-bottom:12px;text-align:center}
+  .progress-ring{position:relative;width:120px;height:120px;margin:12px 0}
+  .progress-ring svg{transform:rotate(-90deg)}
+  .progress-ring circle{fill:none;stroke-width:10}
+  .progress-ring .ring-bg{stroke:#E0E0E0}
+  .progress-ring .ring-fg{stroke:#000;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
+  .progress-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-weight:700}
+  .hero-unit-label{margin-top:8px;font-size:12px;color:var(--mid)}
+
+  .hero-right{flex:1}
+  .hero-right h3{font-size:15px;font-weight:700;margin-bottom:12px}
+  .gap-grid{display:flex;flex-wrap:wrap;gap:8px}
+  .standard-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;
+    font-size:12px;font-weight:600;cursor:default;transition:var(--transition)}
+  .standard-pill.covered{background:#E8E8E8;color:var(--black);border:1px solid var(--dark)}
+  .standard-pill.covered::before{content:'';display:block;width:8px;height:8px;border-radius:50%;background:var(--black)}
+  .standard-pill.uncovered{background:var(--white);color:var(--light);border:1px solid var(--border)}
+  .standard-pill.uncovered::before{content:'';display:block;width:8px;height:8px;border-radius:50%;background:var(--border)}
+  .hero-footer{margin-top:14px;font-size:12px;color:var(--mid)}
+
+  /* Hero 2: horizontal bar chart */
+  .bar-chart{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .bar-row{display:flex;align-items:center;gap:10px}
+  .bar-label{font-size:12px;font-weight:600;min-width:90px;text-align:right}
+  .bar-track{flex:1;height:20px;background:#F0F0F0;border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+  .bar-fill{height:100%;background:var(--black);border-radius:4px 0 0 4px;transition:width .6s ease}
+  .bar-value{font-size:11px;font-weight:600;min-width:36px}
+
+  /* Hero 3: checklist */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .checklist-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#F8F8F8;border-radius:var(--radius-sm);border:1px solid var(--border)}
+  .checklist-box{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .checklist-box.checked{background:var(--black);border-color:var(--black)}
+  .checklist-box.checked::after{content:'';display:block;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
+  .checklist-text{flex:1}
+  .checklist-std{font-size:13px;font-weight:600}
+  .checklist-detail{font-size:11px;color:var(--mid);margin-top:2px}
+  .checklist-status{font-size:11px;font-weight:600;white-space:nowrap;margin-top:2px}
+
+  /* Section + Lesson cards */
+  .section-group{margin-bottom:28px}
+  .section-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .section-letter{font-weight:700;font-size:14px;color:var(--black)}
+  .section-name{font-size:15px;font-weight:600}
+
+  .lessons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+  .lesson-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:14px 16px;cursor:pointer;transition:var(--transition);position:relative}
+  .lesson-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--dark)}
+  .lesson-card.optional{border-style:dashed;opacity:.7}
+  .lesson-card.optional .opt-badge{display:inline-block;font-size:10px;background:#F0F0F0;color:var(--dark);
+    padding:2px 6px;border-radius:4px;font-weight:600;margin-top:6px}
+  .lesson-card.completed{border-left:3px solid var(--black)}
+  .lesson-card .lesson-num{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.3px}
+  .lesson-card .lesson-name{font-size:13px;font-weight:600;margin-top:4px;line-height:1.35}
+  .lesson-card .assess-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;
+    font-weight:600;margin-top:6px}
+  .lesson-card .assess-badge.formative{background:#F0F0F0;color:var(--dark)}
+  .lesson-card .assess-badge.summative{background:var(--black);color:#fff}
+
+  /* Kiddom link */
+  .kiddom-link{display:block;font-size:10px;font-weight:600;color:var(--mid);margin-top:6px;
+    text-decoration:none;transition:color .15s}
+  .kiddom-link:hover{color:var(--black);text-decoration:underline}
+
+  /* Assessment blocks (standalone) */
+  .assess-block{background:var(--white);border:2px solid var(--black);border-radius:var(--radius-sm);
+    padding:14px 16px;position:relative;text-align:center}
+  .assess-block .assess-type{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--mid)}
+  .assess-block .assess-name{font-size:13px;font-weight:700;margin-top:4px}
+  .assess-block .assess-day{font-size:11px;color:var(--mid);margin-top:4px}
+  .assess-block.summative{background:var(--black);color:#fff}
+  .assess-block.summative .assess-type{color:rgba(255,255,255,.6)}
+  .assess-block.summative .assess-day{color:rgba(255,255,255,.6)}
+
+  /* Adjust pacing button */
+  .adjust-pacing-btn{position:fixed;bottom:28px;right:28px;background:var(--black);color:#fff;border:none;
+    padding:14px 24px;border-radius:28px;font-size:14px;font-weight:600;cursor:pointer;
+    box-shadow:0 4px 16px rgba(0,0,0,.25);transition:var(--transition);z-index:50;
+    display:flex;align-items:center;gap:8px;font-family:'Lexend',sans-serif}
+  .adjust-pacing-btn:hover{background:var(--dark);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.35)}
+  .adjust-pacing-btn svg{width:18px;height:18px}
+
+  /* AI Panel overlay */
+  .ai-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;
+    align-items:center;justify-content:center;animation:fadeIn .25s ease}
+  .ai-panel{background:var(--white);border-radius:16px;width:560px;max-width:95vw;max-height:85vh;
+    overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp .3s ease}
+  .ai-panel-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
+  .ai-panel-header h2{font-size:18px;font-weight:700}
+  .ai-close{background:none;border:none;cursor:pointer;font-size:24px;color:var(--mid);line-height:1;font-family:'Lexend',sans-serif}
+  .ai-panel-body{padding:16px 24px 24px}
+  /* Performance slider */
+  .perf-slider-section{background:#F8F8F8;border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px 24px;margin-bottom:20px}
+  .perf-slider-label{font-size:13px;font-weight:700;margin-bottom:14px}
+  .perf-slider-wrap{position:relative;padding:0 4px}
+  .perf-slider-track{display:flex;align-items:center;gap:12px}
+  .perf-slider-track .track-label{font-size:11px;font-weight:600;color:var(--mid);white-space:nowrap;min-width:48px}
+  .perf-slider-track .track-label:last-child{text-align:right}
+  .perf-slider-track input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:6px;
+    background:linear-gradient(to right,var(--black),#999,#ccc);border-radius:3px;outline:none;cursor:pointer}
+  .perf-slider-track input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;
+    border-radius:50%;background:var(--black);border:3px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
+  .perf-slider-track input[type=range]::-moz-range-thumb{width:20px;height:20px;
+    border-radius:50%;background:var(--black);border:3px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
+  .perf-slider-desc{font-size:12px;color:var(--mid);margin-top:10px;line-height:1.45;min-height:32px}
+
+  .ai-plan-summary{background:#F8F8F8;border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 20px;margin-bottom:16px;font-size:13px;line-height:1.6}
+  .ai-plan-summary .plan-context{font-size:12px;color:var(--mid);margin-bottom:12px;line-height:1.5}
+  .ai-plan-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
+  .ai-plan-step:last-child{border-bottom:none}
+  .ai-plan-step .step-num{width:24px;height:24px;border-radius:50%;background:var(--black);color:#fff;
+    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .ai-plan-step .step-body{flex:1}
+  .ai-plan-step .step-title{font-size:13px;font-weight:700;margin-bottom:2px}
+  .ai-plan-step .step-detail{font-size:12px;color:var(--mid);line-height:1.45}
+  .ai-plan-step .step-tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.3px;padding:2px 8px;border-radius:4px;margin-top:4px}
+  .ai-plan-step .tag-skip{background:#F0F0F0;color:var(--mid)}
+  .ai-plan-step .tag-combine{background:#E8E8E8;color:var(--dark)}
+  .ai-plan-step .tag-keep{background:var(--black);color:#fff}
+  .ai-plan-step .tag-review{background:#F0F0F0;color:var(--dark);border:1px solid var(--border)}
+  .ai-plan-actions{display:flex;gap:10px;margin-top:20px}
+  .ai-plan-actions button{flex:1;padding:12px 16px;border-radius:var(--radius);font-size:13px;
+    font-weight:600;cursor:pointer;font-family:'Lexend',sans-serif;transition:var(--transition)}
+  .ai-plan-actions .btn-confirm{background:var(--black);color:#fff;border:none}
+  .ai-plan-actions .btn-confirm:hover{background:var(--dark)}
+  .ai-plan-actions .btn-adjust{background:var(--white);color:var(--black);border:1px solid var(--border)}
+  .ai-plan-actions .btn-adjust:hover{border-color:var(--black)}
+  .ai-plan-impact{display:flex;gap:16px;margin-top:16px;padding:12px 16px;background:#F8F8F8;
+    border-radius:var(--radius);border:1px solid var(--border)}
+  .ai-plan-impact .impact-item{flex:1;text-align:center}
+  .ai-plan-impact .impact-num{font-size:20px;font-weight:700}
+  .ai-plan-impact .impact-label{font-size:11px;color:var(--mid);margin-top:2px}
+
+  /* Lesson Detail View - Two Column Layout */
+  .lesson-view{animation:fadeIn .35s ease}
+  .lesson-layout{display:grid;grid-template-columns:1fr 320px;gap:32px;min-height:calc(100vh - 160px)}
+  .lesson-main{padding:0}
+  .lesson-sidebar{border-left:1px solid var(--border);padding:24px 24px 24px 32px;background:#FAFAFA;border-radius:0 var(--radius) var(--radius) 0}
+
+  /* Back link */
+  .lesson-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;
+    color:var(--mid);cursor:pointer;padding:12px 16px;border:1px solid var(--border);border-radius:var(--radius);
+    margin-bottom:24px;transition:var(--transition);background:var(--white)}
+  .lesson-back:hover{border-color:var(--black);color:var(--black)}
+
+  /* Lesson header */
+  .lesson-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px}
+  .lesson-badge{width:40px;height:40px;border-radius:50%;background:var(--black);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+  .lesson-header-text h2{font-size:20px;font-weight:700;margin:0}
+  .lesson-header-text .lesson-subtitle{font-size:13px;color:var(--mid);margin-top:2px}
+
+  /* Lesson description */
+  .lesson-desc{background:#F8F8F8;border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 20px;font-size:13px;line-height:1.6;color:var(--dark);margin-bottom:28px}
+
+  /* Activity sequence */
+  .activity-seq-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;
+    letter-spacing:.5px;margin-bottom:14px}
+  .activity-seq{display:flex;gap:0;align-items:stretch}
+  .activity-card{flex:1;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+    position:relative;background:var(--white)}
+  .activity-card-header{padding:8px 14px;display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:#fff}
+  .activity-card-header.warmup{background:var(--black)}
+  .activity-card-header.activity{background:#555}
+  .activity-card-header.cooldown{background:#333}
+  .activity-card-body{padding:14px}
+  .activity-card-body h4{font-size:13px;font-weight:700;margin-bottom:6px}
+  .activity-card-body p{font-size:12px;color:var(--mid);line-height:1.45;margin:0}
+  .activity-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+  .activity-card-tags .atag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;
+    background:#F0F0F0;color:var(--dark);border:1px solid var(--border)}
+  .activity-card-tags .atag-assessed{background:var(--black);color:#fff;border-color:var(--black)}
+  .activity-arrow{display:flex;align-items:center;padding:0 6px;color:#ccc;font-size:18px;flex-shrink:0}
+
+  /* Sidebar sections */
+  .sidebar-title{font-size:16px;font-weight:700;margin-bottom:4px}
+  .sidebar-subtitle{font-size:12px;color:var(--mid);margin-bottom:20px}
+  .sidebar-section{margin-bottom:20px}
+  .sidebar-section-label{font-size:10px;font-weight:700;color:var(--mid);text-transform:uppercase;
+    letter-spacing:.5px;margin-bottom:8px}
+  .sidebar-section p{font-size:13px;line-height:1.55;color:var(--dark);margin:0}
+  .sidebar-section ul{list-style:none;padding:0;margin:0}
+  .sidebar-section ul li{font-size:13px;color:var(--dark);padding:3px 0;display:flex;align-items:flex-start;gap:6px}
+  .sidebar-section ul li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--mid);flex-shrink:0;margin-top:7px}
+  .sidebar-std-tags{display:flex;flex-wrap:wrap;gap:4px}
+  .sidebar-std-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:4px;
+    background:#F0F0F0;color:var(--dark);border:1px solid var(--border)}
+  .sidebar-ican{font-size:13px;color:var(--dark);padding:3px 0;display:flex;align-items:flex-start;gap:6px}
+  .sidebar-ican::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--mid);flex-shrink:0;margin-top:7px}
+
+  .status-toggle{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;
+    border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition);background:var(--white);font-family:'Lexend',sans-serif}
+  .status-toggle:hover{border-color:var(--black)}
+  .status-toggle.completed-toggle{background:#E8E8E8;border-color:var(--black);color:var(--black)}
+
+  @media(max-width:900px){
+    .lesson-layout{grid-template-columns:1fr;gap:24px}
+    .lesson-sidebar{border-left:none;border-top:1px solid var(--border);border-radius:var(--radius)}
+    .activity-seq{flex-direction:column}
+    .activity-arrow{transform:rotate(90deg);padding:4px 0;justify-content:center}
+  }
+
+  /* Animations */
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Setup bar */
+  .setup-bar{height:38px;background:var(--white);border-bottom:1px solid var(--border);display:flex;
+    align-items:center;padding:0 32px;gap:12px;flex-shrink:0}
+  .setup-label{font-size:12px;color:var(--mid)}
+  .setup-value{font-size:12px;font-weight:600;color:var(--black)}
+  .setup-sep{width:1px;height:16px;background:var(--border)}
+  .setup-btn{font-size:12px;color:var(--black);cursor:pointer;background:none;border:none;
+    font-family:'Lexend',sans-serif;font-weight:500;text-decoration:underline;text-underline-offset:2px}
+  .setup-btn:hover{color:var(--mid)}
+
+  /* Modal overlay */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:flex;
+    align-items:center;justify-content:center;animation:fadeIn .2s ease}
+  .modal{background:var(--white);border-radius:12px;width:420px;max-width:92vw;box-shadow:var(--shadow-lg);
+    animation:slideUp .25s ease;overflow:hidden}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;
+    border-bottom:1px solid var(--border)}
+  .modal-header h3{font-size:16px;font-weight:700}
+  .modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--mid);
+    font-family:'Lexend',sans-serif;line-height:1}
+  .modal-body{padding:18px 22px}
+  .modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+  .modal-btn{padding:8px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;
+    font-family:'Lexend',sans-serif;border:1px solid var(--border);background:var(--white);color:var(--black);
+    transition:var(--transition)}
+  .modal-btn:hover{background:#F0F0F0}
+  .modal-btn.primary{background:var(--black);color:#fff;border-color:var(--black)}
+  .modal-btn.primary:hover{background:var(--dark)}
+
+  /* Calendar */
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .cal-nav-btn{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);
+    width:30px;height:30px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;
+    font-family:'Lexend',sans-serif;color:var(--black);transition:var(--transition)}
+  .cal-nav-btn:hover{background:#F0F0F0}
+  .cal-month{font-size:14px;font-weight:600}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+  .cal-dow{font-size:10px;font-weight:700;color:var(--light);padding:6px 0;text-transform:uppercase}
+  .cal-day{font-size:12px;padding:8px 0;border-radius:var(--radius-sm);cursor:pointer;
+    transition:var(--transition);border:1px solid transparent;font-weight:500}
+  .cal-day:hover{background:#F0F0F0}
+  .cal-day.other-month{color:var(--border);cursor:default}
+  .cal-day.other-month:hover{background:transparent}
+  .cal-day.holiday{background:var(--black);color:#fff;border-color:var(--black)}
+  .cal-day.holiday:hover{background:var(--dark)}
+  .cal-day.weekend{color:var(--light)}
+  .cal-legend{margin-top:12px;font-size:11px;color:var(--mid);display:flex;align-items:center;gap:8px}
+  .cal-legend-swatch{width:14px;height:14px;border-radius:3px;background:var(--black)}
+  .holiday-count{font-size:12px;color:var(--mid);margin-top:8px}
+
+  /* Date picker */
+  .date-input{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);
+    font-size:14px;font-family:'Lexend',sans-serif;color:var(--black);outline:none;width:100%;
+    transition:border-color .15s}
+  .date-input:focus{border-color:var(--black)}
+
+  /* Responsive */
+  @media(max-width:768px){
+    .container{padding:16px}
+    .hero-dashboard{flex-direction:column;align-items:stretch}
+    .hero-left{flex-direction:row;gap:16px;min-width:auto}
+    .lessons-grid{grid-template-columns:1fr 1fr}
+    .peek-nav{flex-direction:column}
+    .overview-panel{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">kiddom.</div>
+  <div class="header-divider"></div>
+  <div class="header-curriculum">IM v.360 Math &middot; Kindergarten</div>
+  <div class="header-right">
+    <div class="header-day" id="headerDay" style="display:none">Day 67 of 148</div>
+  </div>
+</div>
+<div class="setup-bar">
+  <span class="setup-label">Year starts</span>
+  <span class="setup-value" id="startDateDisplay">Aug 12, 2025</span>
+  <div class="setup-sep"></div>
+  <button class="setup-btn" onclick="openHolidayModal()">Set holidays</button>
+  <div class="setup-sep"></div>
+  <button class="setup-btn" onclick="openStartDateModal()">Adjust start date</button>
+</div>
+<div class="breadcrumb" id="breadcrumb"></div>
+<div class="container" id="app"></div>
+<div id="modal-root"></div>
+
+<script>
+const UNITS = [
+  {id:1,name:'Math in Our World',short:'Math in Our World',days:18,startDay:1,endDay:18,optionalLessons:[17],
+   standards:['K.CC.A.1','K.CC.B.4','K.MD.A.1','K.MD.B.3'],
+   assessments:[{type:'formative',afterLesson:9,label:'Mid-Unit Assessment'},{type:'summative',afterLesson:18,label:'End-of-Unit Assessment'}],
+   sections:[
+    {id:'A',name:'Exploring with Math',lessons:[{id:1,name:'Math Is All Around Us'},{id:2,name:'Sort and Count'},{id:3,name:'More, Fewer, Same'},{id:4,name:'Represent Quantities'},{id:5,name:'Count and Match'},{id:6,name:'Math Tools'}]},
+    {id:'B',name:'Sorting and Comparing',lessons:[{id:7,name:'Sort by Attributes'},{id:8,name:'Comparing Lengths'},{id:9,name:'Comparing Weights'},{id:10,name:'Count and Compare'},{id:11,name:'Categorize Data'},{id:12,name:'Math in Our Classroom'}]},
+    {id:'C',name:'Numbers in Our World',lessons:[{id:13,name:'Numbers on Number Line'},{id:14,name:'Count Forward & Back'},{id:15,name:'Write Numerals'},{id:16,name:'Numbers Tell How Many'},{id:17,name:'One More, One Less',optional:true},{id:18,name:'Showing What We Know'}]}
+   ]},
+  {id:2,name:'Numbers 1-10',short:'Numbers 1-10',days:24,startDay:19,endDay:42,optionalLessons:[7,8,24],
+   standards:['K.CC.A.1','K.CC.A.2','K.CC.B.4','K.CC.B.5','K.CC.C.6'],
+   assessments:[{type:'formative',afterLesson:12,label:'Mid-Unit Assessment'},{type:'summative',afterLesson:24,label:'End-of-Unit Assessment'}],
+   sections:[
+    {id:'A',name:'Counting 1-5',lessons:[{id:1,name:'Count to 5'},{id:2,name:'Represent 1-5'},{id:3,name:'Say the Count'},{id:4,name:'Five Frames'},{id:5,name:'Quantities to 5'},{id:6,name:'Order 1-5'},{id:7,name:'Counting Stories',optional:true},{id:8,name:'Practice: 1-5',optional:true}]},
+    {id:'B',name:'Counting 6-10',lessons:[{id:9,name:'Count to 10'},{id:10,name:'Represent 6-10'},{id:11,name:'Ten Frames'},{id:12,name:'Make a 10'},{id:13,name:'Count On'},{id:14,name:'Quantities to 10'},{id:15,name:'Order 1-10'},{id:16,name:'Count and Record'}]},
+    {id:'C',name:'Comparing and Representing',lessons:[{id:17,name:'Compare Groups'},{id:18,name:'Symbols: greater, less, equal'},{id:19,name:'Number Order'},{id:20,name:'Write Numbers 1-10'},{id:21,name:'Number Line'},{id:22,name:'Compare Any Two'},{id:23,name:'Numbers in Our World'},{id:24,name:'Putting It Together',optional:true}]}
+   ]},
+  {id:3,name:'Flat Shapes All Around Us',short:'Flat Shapes',days:16,startDay:43,endDay:58,optionalLessons:[15],
+   standards:['K.G.A.1','K.G.A.2','K.G.A.3','K.G.B.4','K.G.B.6'],
+   assessments:[{type:'formative',afterLesson:8,label:'Mid-Unit Assessment'},{type:'summative',afterLesson:16,label:'End-of-Unit Assessment'}],
+   sections:[
+    {id:'A',name:'Identifying Shapes',lessons:[{id:1,name:'Flat Shapes Around Us'},{id:2,name:'Circles'},{id:3,name:'Triangles'},{id:4,name:'Rectangles & Squares'},{id:5,name:'Hexagons'},{id:6,name:'Name That Shape!'}]},
+    {id:'B',name:'Describing Shapes',lessons:[{id:7,name:'Sides and Corners'},{id:8,name:'Compare by Attributes'},{id:9,name:'Sort Shapes'},{id:10,name:'Shapes That Match'},{id:11,name:'Shapes in Environment'}]},
+    {id:'C',name:'Composing Shapes',lessons:[{id:12,name:'Put Shapes Together'},{id:13,name:'Make New Shapes'},{id:14,name:'Shape Puzzles'},{id:15,name:'Design with Shapes',optional:true},{id:16,name:'Shapes All Around'}]}
+   ]},
+  {id:4,name:'Understanding Addition and Subtraction',short:'Add & Subtract',days:19,startDay:59,endDay:77,optionalLessons:[13,18],
+   standards:['K.OA.A.1','K.OA.A.2','K.OA.A.3','K.OA.A.5'],
+   assessments:[{type:'formative',afterLesson:9,label:'Mid-Unit Assessment'},{type:'summative',afterLesson:19,label:'End-of-Unit Assessment'}],
+   sections:[
+    {id:'A',name:'What Is Addition?',lessons:[{id:1,name:'Joining Groups'},{id:2,name:'Addition Stories'},{id:3,name:'Count On'},{id:4,name:'Write Equations'},{id:5,name:'Add Within 5'},{id:6,name:'Add Within 10'}]},
+    {id:'B',name:'What Is Subtraction?',lessons:[{id:7,name:'Separating Groups'},{id:8,name:'Subtraction Stories'},{id:9,name:'Count Back'},{id:10,name:'Subtraction Equations'},{id:11,name:'Subtract Within 5'},{id:12,name:'Subtract Within 10'}]},
+    {id:'C',name:'Story Problems',lessons:[{id:13,name:'How Many More?',optional:true},{id:14,name:'Both Operations'},{id:15,name:'Choose the Operation'},{id:16,name:'Two-Step Stories'},{id:17,name:'Make Up Your Own'},{id:18,name:'Practice: Stories',optional:true},{id:19,name:'Show What You Know'}]}
+   ]},
+  {id:5,name:'Composing and Decomposing Numbers to 10',short:'Compose/Decompose',days:16,startDay:78,endDay:93,optionalLessons:[4,15],
+   standards:['K.NBT.A.1','K.OA.A.3','K.OA.A.4','K.CC.B.5'],
+   assessments:[{type:'formative',afterLesson:8,label:'Mid-Unit Assessment'},{type:'summative',afterLesson:16,label:'End-of-Unit Assessment'}],
+   sections:[
+    {id:'A',name:'Making Numbers',lessons:[{id:1,name:'Ways to Make 5'},{id:2,name:'Number Bonds to 5'},{id:3,name:'Ways to Make 10'},{id:4,name:'Explore: 10 and More',optional:true},{id:5,name:'Bonds to 10'},{id:6,name:'Decompose Any Number'},{id:7,name:'Equations for Parts'},{id:8,name:'Find the Missing Part'}]},
+    {id:'B',name:'Breaking Apart Numbers',lessons:[{id:9,name:'Teen Numbers: 11-15'},{id:10,name:'Ten and Some More'},{id:11,name:'Teen Numbers: 16-19'},{id:12,name:'Compose Teens'},{id:13,name:'Represent Teens'},{id:14,name:'Decompose Teens'},{id:15,name:'Practice: Composing',optional:true},{id:16,name:'Putting It All Together'}]}
+   ]},
+  {id:6,name:'Numbers 0-20',short:'Numbers 0-20',days:14,startDay:94,endDay:107,optionalLessons:[2,13],
+   standards:['K.CC.A.1','K.CC.A.2','K.CC.A.3','K.CC.B.5','K.CC.C.7'],
+   assessments:[{type:'formative',afterLesson:7,label:'Mid-Unit Assessment'},{type:'summative',afterLesson:14,label:'End-of-Unit Assessment'}],
+   sections:[
+    {id:'A',name:'Numbers 0-10 Revisited',lessons:[{id:1,name:'Zero'},{id:2,name:'Compare: 0 to 10',optional:true},{id:3,name:'Order 0-10'},{id:4,name:'Count to 20'},{id:5,name:'Write to 20'},{id:6,name:'Represent 11-20'}]},
+    {id:'B',name:'Numbers 11-20',lessons:[{id:7,name:'Order 11-20'},{id:8,name:'Compare 11-20'},{id:9,name:'Count Forward & Back'},{id:10,name:'Number Line to 20'},{id:11,name:'Skip Count by 10'},{id:12,name:'One More/Less to 20'},{id:13,name:'Numbers in Real Life',optional:true},{id:14,name:'Show What You Know'}]}
+   ]},
+  {id:7,name:'Solid Shapes All Around Us',short:'Solid Shapes',days:18,startDay:108,endDay:125,optionalLessons:[16],
+   standards:['K.G.A.1','K.G.A.2','K.G.A.3','K.G.B.4','K.G.B.5'],
+   assessments:[{type:'formative',afterLesson:9,label:'Mid-Unit Assessment'},{type:'summative',afterLesson:18,label:'End-of-Unit Assessment'}],
+   sections:[
+    {id:'A',name:'Identifying Solid Shapes',lessons:[{id:1,name:'Solid Shapes Around Us'},{id:2,name:'Cubes & Spheres'},{id:3,name:'Cylinders & Cones'},{id:4,name:'Rectangular Prisms'},{id:5,name:'Name That Solid!'},{id:6,name:'Flat vs. Solid'}]},
+    {id:'B',name:'Describing Solid Shapes',lessons:[{id:7,name:'Faces, Edges & Vertices'},{id:8,name:'Compare Solid Shapes'},{id:9,name:'Sort Solid Shapes'},{id:10,name:'Solid Shapes We See'},{id:11,name:'Describe Position'},{id:12,name:'Shapes in Structures'}]},
+    {id:'C',name:'Solid Shapes in Our World',lessons:[{id:13,name:'Build with Solid Shapes'},{id:14,name:'Rolls? Slides?'},{id:15,name:'Flat & Solid Together'},{id:16,name:'Design a Structure',optional:true},{id:17,name:'Shapes in Environment'},{id:18,name:'Show What You Know'}]}
+   ]},
+  {id:8,name:'Putting It All Together',short:'Putting It All Together',days:23,startDay:126,endDay:148,optionalLessons:[2,4,5,17,18,19],
+   standards:['K.CC.B.5','K.OA.A.5','K.NBT.A.1','K.G.B.4','K.MD.A.2'],
+   assessments:[{type:'formative',afterLesson:12,label:'Synthesis Check'},{type:'summative',afterLesson:23,label:'End-of-Year Assessment'}],
+   sections:[
+    {id:'A',name:'Numbers & Counting',lessons:[{id:1,name:'Count, Compare, Order'},{id:2,name:'Counting Extensions',optional:true},{id:3,name:'Add & Subtract Review'},{id:4,name:'Story Problem Extensions',optional:true},{id:5,name:'Compose/Decompose Review',optional:true},{id:6,name:'Numbers 0-20 Review'}]},
+    {id:'B',name:'Shapes & Measurement',lessons:[{id:7,name:'Flat Shapes Review'},{id:8,name:'Solid Shapes Review'},{id:9,name:'Shapes Together'},{id:10,name:'Measurement Review'},{id:11,name:'Data & Graphs'},{id:12,name:'Math Around Us'},{id:13,name:'Mixed Review: Numbers'},{id:14,name:'Mixed Review: Shapes'}]},
+    {id:'C',name:'All Together Now',lessons:[{id:15,name:'Math Talks: Looking Back'},{id:16,name:'Problem-Solving Challenge'},{id:17,name:'Math in Community',optional:true},{id:18,name:'Creative Projects',optional:true},{id:19,name:'Partner Investigations',optional:true},{id:20,name:'Reflection: What I Learned'},{id:21,name:'End-of-Year Celebration'},{id:22,name:'Math Portfolio'},{id:23,name:'Year-End Showcase'}]}
+   ]}
+];
+
+// ============================================
+// KIDDOM PLATFORM INTEGRATION
+// ============================================
+const KIDDOM_BASE = 'https://app.kiddom.co/curriculum/IM360M.US.GK/node/';
+
+// Map: unitId -> [nodeId, nodeId, ...] in lesson order from Kiddom TOC
+const KIDDOM_LESSON_NODES = {
+  1: ['18510f29-2433-11ef-943e-06b7c2a50971','18510fce-2433-11ef-9488-06b7c2a50971','18511060-2433-11ef-94ce-06b7c2a50971','18511119-2433-11ef-950e-06b7c2a50971','185111f7-2433-11ef-956d-06b7c2a50971','185112f9-2433-11ef-95f7-06b7c2a50971','185113ba-2433-11ef-9661-06b7c2a50971','1851148c-2433-11ef-96ce-06b7c2a50971','18511581-2433-11ef-974e-06b7c2a50971','1851167f-2433-11ef-97d4-06b7c2a50971','18511746-2433-11ef-9844-06b7c2a50971','1851183e-2433-11ef-98ce-06b7c2a50971','1851190c-2433-11ef-993b-06b7c2a50971','185119be-2433-11ef-999f-06b7c2a50971','18511a96-2433-11ef-9a12-06b7c2a50971','18511b40-2433-11ef-9a73-06b7c2a50971','18511c22-2433-11ef-9ae2-06b7c2a50971'],
+  2: ['e4071aac-2410-11ef-96d2-02133630717d','e4071b85-2410-11ef-9745-02133630717d','e4071c5f-2410-11ef-97b6-02133630717d','e4071d1f-2410-11ef-9823-02133630717d','e4071df4-2410-11ef-9893-02133630717d','e4071eb9-2410-11ef-98fc-02133630717d','e4071f90-2410-11ef-996c-02133630717d','e4072069-2410-11ef-99d7-02133630717d','e4072147-2410-11ef-9a50-02133630717d','e4072227-2410-11ef-9acb-02133630717d','e4072366-2410-11ef-9b70-02133630717d','e4072439-2410-11ef-9be4-02133630717d','e407251b-2410-11ef-9c5e-02133630717d','e40726cf-2410-11ef-9d37-02133630717d','e40727e6-2410-11ef-9dca-02133630717d','e4072901-2410-11ef-9e59-02133630717d','e4072a17-2410-11ef-9ee6-02133630717d','e4072b19-2410-11ef-9f6d-02133630717d','e4072ca7-2410-11ef-a03b-02133630717d','e4072d8b-2410-11ef-a0b4-02133630717d','e4072e91-2410-11ef-a13a-02133630717d','e4072fdd-2410-11ef-a1bf-02133630717d','e407314b-2410-11ef-a232-02133630717d','e4073357-2410-11ef-a2be-02133630717d'],
+  3: ['e4073657-2410-11ef-a401-02133630717d','e407382e-2410-11ef-a480-02133630717d','e40739d8-2410-11ef-a523-02133630717d','e4073ab7-2410-11ef-a594-02133630717d','e4073b97-2410-11ef-a60d-02133630717d','e4073c86-2410-11ef-a691-02133630717d','e4073db5-2410-11ef-a723-02133630717d','e4073f47-2410-11ef-a797-02133630717d','e40741f7-2410-11ef-a815-02133630717d','e4074860-2410-11ef-a951-02133630717d','e4074a59-2410-11ef-a9d5-02133630717d','e4074c45-2410-11ef-aa64-02133630717d','e4074e16-2410-11ef-aae5-02133630717d','e4074fc9-2410-11ef-ab68-02133630717d','e407520d-2410-11ef-abdf-02133630717d'],
+  4: ['e4075b7f-2410-11ef-ad5a-02133630717d','e4075e8a-2410-11ef-ade1-02133630717d','e40760bf-2410-11ef-ae7a-02133630717d','e40762e9-2410-11ef-af18-02133630717d','e40764a7-2410-11ef-afa5-02133630717d','e40767a6-2410-11ef-b098-02133630717d','e4076963-2410-11ef-b118-02133630717d','e4076adc-2410-11ef-b19b-02133630717d','e4076cd2-2410-11ef-b222-02133630717d','e4076dec-2410-11ef-b29c-02133630717d','e4076edc-2410-11ef-b318-02133630717d','e4076fc6-2410-11ef-b38d-02133630717d','e40770ae-2410-11ef-b40c-02133630717d','e4077286-2410-11ef-b4ff-02133630717d','e407737b-2410-11ef-b57f-02133630717d','e4077482-2410-11ef-b603-02133630717d','e40775b7-2410-11ef-b67c-02133630717d','e4077737-2410-11ef-b70c-02133630717d'],
+  5: ['e40779fa-2410-11ef-b819-02133630717d','e4077b10-2410-11ef-b895-02133630717d','e4077c56-2410-11ef-b923-02133630717d','e4077d61-2410-11ef-b9a5-02133630717d','e4077f34-2410-11ef-ba86-02133630717d','e407802c-2410-11ef-bb0c-02133630717d','e4078124-2410-11ef-bb90-02133630717d','e407821e-2410-11ef-bc19-02133630717d','e4078347-2410-11ef-bcb6-02133630717d','e4078515-2410-11ef-bd97-02133630717d','e4078617-2410-11ef-be23-02133630717d','e407873f-2410-11ef-bec1-02133630717d','e4078851-2410-11ef-bf5f-02133630717d','e4078960-2410-11ef-bfea-02133630717d','e4078a4b-2410-11ef-806a-02133630717d'],
+  6: ['e4078ce0-2410-11ef-81c8-02133630717d','e4078dc1-2410-11ef-823d-02133630717d','e4078edf-2410-11ef-82cd-02133630717d','e4078fd3-2410-11ef-834f-02133630717d','e4079107-2410-11ef-83f9-02133630717d','e4079265-2410-11ef-84b8-02133630717d','e4079405-2410-11ef-854c-02133630717d','e40794fb-2410-11ef-85c3-02133630717d','e40796db-2410-11ef-8653-02133630717d','e4079889-2410-11ef-86c7-02133630717d','e4079bfc-2410-11ef-87f0-02133630717d','e4079d50-2410-11ef-88a0-02133630717d','e4079ed4-2410-11ef-8974-02133630717d'],
+  7: ['e407a103-2410-11ef-8a9f-02133630717d','e407a224-2410-11ef-8b31-02133630717d','e407a317-2410-11ef-8bac-02133630717d','e407a40c-2410-11ef-8c2c-02133630717d','e407a4fb-2410-11ef-8cac-02133630717d','e407a5f9-2410-11ef-8d37-02133630717d','e407a813-2410-11ef-8e64-02133630717d','e407a8fb-2410-11ef-8ee2-02133630717d','e407a9d0-2410-11ef-8f5a-02133630717d','e407aaa4-2410-11ef-8fce-02133630717d','e407ab98-2410-11ef-9059-02133630717d','e407ac84-2410-11ef-90da-02133630717d','e407ad4c-2410-11ef-9147-02133630717d','e407ae21-2410-11ef-91ba-02133630717d','e407afaa-2410-11ef-9259-02133630717d','e407b0e2-2410-11ef-92ee-02133630717d'],
+  8: ['e407b306-2410-11ef-940c-02133630717d','e407b3fc-2410-11ef-9490-02133630717d','e407b505-2410-11ef-9525-02133630717d','e407b60a-2410-11ef-95b5-02133630717d','e407b72d-2410-11ef-9652-02133630717d','e407b835-2410-11ef-96e0-02133630717d','e407b925-2410-11ef-975d-02133630717d','e407ba13-2410-11ef-97d9-02133630717d','e407bade-2410-11ef-984a-02133630717d','e407bbab-2410-11ef-98b9-02133630717d','e407bcaf-2410-11ef-9934-02133630717d','e407bdb0-2410-11ef-99b2-02133630717d','e407bea8-2410-11ef-9a2a-02133630717d','e407bfa3-2410-11ef-9ab0-02133630717d','e407c089-2410-11ef-9b2c-02133630717d','e407c19a-2410-11ef-9bc4-02133630717d','e407c298-2410-11ef-9c55-02133630717d','e407c376-2410-11ef-9cca-02133630717d','e407c493-2410-11ef-9d6f-02133630717d','e407c5d0-2410-11ef-9e1f-02133630717d','e407c6ff-2410-11ef-9ec1-02133630717d']
+};
+
+// Assessment node IDs (End-of-Unit)
+const KIDDOM_ASSESS_NODES = {
+  1: {end: '18511cbf-2433-11ef-9b2f-06b7c2a50971'},
+  3: {end: 'e407577f-2410-11ef-acac-02133630717d'},
+  4: {end: 'e4077888-2410-11ef-b79c-02133630717d'},
+  5: {end: 'e4078c01-2410-11ef-814a-02133630717d'},
+  6: {end: 'e4079fec-2410-11ef-8a0a-02133630717d'},
+  8: {end: 'e407c821-2410-11ef-9f62-02133630717d'}
+};
+
+function getKiddomLessonUrl(unitId, lessonId) {
+  const nodes = KIDDOM_LESSON_NODES[unitId];
+  if (nodes && lessonId >= 1 && lessonId <= nodes.length) {
+    return KIDDOM_BASE + nodes[lessonId - 1];
+  }
+  return null;
+}
+
+function getKiddomAssessUrl(unitId, type) {
+  const a = KIDDOM_ASSESS_NODES[unitId];
+  if (a && a[type]) return KIDDOM_BASE + a[type];
+  return null;
+}
+
+function openInKiddom(unitId, lessonId) {
+  const url = getKiddomLessonUrl(unitId, lessonId);
+  if (url) window.open(url, '_blank');
+}
+
+function openAssessInKiddom(unitId, type) {
+  const url = getKiddomAssessUrl(unitId, type);
+  if (url) window.open(url, '_blank');
+}
+
+// Total instructional days per unit = lesson days + assessment days (each assessment = 1 day)
+function unitTotalDays(unit) { return unit.days + unit.assessments.length; }
+
+// ============================================
+// SETUP STATE (must be before scheduling engine)
+// ============================================
+let yearStartDate = new Date(2025, 7, 12); // Aug 12, 2025
+let holidays = new Set(); // Store as 'YYYY-MM-DD' strings
+
+function dateToKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function formatDateDisplay(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+// Base total (no holidays removed)
+const BASE_TOTAL_DAYS = UNITS.reduce((sum, u) => sum + unitTotalDays(u), 0);
+
+// ============================================
+// CALENDAR SCHEDULING ENGINE
+// ============================================
+// Walks real calendar days from yearStartDate, skipping weekends + holidays,
+// and maps each unit to actual calendar date ranges + week milestones.
+
+function buildSchedule() {
+  const schedule = []; // one entry per unit: { unit, startDate, endDate, calendarWeeks, instrDays }
+  let cursor = new Date(yearStartDate);
+  let totalInstrDays = 0;
+
+  for (const unit of UNITS) {
+    const needed = unitTotalDays(unit);
+    let instrCount = 0;
+    const unitStartDate = new Date(cursor);
+
+    while (instrCount < needed) {
+      const dow = cursor.getDay();
+      const key = dateToKey(cursor);
+      if (dow !== 0 && dow !== 6 && !holidays.has(key)) {
+        instrCount++;
+        totalInstrDays++;
+      }
+      if (instrCount < needed) {
+        cursor.setDate(cursor.getDate() + 1);
+      }
+    }
+    const unitEndDate = new Date(cursor);
+
+    // Calendar weeks from year start to this unit's end
+    const msFromStart = unitEndDate.getTime() - yearStartDate.getTime();
+    const calWeeks = Math.round(msFromStart / (7 * 24 * 60 * 60 * 1000)) + 1;
+
+    schedule.push({
+      unit,
+      startDate: unitStartDate,
+      endDate: unitEndDate,
+      calendarWeeks: calWeeks,
+      instrDays: needed
+    });
+
+    // Move cursor to next day for the next unit
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return { schedule, totalInstrDays };
+}
+
+// Compute how many instructional days have passed as of "today"
+function computeCurrentDay() {
+  const today = new Date(2026, 2, 24); // Simulated today: Mar 24, 2026
+  let cursor = new Date(yearStartDate);
+  let instrCount = 0;
+
+  while (cursor <= today) {
+    const dow = cursor.getDay();
+    const key = dateToKey(cursor);
+    if (dow !== 0 && dow !== 6 && !holidays.has(key)) {
+      instrCount++;
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return instrCount;
+}
+
+function getTotalDays() {
+  return buildSchedule().totalInstrDays;
+}
+
+function getCurrentDay() {
+  return computeCurrentDay();
+}
+
+function buildStandardLessonMap(unit) {
+  const allLessons = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allLessons.push(l.id); }));
+  const map = {};
+  const stds = unit.standards;
+  stds.forEach((std, i) => {
+    const chunkSize = Math.ceil(allLessons.length / stds.length);
+    const start = i * chunkSize;
+    map[std] = allLessons.slice(start, start + chunkSize);
+  });
+  return map;
+}
+
+// ============================================
+// STATE
+// ============================================
+let state = {
+  view: 'year',
+  unitId: null,
+  lessonId: null,
+  heroTab: 1,
+  aiPanelOpen: false,
+  aiScenario: null,
+  completed: {},
+  perfSlider: 50
+};
+
+function getCompleted(unitId) {
+  if (!state.completed[unitId]) state.completed[unitId] = new Set();
+  return state.completed[unitId];
+}
+
+function toggleComplete(unitId, lessonId) {
+  const s = getCompleted(unitId);
+  if (s.has(lessonId)) s.delete(lessonId);
+  else s.add(lessonId);
+  render();
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
+function goYear() { state.view='year'; state.unitId=null; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; render(); }
+function goUnit(id) { state.view='unit'; state.unitId=id; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; render(); }
+function switchHero(tab) { state.heroTab=tab; render(); }
+function goLesson(unitId, lessonId) { state.view='lesson'; state.unitId=unitId; state.lessonId=lessonId; state.aiPanelOpen=false; state.aiScenario=null; render(); }
+
+// ============================================
+// RENDER
+// ============================================
+function render() {
+  // Update header day count
+  const totalD = getTotalDays();
+  const currentD = getCurrentDay();
+  document.getElementById('headerDay').textContent = `Day ${currentD} of ${totalD}`;
+
+  const app = document.getElementById('app');
+  const bc = document.getElementById('breadcrumb');
+  if (state.view === 'year') {
+    bc.innerHTML = '<span class="current">Kindergarten Year Overview</span>';
+    app.innerHTML = renderYearView();
+  } else if (state.view === 'unit') {
+    const u = UNITS.find(x => x.id === state.unitId);
+    bc.innerHTML = `<a onclick="goYear()">Year Overview</a><span class="sep">/</span><span class="current">Unit ${u.id}: ${u.name}</span>`;
+    app.innerHTML = renderUnitView(u) + renderAdjustPacingBtn();
+    if (state.aiPanelOpen) app.innerHTML += renderAIPanel(u);
+  } else if (state.view === 'lesson') {
+    const u = UNITS.find(x => x.id === state.unitId);
+    let lesson = null, section = null;
+    u.sections.forEach(s => s.lessons.forEach(l => { if (l.id === state.lessonId) { lesson = l; section = s; } }));
+    bc.innerHTML = `<a onclick="goYear()">Year Overview</a><span class="sep">/</span><a onclick="goUnit(${u.id})">Unit ${u.id}: ${u.short}</a><span class="sep">/</span><span class="current">Lesson ${lesson.id}</span>`;
+    app.innerHTML = renderLessonView(u, section, lesson);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ============================================
+// YEAR VIEW
+// ============================================
+function renderYearView() {
+  const { schedule, totalInstrDays } = buildSchedule();
+  const holidayNote = holidays.size > 0 ? ` &middot; ${holidays.size} holiday${holidays.size !== 1 ? 's' : ''}` : '';
+
+  let html = `<div class="year-view">
+    <h1 class="year-title">Kindergarten</h1>
+    <p class="year-subtitle">IM v.360 Math &middot; ${totalInstrDays} instructional days &middot; 8 units${holidayNote}</p>
+    <div class="timeline-wrapper">
+      <div class="timeline">`;
+
+  schedule.forEach(s => {
+    const td = s.instrDays;
+    html += `<div class="timeline-unit" style="flex:${td}" onclick="goUnit(${s.unit.id})">
+      <span class="unit-num">Unit ${s.unit.id}</span>
+      <span class="unit-short">${s.unit.short}</span>
+      <span class="unit-days">${td} days</span>
+    </div>`;
+  });
+
+  html += `</div><div class="day-ruler">`;
+  schedule.forEach(s => {
+    html += `<div class="day-ruler-seg" style="flex:${s.instrDays}">Week ${s.calendarWeeks}</div>`;
+  });
+  html += `</div></div>`;
+
+  // Curriculum Overview + Pacing Intelligence (from v2)
+  html += `<div class="overview-panel">
+    <div>
+      <div class="overview-lbl">Curriculum Overview</div>`;
+  UNITS.forEach(u => {
+    html += `<div class="overview-row">
+      <div class="overview-dot"></div>
+      <div class="overview-name">Unit ${u.id}: ${u.name}</div>
+      <div class="overview-meta">${unitTotalDays(u)} days &middot; ${u.optionalLessons.length} optional &middot; ${u.assessments.length} assessments</div>
+    </div>`;
+  });
+  html += `</div>
+    <div class="pacing-intel">
+      <div class="pacing-intel-title">Pacing Intelligence</div>
+      <ul class="pacing-intel-list">
+        <li>Units 2 and 8 have the most flex (3 and 6 optional lessons). Recover days there first.</li>
+        <li>Unit 6 is the tightest unit at 14 days with only 2 optional lessons.</li>
+        <li>18 total optional lessons across the curriculum provide built-in flexibility.</li>
+        <li>Each unit includes a mid-unit formative check and an end-of-unit summative assessment.</li>
+      </ul>
+    </div>
+  </div>`;
+
+  html += `</div>`;
+  return html;
+}
+
+// ============================================
+// UNIT VIEW
+// ============================================
+function renderUnitView(unit) {
+  const prevUnit = UNITS.find(u => u.id === unit.id - 1);
+  const nextUnit = UNITS.find(u => u.id === unit.id + 1);
+  const completed = getCompleted(unit.id);
+
+  const allNonOptional = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l.id); }));
+  const completedNonOpt = allNonOptional.filter(id => completed.has(id)).length;
+  const readinessPct = allNonOptional.length > 0 ? Math.round(completedNonOpt / allNonOptional.length * 100) : 0;
+
+  const stdMap = buildStandardLessonMap(unit);
+
+  let html = `<div class="unit-view">`;
+
+  // Peek navigation
+  html += `<div class="peek-nav">`;
+  if (prevUnit) {
+    html += `<div class="peek-block" onclick="goUnit(${prevUnit.id})">
+      <span style="font-size:18px">&larr;</span>
+      <div><div class="peek-label">Unit ${prevUnit.id}</div><div class="peek-name">${prevUnit.short}</div></div>
+    </div>`;
+  } else {
+    html += `<div class="peek-placeholder"></div>`;
+  }
+  if (nextUnit) {
+    html += `<div class="peek-block" onclick="goUnit(${nextUnit.id})" style="flex-direction:row-reverse;text-align:right">
+      <span style="font-size:18px">&rarr;</span>
+      <div><div class="peek-label">Unit ${nextUnit.id}</div><div class="peek-name">${nextUnit.short}</div></div>
+    </div>`;
+  } else {
+    html += `<div class="peek-placeholder"></div>`;
+  }
+  html += `</div>`;
+
+  // Hero tabs
+  const t = state.heroTab;
+  html += `<div class="hero-tabs">
+    <button class="hero-tab${t===1?' active':''}" onclick="switchHero(1)">Hero 1<span class="hero-tab-label">Ring + Standards</span></button>
+    <button class="hero-tab${t===2?' active':''}" onclick="switchHero(2)">Hero 2<span class="hero-tab-label">Bar Chart</span></button>
+    <button class="hero-tab${t===3?' active':''}" onclick="switchHero(3)">Hero 3<span class="hero-tab-label">Checklist</span></button>
+  </div>`;
+
+  // Shared data
+  const ringR = 50, ringC = 2 * Math.PI * ringR;
+  const ringOffset = ringC - (readinessPct / 100) * ringC;
+
+  // Build per-standard coverage data
+  const stdData = unit.standards.map(std => {
+    const requiredLessons = stdMap[std] || [];
+    const coveredCount = requiredLessons.filter(id => completed.has(id)).length;
+    const isCovered = coveredCount === requiredLessons.length && requiredLessons.length > 0;
+    const pct = requiredLessons.length > 0 ? Math.round(coveredCount / requiredLessons.length * 100) : 0;
+    return { std, requiredLessons, coveredCount, isCovered, pct };
+  });
+
+  if (t === 1) {
+    // HERO 1: Ring + standard pills (original)
+    html += `<div class="hero-dashboard">
+      <div class="hero-layout-row">
+        <div class="hero-left">
+          <div class="hero-label">Assessment Readiness</div>
+          <div class="progress-ring">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle class="ring-bg" cx="60" cy="60" r="${ringR}"/>
+              <circle class="ring-fg" cx="60" cy="60" r="${ringR}"
+                stroke-dasharray="${ringC}" stroke-dashoffset="${ringOffset}"/>
+            </svg>
+            <div class="progress-pct">${readinessPct}%</div>
+          </div>
+          <div class="hero-unit-label">Unit ${unit.id} Assessment</div>
+        </div>
+        <div class="hero-right">
+          <h3>Your students are ready for ${readinessPct}% of Unit ${unit.id} assessment topics</h3>
+          <p style="font-size:13px;color:var(--mid);margin-bottom:12px">${completedNonOpt} of ${allNonOptional.length} required lessons completed</p>
+          <div style="font-size:12px;font-weight:600;color:var(--mid);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Standards Coverage</div>
+          <div class="gap-grid">`;
+    stdData.forEach(d => {
+      html += `<span class="standard-pill ${d.isCovered ? 'covered' : 'uncovered'}" title="Covered by lessons ${d.requiredLessons.join(', ')}">${d.std}</span>`;
+    });
+    html += `</div>
+          <div class="hero-footer">Standards are marked once all associated lessons are completed.</div>
+        </div>
+      </div>
+    </div>`;
+
+  } else if (t === 2) {
+    // HERO 2: Per-standard horizontal bar chart
+    html += `<div class="hero-dashboard">
+      <div style="width:100%">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px">Assessment Readiness: Unit ${unit.id}</h3>
+        <p style="font-size:13px;color:var(--mid);margin-bottom:4px">${completedNonOpt} of ${allNonOptional.length} required lessons completed (${readinessPct}% overall)</p>
+        <div style="font-size:12px;font-weight:600;color:var(--mid);margin-bottom:4px;margin-top:16px;text-transform:uppercase;letter-spacing:.4px">Coverage by Standard</div>
+        <div class="bar-chart">`;
+    stdData.forEach(d => {
+      html += `<div class="bar-row">
+        <div class="bar-label">${d.std}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${d.pct}%"></div></div>
+        <div class="bar-value">${d.pct}%</div>
+      </div>`;
+    });
+    html += `</div>
+        <div class="hero-footer">Each bar shows the percentage of required lessons completed for that standard.</div>
+      </div>
+    </div>`;
+
+  } else {
+    // HERO 3: Checklist with per-standard status
+    const coveredCount = stdData.filter(d => d.isCovered).length;
+    const gapCount = stdData.length - coveredCount;
+    html += `<div class="hero-dashboard">
+      <div style="width:100%">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px">Assessment Readiness: Unit ${unit.id}</h3>
+        <p style="font-size:13px;color:var(--mid);margin-bottom:4px">${coveredCount} of ${stdData.length} standards covered, ${gapCount} gap${gapCount !== 1 ? 's' : ''} remaining</p>
+        <ul class="checklist">`;
+    stdData.forEach(d => {
+      const lessonsNeeded = d.requiredLessons.length - d.coveredCount;
+      html += `<li class="checklist-item">
+        <div class="checklist-box${d.isCovered ? ' checked' : ''}"></div>
+        <div class="checklist-text">
+          <div class="checklist-std">${d.std}</div>
+          <div class="checklist-detail">${d.isCovered ? 'All ' + d.requiredLessons.length + ' lessons completed' : lessonsNeeded + ' lesson' + (lessonsNeeded !== 1 ? 's' : '') + ' remaining (lessons ' + d.requiredLessons.filter(id => !completed.has(id)).join(', ') + ')'}</div>
+        </div>
+        <div class="checklist-status" style="color:${d.isCovered ? 'var(--black)' : 'var(--light)'}">${d.pct}%</div>
+      </li>`;
+    });
+    html += `</ul>
+        <div class="hero-footer">Complete the remaining lessons to close gaps before the unit assessment.</div>
+      </div>
+    </div>`;
+  }
+
+  // Sections and lesson cards (assessments as standalone blocks)
+  unit.sections.forEach(section => {
+    html += `<div class="section-group">
+      <div class="section-header">
+        <div class="section-letter">Section ${section.id}:</div>
+        <div class="section-name">${section.name}</div>
+      </div>
+      <div class="lessons-grid">`;
+    section.lessons.forEach(lesson => {
+      const isOpt = lesson.optional;
+      const isCompleted = completed.has(lesson.id);
+      let cls = 'lesson-card';
+      if (isOpt) cls += ' optional';
+      if (isCompleted) cls += ' completed';
+      html += `<div class="${cls}" onclick="goLesson(${unit.id},${lesson.id})">
+        <div class="lesson-num">Lesson ${lesson.id}</div>
+        <div class="lesson-name">${lesson.name}</div>`;
+      if (isOpt) html += `<span class="opt-badge">Optional</span>`;
+      html += `</div>`;
+
+      // Insert assessment as its own block after the relevant lesson
+      const assess = unit.assessments.find(a => a.afterLesson === lesson.id);
+      if (assess) {
+        html += `<div class="assess-block ${assess.type}">
+          <div class="assess-type">${assess.type === 'summative' ? 'Summative' : 'Formative'}</div>
+          <div class="assess-name">${assess.label}</div>
+        </div>`;
+      }
+    });
+    html += `</div></div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+// ============================================
+// ADJUST PACING BUTTON + AI PANEL
+// ============================================
+function renderAdjustPacingBtn() {
+  return `<button class="adjust-pacing-btn" onclick="openAIPanel()">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    Adjust Pacing
+  </button>`;
+}
+
+function openAIPanel() { state.aiPanelOpen = true; state.perfSlider = state.perfSlider || 50; render(); }
+function closeAIPanel() { state.aiPanelOpen = false; render(); }
+
+function onPerfSlider(val) {
+  state.perfSlider = parseInt(val);
+  const desc = document.getElementById('perfSliderDesc');
+  const stepsEl = document.getElementById('aiPlanSteps');
+  const impactEl = document.getElementById('aiPlanImpact');
+  if (desc) desc.textContent = getPerfDescription(state.perfSlider);
+  // Re-render plan steps based on slider
+  const unit = UNITS.find(x => x.id === state.unitId);
+  if (unit && stepsEl && impactEl) {
+    const plan = buildPacingPlan(unit, state.perfSlider);
+    stepsEl.innerHTML = plan.stepsHtml;
+    impactEl.innerHTML = plan.impactHtml;
+  }
+}
+
+function getPerfDescription(val) {
+  if (val <= 20) return 'Significantly behind. The plan will aggressively compress by skipping optional content and combining lessons to maximize recovery time.';
+  if (val <= 40) return 'Somewhat behind. The plan will skip optional lessons and suggest combining a few sessions to get back on track.';
+  if (val <= 60) return 'On track. Current pacing is appropriate. The plan focuses on maintaining momentum and preparing for the assessment.';
+  if (val <= 80) return 'Slightly ahead. The plan adds review and enrichment days to deepen understanding before the assessment.';
+  return 'Well ahead. The plan adds reteach opportunities, optional enrichment lessons, and extra assessment prep time.';
+}
+
+function buildPacingPlan(unit, perfVal) {
+  const completed = getCompleted(unit.id);
+  const allNonOptional = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l); }));
+  const completedNonOpt = allNonOptional.filter(l => completed.has(l.id)).length;
+  const remaining = allNonOptional.filter(l => !completed.has(l.id));
+
+  const steps = [];
+  let daysRecovered = 0;
+
+  if (perfVal <= 40) {
+    // Behind: aggressive compression
+    if (unit.optionalLessons.length > 0) {
+      steps.push({
+        title: `Skip optional lessons (${unit.optionalLessons.join(', ')})`,
+        detail: `These lessons reinforce concepts but are not required for assessment coverage. Recovers ${unit.optionalLessons.length} day(s).`,
+        tag: 'skip', tagClass: 'tag-skip'
+      });
+      daysRecovered += unit.optionalLessons.length;
+    }
+    if (remaining.length >= 4) {
+      const pairs = perfVal <= 20 ? 3 : 2;
+      steps.push({
+        title: `Combine ${pairs} lesson pairs that share objectives`,
+        detail: `Lessons covering the same standard can be taught in a single extended session. Recovers ${pairs} days.`,
+        tag: 'combine', tagClass: 'tag-combine'
+      });
+      daysRecovered += pairs;
+    }
+    if (perfVal <= 20) {
+      steps.push({
+        title: 'Shorten warm-ups to 5 minutes for remaining lessons',
+        detail: 'Reduce warm-up activities to quick number talks, freeing time within each lesson for core instruction.',
+        tag: 'compress', tagClass: 'tag-skip'
+      });
+    }
+    const priorityLessons = remaining.slice(0, 3);
+    if (priorityLessons.length > 0) {
+      steps.push({
+        title: `Prioritize lessons that directly map to assessed standards`,
+        detail: `${priorityLessons.map(l => 'Lesson ' + l.id).join(', ')} cover the highest-weight standards on the end-of-unit assessment.`,
+        tag: 'keep', tagClass: 'tag-keep'
+      });
+    }
+  } else if (perfVal <= 60) {
+    // On track: maintain pace
+    steps.push({
+      title: 'Continue current pacing',
+      detail: `Your class is on track. ${completedNonOpt} of ${allNonOptional.length} required lessons completed with adequate time remaining.`,
+      tag: 'keep', tagClass: 'tag-keep'
+    });
+    if (unit.optionalLessons.length > 0) {
+      steps.push({
+        title: `Include optional lessons if time allows (${unit.optionalLessons.join(', ')})`,
+        detail: 'These provide additional practice and reinforce understanding for students who need it.',
+        tag: 'optional', tagClass: 'tag-review'
+      });
+    }
+  } else {
+    // Ahead: enrich and deepen
+    steps.push({
+      title: 'Teach all lessons including optional content',
+      detail: `With extra time available, include optional lessons (${unit.optionalLessons.join(', ')}) to give students additional practice.`,
+      tag: 'enrich', tagClass: 'tag-keep'
+    });
+    steps.push({
+      title: 'Add a reteach day for challenging standards',
+      detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} with small-group targeted instruction for students who need reinforcement.`,
+      tag: 'reteach', tagClass: 'tag-review'
+    });
+    if (perfVal > 80) {
+      steps.push({
+        title: 'Add enrichment activities for advanced students',
+        detail: 'Extend lessons with problem-solving challenges and peer teaching opportunities.',
+        tag: 'enrich', tagClass: 'tag-combine'
+      });
+    }
+  }
+
+  // Always add assessment prep
+  steps.push({
+    title: 'Structured review session before the assessment',
+    detail: `Dedicate one day to revisiting ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
+    tag: 'review', tagClass: 'tag-review'
+  });
+
+  let stepsHtml = '';
+  steps.forEach((s, i) => {
+    stepsHtml += `<div class="ai-plan-step">
+      <div class="step-num">${i + 1}</div>
+      <div class="step-body">
+        <div class="step-title">${s.title}</div>
+        <div class="step-detail">${s.detail}</div>
+        <span class="step-tag ${s.tagClass}">${s.tag}</span>
+      </div>
+    </div>`;
+  });
+
+  const lessonsAfterPlan = remaining.length - (perfVal <= 40 && remaining.length >= 4 ? (perfVal <= 20 ? 3 : 2) : 0);
+
+  let impactHtml = `
+    <div class="impact-item">
+      <div class="impact-num">${daysRecovered}</div>
+      <div class="impact-label">Days recovered</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-num">${lessonsAfterPlan}</div>
+      <div class="impact-label">Lessons remaining</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-num">${unit.standards.length}</div>
+      <div class="impact-label">Standards covered</div>
+    </div>`;
+
+  return { stepsHtml, impactHtml, daysRecovered };
+}
+
+function renderAIPanel(unit) {
+  const completed = getCompleted(unit.id);
+  const allNonOptional = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l); }));
+  const completedNonOpt = allNonOptional.filter(l => completed.has(l.id)).length;
+  const totalDays = unitTotalDays(unit);
+
+  const perfVal = state.perfSlider || 50;
+  const plan = buildPacingPlan(unit, perfVal);
+
+  let html = `<div class="ai-overlay" onclick="if(event.target===this)closeAIPanel()">
+    <div class="ai-panel">
+      <div class="ai-panel-header">
+        <h2>Adjust Pacing: Unit ${unit.id}</h2>
+        <button class="ai-close" onclick="closeAIPanel()">&times;</button>
+      </div>
+      <div class="ai-panel-body">
+
+        <div class="perf-slider-section">
+          <div class="perf-slider-label">Where is your class relative to grade-level expectations?</div>
+          <div class="perf-slider-wrap">
+            <div class="perf-slider-track">
+              <span class="track-label">Behind</span>
+              <input type="range" min="0" max="100" value="${perfVal}" oninput="onPerfSlider(this.value)">
+              <span class="track-label">Ahead</span>
+            </div>
+          </div>
+          <div class="perf-slider-desc" id="perfSliderDesc">${getPerfDescription(perfVal)}</div>
+        </div>
+
+        <div style="font-size:12px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px">Suggested Plan</div>
+
+        <div id="aiPlanSteps" style="margin-bottom:16px">${plan.stepsHtml}</div>
+
+        <div class="ai-plan-impact" id="aiPlanImpact">${plan.impactHtml}</div>
+
+        <div class="ai-plan-actions">
+          <button class="btn-confirm" onclick="confirmPlan(${unit.id})">Confirm Plan</button>
+          <button class="btn-adjust" onclick="adjustPlan(${unit.id})">Adjust Plan</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function confirmPlan(unitId) {
+  closeAIPanel();
+}
+function adjustPlan(unitId) {
+  const steps = document.querySelectorAll('.ai-plan-step');
+  steps.forEach(s => { s.style.cursor = 'pointer'; s.title = 'Click to modify this step'; });
+}
+
+// ============================================
+// LESSON VIEW
+// ============================================
+function renderLessonView(unit, section, lesson) {
+  const completed = getCompleted(unit.id);
+  const isCompleted = completed.has(lesson.id);
+  const assess = unit.assessments.find(a => a.afterLesson === lesson.id);
+  const stdMap = buildStandardLessonMap(unit);
+  const lessonStds = unit.standards.filter(std => (stdMap[std]||[]).includes(lesson.id));
+  const displayStds = lessonStds.length > 0 ? lessonStds : unit.standards.slice(0, 3);
+  const kiddomUrl = getKiddomLessonUrl(unit.id, lesson.id);
+
+  // Prev/next lesson navigation
+  const allLessons = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => allLessons.push(l)));
+  const idx = allLessons.findIndex(l => l.id === lesson.id);
+  const prev = idx > 0 ? allLessons[idx-1] : null;
+  const next = idx < allLessons.length - 1 ? allLessons[idx+1] : null;
+
+  // Activity sequence data
+  const activities = [
+    {type:'warmup', headerCls:'warmup', label:'Warm-Up', time:'10 min',
+     title:'True or False?',
+     desc:'Teacher displays an equation or statement. Students vote and explain their reasoning.',
+     stds: displayStds.slice(0,1), assessed: false,
+     grouping: 'Whole class',
+     transitionNote: 'Form groups of 3-4. Distribute manipulatives to each group.'},
+    {type:'activity', headerCls:'activity', label:'Activity', time:'25 min',
+     title:'Sorting Activity',
+     desc:'Students sort cards or objects by a key attribute. Groups share and compare sorting decisions.',
+     stds: displayStds.slice(0,2), assessed: false,
+     grouping: 'Groups of 3-4',
+     transitionNote: 'Return to whole class. Collect manipulatives. Students get journals for cool-down.'},
+    {type:'cooldown', headerCls:'cooldown', label:'Cool-Down', time:'5 min',
+     title:'Quick Write',
+     desc:'Students write or draw one thing they learned and one question they still have.',
+     stds: [], assessed: true,
+     grouping: 'Individual'}
+  ];
+
+  // I Can Statements (generated from lesson context)
+  const iCanStatements = [
+    'I can represent this idea in two different ways',
+    'I can explain my thinking to a partner',
+    'I can check my work'
+  ];
+
+  // Materials
+  const materials = ['Counters (two-color)', 'Pattern blocks', 'Whiteboards and markers', 'Math journals'];
+
+  let html = `<div class="lesson-view"><div class="lesson-layout">`;
+
+  // ---- MAIN COLUMN ----
+  html += `<div class="lesson-main">`;
+
+  // Prev/Next nav at top
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">`;
+  if (prev) {
+    html += `<div onclick="goLesson(${unit.id},${prev.id})" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      <span style="font-size:16px">&larr;</span>
+      <div><div style="font-size:11px;color:var(--mid)">Previous</div><div style="font-size:13px;font-weight:600">Lesson ${prev.id}: ${prev.name}</div></div>
+    </div>`;
+  } else {
+    html += `<div></div>`;
+  }
+  if (next) {
+    html += `<div onclick="goLesson(${unit.id},${next.id})" style="cursor:pointer;display:flex;align-items:center;gap:8px;text-align:right">
+      <div><div style="font-size:11px;color:var(--mid)">Next</div><div style="font-size:13px;font-weight:600">Lesson ${next.id}: ${next.name}</div></div>
+      <span style="font-size:16px">&rarr;</span>
+    </div>`;
+  } else {
+    html += `<div></div>`;
+  }
+  html += `</div>`;
+
+  // Lesson header
+  html += `<div class="lesson-header">
+    <div class="lesson-header-text">
+      <h2>Lesson ${lesson.id}: ${lesson.name}</h2>
+      <div class="lesson-subtitle">Unit ${unit.id} &middot; 40 min total${lesson.optional ? ' &middot; Optional' : ''}</div>
+    </div>
+  </div>`;
+
+  // Description
+  html += `<div class="lesson-desc">Students practice ${lesson.name.toLowerCase()} using multiple representations and explain their thinking to a partner.</div>`;
+
+  // Activity Sequence
+  html += `<div class="activity-seq-label">Activity Sequence</div>`;
+  html += `<div class="activity-seq">`;
+  activities.forEach((a, i) => {
+    html += `<div class="activity-card">
+      <div class="activity-card-header ${a.headerCls}">
+        <span>${a.label}</span><span>${a.time}</span>
+      </div>
+      <div class="activity-card-body">
+        <h4>${a.title}</h4>
+        <p>${a.desc}</p>
+        <div class="activity-card-tags">`;
+    a.stds.forEach(s => { html += `<span class="atag">${s}</span>`; });
+    if (a.assessed) html += `<span class="atag atag-assessed">Assessed</span>`;
+    html += `</div>
+        <div style="font-size:11px;color:var(--mid);margin-top:8px;display:flex;align-items:center;gap:4px">
+          <span style="font-weight:600">${a.grouping}</span>
+        </div>
+      </div></div>`;
+    if (i < activities.length - 1) {
+      html += `<div class="activity-arrow" title="${activities[i].transitionNote || ''}">&rarr;</div>`;
+    }
+  });
+  html += `</div>`;
+
+  // Assessment notice
+  if (assess) {
+    html += `<div style="margin-top:24px;padding:14px 18px;border-radius:var(--radius);background:#F0F0F0;font-size:13px;font-weight:600;color:var(--black);border:1px solid var(--border)">
+      ${assess.label} follows this lesson
+    </div>`;
+  }
+
+  // Prev/Next navigation
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">`;
+  if (prev) {
+    html += `<div onclick="goLesson(${unit.id},${prev.id})" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      <span style="font-size:16px">&larr;</span>
+      <div><div style="font-size:11px;color:var(--mid)">Previous</div><div style="font-size:13px;font-weight:600">Lesson ${prev.id}: ${prev.name}</div></div>
+    </div>`;
+  } else {
+    html += `<div></div>`;
+  }
+  if (next) {
+    html += `<div onclick="goLesson(${unit.id},${next.id})" style="cursor:pointer;display:flex;align-items:center;gap:8px;text-align:right">
+      <div><div style="font-size:11px;color:var(--mid)">Next</div><div style="font-size:13px;font-weight:600">Lesson ${next.id}: ${next.name}</div></div>
+      <span style="font-size:16px">&rarr;</span>
+    </div>`;
+  } else {
+    html += `<div></div>`;
+  }
+  html += `</div>`;
+
+  html += `</div>`; // end lesson-main
+
+  // ---- SIDEBAR ----
+  html += `<div class="lesson-sidebar">`;
+  html += `<div class="sidebar-title">Lesson ${lesson.id}: ${lesson.name}</div>`;
+  html += `<div class="sidebar-subtitle">Unit ${unit.id} &middot; 40 min total</div>`;
+
+  // Learning Goal
+  html += `<div class="sidebar-section">
+    <div class="sidebar-section-label">Learning Goal</div>
+    <p>Students practice ${lesson.name.toLowerCase()} using multiple representations and explain their thinking to a partner.</p>
+  </div>`;
+
+  // I Can Statements
+  html += `<div class="sidebar-section">
+    <div class="sidebar-section-label">I Can Statements</div>`;
+  iCanStatements.forEach(s => {
+    html += `<div class="sidebar-ican">${s}</div>`;
+  });
+  html += `</div>`;
+
+  // Standards
+  html += `<div class="sidebar-section">
+    <div class="sidebar-section-label">Standards</div>
+    <div class="sidebar-std-tags">`;
+  displayStds.forEach(s => { html += `<span class="sidebar-std-tag">${s}</span>`; });
+  html += `</div></div>`;
+
+  // Materials
+  html += `<div class="sidebar-section">
+    <div class="sidebar-section-label">Materials</div>
+    <ul>`;
+  materials.forEach(m => { html += `<li>${m}</li>`; });
+  html += `</ul></div>`;
+
+  // Grouping sequence
+  html += `<div class="sidebar-section">
+    <div class="sidebar-section-label">Grouping</div>
+    <ul>`;
+  activities.forEach((a, i) => {
+    html += `<li><strong>${a.label}:</strong> ${a.grouping}</li>`;
+    if (a.transitionNote && i < activities.length - 1) {
+      html += `<li style="font-size:11px;color:var(--mid);font-style:italic;padding:1px 0">${a.transitionNote}</li>`;
+    }
+  });
+  html += `</ul></div>`;
+
+  // Actions
+  html += `<div style="margin-top:20px;display:flex;flex-direction:column;gap:8px">
+    <button class="status-toggle ${isCompleted ? 'completed-toggle' : ''}" onclick="toggleComplete(${unit.id},${lesson.id})" style="width:100%;justify-content:center">
+      ${isCompleted ? 'Completed' : 'Mark as Complete'}
+    </button>`;
+  if (kiddomUrl) {
+    html += `<a href="${kiddomUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:8px;border:1px solid var(--border);font-size:13px;font-weight:600;color:var(--black);text-decoration:none;transition:all .15s;font-family:'Lexend',sans-serif" onmouseover="this.style.borderColor='var(--black)'" onmouseout="this.style.borderColor='var(--border)'">Full Lesson Details &rarr;</a>`;
+  }
+  html += `</div>`;
+
+  html += `</div>`; // end sidebar
+
+  html += `</div></div>`; // end layout, end lesson-view
+  return html;
+}
+
+// ============================================
+// SETUP BAR: Modals
+// ============================================
+function updateStartDateDisplay() {
+  document.getElementById('startDateDisplay').textContent = formatDateDisplay(yearStartDate);
+}
+
+// ---- Holiday Calendar Modal ----
+let preHolidayWeeks = null; // Snapshot of week milestones before opening modal
+let calViewYear = 2025;
+let calViewMonth = 7; // Aug (0-indexed)
+
+function openHolidayModal() {
+  // Snapshot current week milestones before changes
+  const { schedule } = buildSchedule();
+  preHolidayWeeks = schedule.map(s => s.calendarWeeks);
+  calViewYear = yearStartDate.getFullYear();
+  calViewMonth = yearStartDate.getMonth();
+  renderHolidayModal();
+}
+
+function closeHolidayModal() {
+  document.getElementById('modal-root').innerHTML = '';
+  render(); // Recalculate timeline with updated holidays
+  flashChangedWeeks();
+}
+
+function flashChangedWeeks() {
+  if (!preHolidayWeeks || state.view !== 'year') { preHolidayWeeks = null; return; }
+  const { schedule } = buildSchedule();
+  const postWeeks = schedule.map(s => s.calendarWeeks);
+  const segs = document.querySelectorAll('.day-ruler-seg');
+
+  segs.forEach((seg, i) => {
+    if (i < preHolidayWeeks.length && preHolidayWeeks[i] !== postWeeks[i]) {
+      seg.classList.add('wk-changed');
+      // Show the shift overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'wk-shift';
+      overlay.textContent = `Week ${preHolidayWeeks[i]} → Week ${postWeeks[i]}`;
+      seg.style.position = 'relative';
+      seg.appendChild(overlay);
+
+      // Clean up after animation
+      setTimeout(() => {
+        seg.classList.remove('wk-changed');
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      }, 2600);
+    }
+  });
+  preHolidayWeeks = null;
+}
+
+function calPrev() { calViewMonth--; if(calViewMonth<0){calViewMonth=11;calViewYear--;} renderHolidayModal(); }
+function calNext() { calViewMonth++; if(calViewMonth>11){calViewMonth=0;calViewYear++;} renderHolidayModal(); }
+
+function toggleHoliday(key, isOtherMonth) {
+  if (isOtherMonth) return;
+  if (holidays.has(key)) holidays.delete(key);
+  else holidays.add(key);
+  renderHolidayModal();
+}
+
+function renderHolidayModal() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // Build calendar grid
+  const firstDay = new Date(calViewYear, calViewMonth, 1);
+  const startDow = firstDay.getDay();
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  const prevMonthDays = new Date(calViewYear, calViewMonth, 0).getDate();
+
+  let cells = '';
+  // Day-of-week headers
+  dows.forEach(d => { cells += `<div class="cal-dow">${d}</div>`; });
+
+  // Previous month fill
+  for (let i = startDow - 1; i >= 0; i--) {
+    const day = prevMonthDays - i;
+    cells += `<div class="cal-day other-month">${day}</div>`;
+  }
+
+  // Current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(calViewYear, calViewMonth, d);
+    const key = dateToKey(date);
+    const dow = date.getDay();
+    const isWeekend = dow === 0 || dow === 6;
+    const isHoliday = holidays.has(key);
+    let cls = 'cal-day';
+    if (isHoliday) cls += ' holiday';
+    else if (isWeekend) cls += ' weekend';
+    cells += `<div class="${cls}" onclick="toggleHoliday('${key}', false)">${d}</div>`;
+  }
+
+  // Next month fill
+  const totalCells = startDow + daysInMonth;
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let d = 1; d <= remaining; d++) {
+    cells += `<div class="cal-day other-month">${d}</div>`;
+  }
+
+  const html = `<div class="modal-overlay" onclick="if(event.target===this)closeHolidayModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Set Holidays</h3>
+        <button class="modal-close" onclick="closeHolidayModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="calPrev()">&larr;</button>
+          <span class="cal-month">${months[calViewMonth]} ${calViewYear}</span>
+          <button class="cal-nav-btn" onclick="calNext()">&rarr;</button>
+        </div>
+        <div class="cal-grid">${cells}</div>
+        <div class="cal-legend">
+          <div class="cal-legend-swatch"></div>
+          <span>Click dates to mark as holidays (no school)</span>
+        </div>
+        <div class="holiday-count">${holidays.size} holiday${holidays.size !== 1 ? 's' : ''} selected</div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn" onclick="holidays.clear();renderHolidayModal()">Clear all</button>
+        <button class="modal-btn primary" onclick="closeHolidayModal()">Done</button>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('modal-root').innerHTML = html;
+}
+
+// ---- Start Date Modal ----
+function openStartDateModal() {
+  const isoDate = yearStartDate.getFullYear() + '-' +
+    String(yearStartDate.getMonth()+1).padStart(2,'0') + '-' +
+    String(yearStartDate.getDate()).padStart(2,'0');
+
+  const html = `<div class="modal-overlay" onclick="if(event.target===this)closeStartDateModal()">
+    <div class="modal" style="width:340px">
+      <div class="modal-header">
+        <h3>Adjust Start Date</h3>
+        <button class="modal-close" onclick="closeStartDateModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label style="font-size:13px;font-weight:600;color:var(--dark);display:block;margin-bottom:8px">
+          First day of instruction
+        </label>
+        <input type="date" class="date-input" id="startDateInput" value="${isoDate}">
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn" onclick="closeStartDateModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="saveStartDate()">Save</button>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('modal-root').innerHTML = html;
+}
+
+function closeStartDateModal() {
+  document.getElementById('modal-root').innerHTML = '';
+}
+
+function saveStartDate() {
+  const val = document.getElementById('startDateInput').value;
+  if (val) {
+    const parts = val.split('-');
+    yearStartDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    updateStartDateDisplay();
+  }
+  document.getElementById('modal-root').innerHTML = '';
+  render(); // Recalculate timeline with new start date
+}
+
+// ============================================
+// INIT
+// ============================================
+render();
+</script>
+</body>
+</html>
