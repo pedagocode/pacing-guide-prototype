@@ -201,6 +201,33 @@
   .mode-option .mode-title{font-weight:700;font-size:13px;display:block}
   .mode-option .mode-desc{font-size:11px;opacity:.7;margin-top:2px;display:block;line-height:1.35}
 
+  /* Lesson checklist in modify mode */
+  .lesson-checklist{background:#F8F8F8;border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 18px;margin-bottom:20px}
+  .lesson-checklist-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .lesson-checklist-title{font-size:13px;font-weight:700}
+  .lesson-checklist-subtitle{font-size:11px;color:var(--mid)}
+  .lesson-checklist-source{font-size:10px;color:var(--light);font-style:italic}
+  .lesson-checklist-grid{display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto}
+  .lesson-check-row{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:4px;
+    cursor:pointer;transition:background .1s;font-size:12px}
+  .lesson-check-row:hover{background:#EFEFEF}
+  .lesson-check-row .lc-box{width:16px;height:16px;border:2px solid var(--border);border-radius:3px;
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .lesson-check-row .lc-box.checked{background:var(--black);border-color:var(--black)}
+  .lesson-check-row .lc-box.checked::after{content:'';display:block;width:4px;height:8px;
+    border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
+  .lesson-check-row .lc-name{flex:1;color:var(--dark)}
+  .lesson-check-row .lc-name.completed-name{color:var(--black);font-weight:600}
+  .lesson-check-row .lc-tag{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:600}
+  .lesson-check-row .lc-tag.opt{background:#F0F0F0;color:var(--mid)}
+  .lesson-check-row .lc-tag.auto{background:#E8E8E8;color:var(--dark)}
+  .lesson-checklist-actions{display:flex;gap:8px;margin-top:10px}
+  .lesson-checklist-actions button{font-size:11px;font-weight:600;padding:4px 10px;border-radius:4px;
+    border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:'Lexend',sans-serif;
+    transition:var(--transition);color:var(--dark)}
+  .lesson-checklist-actions button:hover{border-color:var(--black);color:var(--black)}
+
   /* System detection banner */
   .system-detect{padding:14px 18px;border-radius:var(--radius);margin-bottom:20px;font-size:13px;
     line-height:1.5;display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:#F8F8F8}
@@ -1397,12 +1424,15 @@ function buildModePlan(unit, mode) {
     </div>`;
   });
 
+  // Days lost = how many days behind schedule. Computed from detection or remaining vs expected.
+  const detection = detectBehind(unit);
+  const daysLost = Math.max(0, (detection.daysUsed || 0) - (detection.completedCount || 0));
   const lessonsAfterPlan = remaining.length - daysRecovered;
 
   stepsHtml += `<div class="ai-plan-impact">
     <div class="impact-item">
-      <div class="impact-num">${daysRecovered}</div>
-      <div class="impact-label">Days recovered</div>
+      <div class="impact-num">${daysLost}</div>
+      <div class="impact-label">Days lost</div>
     </div>
     <div class="impact-item">
       <div class="impact-num">${Math.max(0, lessonsAfterPlan)}</div>
@@ -1486,6 +1516,85 @@ function enableModify(unitId) {
     modifyState.lessonsRemaining = parseInt(impactNums[1].textContent) || 0;
   }
 
+  // ---- Insert lesson completion checklist above the suggested plan ----
+  const planLabel = document.querySelector('#aiPlanArea .perf-slider-section');
+  const suggestedLabel = document.querySelector('#aiPlanArea div[style*="SUGGESTED"]') ||
+    [...document.querySelectorAll('#aiPlanArea div')].find(d => d.textContent.trim() === 'Suggested Plan');
+
+  // Build checklist
+  const completed = getCompleted(unit.id);
+  const allLessons = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => allLessons.push(l)));
+
+  // Simulate auto-detection: in real product, Kiddom would pre-fill from assignment data.
+  // For prototype, we pre-fill ~40% of lessons as "detected completed" to show the concept.
+  const simulatedAutoDetect = new Set();
+  const simCount = Math.floor(allLessons.filter(l => !l.optional).length * 0.4);
+  allLessons.filter(l => !l.optional).slice(0, simCount).forEach(l => simulatedAutoDetect.add(l.id));
+  // Merge with any manually completed
+  completed.forEach(id => simulatedAutoDetect.add(id));
+
+  let checklistHtml = `<div class="lesson-checklist" id="lessonChecklist">
+    <div class="lesson-checklist-header">
+      <div>
+        <div class="lesson-checklist-title">Confirm lessons taught</div>
+        <div class="lesson-checklist-subtitle">Pre-filled from assignment data. Adjust if needed.</div>
+      </div>
+      <div class="lesson-checklist-source">Auto-detected from Kiddom</div>
+    </div>
+    <div class="lesson-checklist-grid">`;
+
+  allLessons.forEach(l => {
+    const isChecked = simulatedAutoDetect.has(l.id);
+    const isOpt = l.optional;
+    if (isChecked && !completed.has(l.id)) {
+      // Sync simulated completions to actual state for plan calculation
+      completed.add(l.id);
+    }
+    checklistHtml += `<div class="lesson-check-row" onclick="toggleLessonCheck(${unitId},${l.id},this)">
+      <div class="lc-box${isChecked ? ' checked' : ''}"></div>
+      <span class="lc-name${isChecked ? ' completed-name' : ''}">Lesson ${l.id}: ${l.name}</span>
+      ${isOpt ? '<span class="lc-tag opt">Optional</span>' : ''}
+      ${isChecked ? '<span class="lc-tag auto">Detected</span>' : ''}
+    </div>`;
+  });
+
+  checklistHtml += `</div>
+    <div class="lesson-checklist-actions">
+      <button onclick="checklistSelectAll(${unitId})">Select all</button>
+      <button onclick="checklistClearAll(${unitId})">Clear all</button>
+    </div>
+  </div>`;
+
+  // Insert checklist before the Suggested Plan label
+  const planArea = document.getElementById('aiPlanArea');
+  if (planArea) {
+    // Find the "Suggested Plan" label and insert before it
+    const allDivs = planArea.children;
+    let insertBefore = null;
+    for (let i = 0; i < allDivs.length; i++) {
+      if (allDivs[i].textContent.trim() === 'Suggested Plan') {
+        insertBefore = allDivs[i];
+        break;
+      }
+    }
+    const checklistContainer = document.createElement('div');
+    checklistContainer.id = 'checklistContainer';
+    checklistContainer.innerHTML = checklistHtml;
+    if (insertBefore) {
+      planArea.insertBefore(checklistContainer, insertBefore);
+    } else {
+      // Insert after the progress section
+      const perfSection = planArea.querySelector('.perf-slider-section');
+      if (perfSection && perfSection.nextSibling) {
+        planArea.insertBefore(checklistContainer, perfSection.nextSibling);
+      }
+    }
+
+    // Rebuild the plan with the updated completions
+    rebuildPlanSteps(unitId);
+  }
+
   // Transform impact section into editable steppers
   const impactEl = document.querySelector('.ai-plan-impact');
   if (impactEl) {
@@ -1493,7 +1602,7 @@ function enableModify(unitId) {
     impactEl.innerHTML = `
       <div class="impact-item">
         <div class="impact-num editable" id="modDays">${modifyState.daysRecovered}</div>
-        <div class="impact-label">Days recovered</div>
+        <div class="impact-label">Days lost</div>
         <div class="impact-stepper">
           <button onclick="modifyImpact('days',-1,${unitId})">-</button>
           <button onclick="modifyImpact('days',1,${unitId})">+</button>
@@ -1539,8 +1648,131 @@ function enableModify(unitId) {
     const helper = document.createElement('div');
     helper.id = 'modifyHelper';
     helper.className = 'modify-helper';
-    helper.textContent = 'Use +/- to adjust your targets. Click any step to include or exclude it.';
+    helper.textContent = 'Confirm which lessons are taught, then use +/- to adjust targets or click steps to exclude them.';
     actionsDiv.parentNode.insertBefore(helper, actionsDiv.nextSibling);
+  }
+}
+
+function toggleLessonCheck(unitId, lessonId, row) {
+  const box = row.querySelector('.lc-box');
+  const name = row.querySelector('.lc-name');
+  const completed = getCompleted(unitId);
+  const autoTag = row.querySelector('.lc-tag.auto');
+
+  if (box.classList.contains('checked')) {
+    box.classList.remove('checked');
+    name.classList.remove('completed-name');
+    completed.delete(lessonId);
+    if (autoTag) autoTag.remove();
+  } else {
+    box.classList.add('checked');
+    name.classList.add('completed-name');
+    completed.add(lessonId);
+  }
+  // Rebuild the plan with updated completions
+  rebuildPlanSteps(unitId);
+}
+
+function checklistSelectAll(unitId) {
+  const unit = UNITS.find(u => u.id === unitId);
+  if (!unit) return;
+  const completed = getCompleted(unitId);
+  unit.sections.forEach(s => s.lessons.forEach(l => completed.add(l.id)));
+  // Update all checkboxes
+  document.querySelectorAll('.lesson-check-row').forEach(row => {
+    row.querySelector('.lc-box').classList.add('checked');
+    row.querySelector('.lc-name').classList.add('completed-name');
+  });
+  rebuildPlanSteps(unitId);
+}
+
+function checklistClearAll(unitId) {
+  const completed = getCompleted(unitId);
+  completed.clear();
+  document.querySelectorAll('.lesson-check-row').forEach(row => {
+    row.querySelector('.lc-box').classList.remove('checked');
+    row.querySelector('.lc-name').classList.remove('completed-name');
+  });
+  rebuildPlanSteps(unitId);
+}
+
+function rebuildPlanSteps(unitId) {
+  const unit = UNITS.find(u => u.id === unitId);
+  if (!unit) return;
+
+  // Rebuild just the steps + impact, preserving the checklist and progress section
+  const completed = getCompleted(unitId);
+  const allNonOptional = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l); }));
+  const remaining = allNonOptional.filter(l => !completed.has(l.id));
+  const completedCount = allNonOptional.filter(l => completed.has(l.id)).length;
+
+  // Update the progress display
+  const progressSection = document.querySelector('#aiPlanArea .perf-slider-section');
+  if (progressSection) {
+    // Find and update the completed count text
+    const progText = progressSection.querySelectorAll('div');
+    progText.forEach(d => {
+      if (d.textContent.includes('required lessons completed')) {
+        // Determine scope
+        const midAssess = unit.assessments.find(a => a.type === 'formative');
+        const targetType = state.targetAssess || 'auto';
+        const isMid = (targetType === 'mid') || (targetType === 'auto' && midAssess && completedCount < midAssess.afterLesson);
+
+        let scopeTotal = allNonOptional.length;
+        let scopeDone = completedCount;
+        let scopeRemaining = remaining.length;
+        if (isMid && midAssess) {
+          const beforeMid = allNonOptional.filter(l => l.id <= midAssess.afterLesson);
+          scopeTotal = beforeMid.length;
+          scopeDone = beforeMid.filter(l => completed.has(l.id)).length;
+          scopeRemaining = beforeMid.filter(l => !completed.has(l.id)).length;
+        }
+        d.textContent = `${scopeDone} of ${scopeTotal} required lessons completed`;
+      }
+    });
+    // Update the big number
+    const bigNum = progressSection.querySelector('div[style*="font-size:22px"], div[style*="font-size: 22px"]');
+    if (bigNum) {
+      const midAssess = unit.assessments.find(a => a.type === 'formative');
+      const targetType = state.targetAssess || 'auto';
+      const isMid = (targetType === 'mid') || (targetType === 'auto' && midAssess && completedCount < midAssess.afterLesson);
+      let scopeRemaining = remaining.length;
+      if (isMid && midAssess) {
+        scopeRemaining = allNonOptional.filter(l => l.id <= midAssess.afterLesson && !completed.has(l.id)).length;
+      }
+      bigNum.textContent = scopeRemaining;
+    }
+    // Update progress bar
+    const bar = progressSection.querySelector('div[style*="background:var(--black)"]');
+    if (bar) {
+      const midAssess = unit.assessments.find(a => a.type === 'formative');
+      const targetType = state.targetAssess || 'auto';
+      const isMid = (targetType === 'mid') || (targetType === 'auto' && midAssess && completedCount < midAssess.afterLesson);
+      let scopeTotal = allNonOptional.length;
+      let scopeDone = completedCount;
+      if (isMid && midAssess) {
+        const beforeMid = allNonOptional.filter(l => l.id <= midAssess.afterLesson);
+        scopeTotal = beforeMid.length;
+        scopeDone = beforeMid.filter(l => completed.has(l.id)).length;
+      }
+      bar.style.width = (scopeTotal > 0 ? Math.round((scopeDone / scopeTotal) * 100) : 0) + '%';
+    }
+  }
+
+  // Update impact numbers
+  const daysEl = document.getElementById('modDays');
+  const lessonsEl = document.getElementById('modLessons');
+  if (daysEl) {
+    // Recalculate available recovery
+    const optSkippable = unit.optionalLessons.filter(id => !completed.has(id));
+    const pairs = findCombinablePairs(unit, remaining);
+    modifyState.daysRecovered = optSkippable.length + pairs.length;
+    daysEl.textContent = modifyState.daysRecovered;
+  }
+  if (lessonsEl) {
+    modifyState.lessonsRemaining = remaining.length;
+    lessonsEl.textContent = remaining.length;
   }
 }
 
