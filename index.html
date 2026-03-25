@@ -185,6 +185,31 @@
     display:flex;align-items:center;gap:8px;font-family:'Lexend',sans-serif}
   .adjust-pacing-btn:hover{background:var(--dark);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.35)}
   .adjust-pacing-btn svg{width:18px;height:18px}
+  .adjust-pacing-btn.pulsing{animation:btnPulse 2s ease-in-out infinite}
+  @keyframes btnPulse{0%{box-shadow:0 4px 16px rgba(0,0,0,.25)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 8px rgba(0,0,0,.08)}100%{box-shadow:0 4px 16px rgba(0,0,0,.25)}}
+  .adjust-pacing-btn .pulse-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:dotPulse 2s ease-in-out infinite}
+  @keyframes dotPulse{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+
+  /* Mode selector in AI panel */
+  .mode-selector{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .mode-option{flex:1;padding:14px 16px;cursor:pointer;background:var(--white);border:none;
+    font-family:'Lexend',sans-serif;font-size:13px;font-weight:500;color:var(--mid);
+    transition:var(--transition);text-align:left;border-right:1px solid var(--border)}
+  .mode-option:last-child{border-right:none}
+  .mode-option:hover{background:#F8F8F8;color:var(--black)}
+  .mode-option.active{background:var(--black);color:#fff}
+  .mode-option .mode-title{font-weight:700;font-size:13px;display:block}
+  .mode-option .mode-desc{font-size:11px;opacity:.7;margin-top:2px;display:block;line-height:1.35}
+
+  /* System detection banner */
+  .system-detect{padding:14px 18px;border-radius:var(--radius);margin-bottom:20px;font-size:13px;
+    line-height:1.5;display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:#F8F8F8}
+  .system-detect.behind{border-color:var(--black);background:#F0F0F0}
+  .system-detect .detect-icon{width:32px;height:32px;border-radius:50%;background:var(--black);color:#fff;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:700}
+  .system-detect .detect-text{flex:1}
+  .system-detect .detect-title{font-weight:700;margin-bottom:2px}
+  .system-detect .detect-detail{font-size:12px;color:var(--mid);line-height:1.45}
 
   /* AI Panel overlay */
   .ai-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;
@@ -195,9 +220,9 @@
   .ai-panel-header h2{font-size:18px;font-weight:700}
   .ai-close{background:none;border:none;cursor:pointer;font-size:24px;color:var(--mid);line-height:1;font-family:'Lexend',sans-serif}
   .ai-panel-body{padding:16px 24px 24px}
-  /* Performance slider */
+  /* Performance slider (legacy, kept for reference) */
   .perf-slider-section{background:#F8F8F8;border:1px solid var(--border);border-radius:var(--radius);
-    padding:20px 24px;margin-bottom:20px}
+    padding:20px 24px;margin-bottom:20px;display:none}
   .perf-slider-label{font-size:13px;font-weight:700;margin-bottom:14px}
   .perf-slider-wrap{position:relative;padding:0 4px}
   .perf-slider-track{display:flex;align-items:center;gap:12px}
@@ -638,6 +663,7 @@ let state = {
   heroTab: 1,
   aiPanelOpen: false,
   aiScenario: null,
+  aiMode: 'performance',
   completed: {},
   perfSlider: 50
 };
@@ -679,13 +705,13 @@ function render() {
   } else if (state.view === 'unit') {
     const u = UNITS.find(x => x.id === state.unitId);
     bc.innerHTML = `<a onclick="goYear()">Year Overview</a><span class="sep">/</span><span class="current">Unit ${u.id}: ${u.name}</span>`;
-    app.innerHTML = renderUnitView(u) + renderAdjustPacingBtn();
+    app.innerHTML = renderUnitView(u) + renderAdjustPacingBtn(u);
     if (state.aiPanelOpen) app.innerHTML += renderAIPanel(u);
   } else if (state.view === 'lesson') {
     const u = UNITS.find(x => x.id === state.unitId);
     let lesson = null, section = null;
     u.sections.forEach(s => s.lessons.forEach(l => { if (l.id === state.lessonId) { lesson = l; section = s; } }));
-    bc.innerHTML = `<a onclick="goYear()">Year Overview</a><span class="sep">/</span><a onclick="goUnit(${u.id})">Unit ${u.id}: ${u.short}</a><span class="sep">/</span><span class="current">Lesson ${lesson.id}</span>`;
+    bc.innerHTML = `<a onclick="goYear()">Year Overview</a><span class="sep">/</span><a onclick="goUnit(${u.id})">Unit ${u.id}: ${u.short}</a><span class="sep">/</span><span class="current">Lesson ${lesson.id}: ${lesson.name}</span>`;
     app.innerHTML = renderLessonView(u, section, lesson);
   }
   window.scrollTo({top:0,behavior:'smooth'});
@@ -919,124 +945,216 @@ function renderUnitView(unit) {
 // ============================================
 // ADJUST PACING BUTTON + AI PANEL
 // ============================================
-function renderAdjustPacingBtn() {
-  return `<button class="adjust-pacing-btn" onclick="openAIPanel()">
+// Detect if the class is behind for a given unit
+function detectBehind(unit) {
+  const { schedule } = buildSchedule();
+  const entry = schedule.find(s => s.unit.id === unit.id);
+  if (!entry) return { behind: false, daysUsed: 0, daysTotal: 0, pctThrough: 0 };
+
+  const today = new Date(2026, 2, 24); // simulated today
+  const unitStart = entry.startDate;
+  const unitEnd = entry.endDate;
+
+  // Compute lesson counts for all paths
+  const completed = getCompleted(unit.id);
+  const allNonOptional = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l); }));
+  const completedCount = allNonOptional.filter(l => completed.has(l.id)).length;
+
+  // Next assessment
+  let nextAssess = null;
+  const midAssess = unit.assessments.find(a => a.type === 'formative');
+  const endAssess = unit.assessments.find(a => a.type === 'summative');
+  if (midAssess && completedCount < midAssess.afterLesson) {
+    nextAssess = { label: midAssess.label, lessonsAway: midAssess.afterLesson - completedCount };
+  } else if (endAssess) {
+    nextAssess = { label: endAssess.label, lessonsAway: Math.max(0, allNonOptional.length - completedCount) };
+  }
+
+  // If we haven't started this unit yet or already past it
+  if (today < unitStart) return { behind: false, daysUsed: 0, daysTotal: entry.instrDays, pctThrough: 0, status: 'upcoming', completedCount, totalRequired: allNonOptional.length, nextAssess };
+  if (today > unitEnd) return { behind: completedCount < allNonOptional.length, daysUsed: entry.instrDays, daysTotal: entry.instrDays, pctThrough: 100, status: 'complete', completedCount, totalRequired: allNonOptional.length, nextAssess };
+
+  // Count instructional days from unit start to today
+  let cursor = new Date(unitStart);
+  let daysUsed = 0;
+  while (cursor <= today) {
+    const dow = cursor.getDay();
+    const key = dateToKey(cursor);
+    if (dow !== 0 && dow !== 6 && !holidays.has(key)) daysUsed++;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  // Expected progress: how many lessons should be done given days used
+  const expectedProgress = Math.floor((daysUsed / entry.instrDays) * allNonOptional.length);
+  const behind = completedCount < expectedProgress - 1; // 1 lesson grace
+
+  return {
+    behind,
+    daysUsed,
+    daysTotal: entry.instrDays,
+    pctThrough: Math.round((daysUsed / entry.instrDays) * 100),
+    completedCount,
+    expectedProgress,
+    totalRequired: allNonOptional.length,
+    nextAssess,
+    status: 'in-progress'
+  };
+}
+
+function renderAdjustPacingBtn(unit) {
+  const detection = detectBehind(unit);
+  const pulseClass = detection.behind ? ' pulsing' : '';
+  const dot = detection.behind ? '<span class="pulse-dot"></span>' : '';
+  return `<button class="adjust-pacing-btn${pulseClass}" onclick="openAIPanel()">
+    ${dot}
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
     Adjust Pacing
   </button>`;
 }
 
-function openAIPanel() { state.aiPanelOpen = true; state.perfSlider = state.perfSlider || 50; render(); }
+function openAIPanel() { state.aiPanelOpen = true; state.aiMode = state.aiMode || 'auto'; render(); }
 function closeAIPanel() { state.aiPanelOpen = false; render(); }
 
-function onPerfSlider(val) {
-  state.perfSlider = parseInt(val);
-  const desc = document.getElementById('perfSliderDesc');
-  const stepsEl = document.getElementById('aiPlanSteps');
-  const impactEl = document.getElementById('aiPlanImpact');
-  if (desc) desc.textContent = getPerfDescription(state.perfSlider);
-  // Re-render plan steps based on slider
+function switchAIMode(mode) {
+  state.aiMode = mode;
   const unit = UNITS.find(x => x.id === state.unitId);
-  if (unit && stepsEl && impactEl) {
-    const plan = buildPacingPlan(unit, state.perfSlider);
-    stepsEl.innerHTML = plan.stepsHtml;
-    impactEl.innerHTML = plan.impactHtml;
-  }
+  if (!unit) return;
+  // Update mode button active states
+  document.querySelectorAll('.mode-option').forEach(btn => {
+    btn.classList.remove('active');
+    if ((mode === 'performance' && btn.textContent.includes('Student')) ||
+        (mode === 'assessment' && btn.textContent.includes('Assessment'))) {
+      btn.classList.add('active');
+    }
+  });
+  const planArea = document.getElementById('aiPlanArea');
+  if (planArea) planArea.innerHTML = buildModePlan(unit, mode);
 }
 
-function getPerfDescription(val) {
-  if (val <= 20) return 'Significantly behind. The plan will aggressively compress by skipping optional content and combining lessons to maximize recovery time.';
-  if (val <= 40) return 'Somewhat behind. The plan will skip optional lessons and suggest combining a few sessions to get back on track.';
-  if (val <= 60) return 'On track. Current pacing is appropriate. The plan focuses on maintaining momentum and preparing for the assessment.';
-  if (val <= 80) return 'Slightly ahead. The plan adds review and enrichment days to deepen understanding before the assessment.';
-  return 'Well ahead. The plan adds reteach opportunities, optional enrichment lessons, and extra assessment prep time.';
-}
-
-function buildPacingPlan(unit, perfVal) {
+function buildModePlan(unit, mode) {
+  const detection = detectBehind(unit);
   const completed = getCompleted(unit.id);
   const allNonOptional = [];
   unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l); }));
-  const completedNonOpt = allNonOptional.filter(l => completed.has(l.id)).length;
   const remaining = allNonOptional.filter(l => !completed.has(l.id));
 
   const steps = [];
   let daysRecovered = 0;
 
-  if (perfVal <= 40) {
-    // Behind: aggressive compression
-    if (unit.optionalLessons.length > 0) {
+  if (mode === 'performance') {
+    // Student performance mode: focus on what to skip/combine based on class progress
+    if (detection.behind || detection.completedCount < detection.totalRequired * 0.5) {
+      if (unit.optionalLessons.length > 0) {
+        steps.push({
+          title: `Skip ${unit.optionalLessons.length} optional lesson${unit.optionalLessons.length > 1 ? 's' : ''}`,
+          detail: `Lessons ${unit.optionalLessons.join(', ')} reinforce concepts but are not required for assessment coverage.`,
+          tag: 'skip', tagClass: 'tag-skip'
+        });
+        daysRecovered += unit.optionalLessons.length;
+      }
+      if (remaining.length >= 4) {
+        steps.push({
+          title: 'Combine 2 lesson pairs that share learning objectives',
+          detail: 'Lessons covering the same standard can be taught in a single extended session, recovering 2 instructional days.',
+          tag: 'combine', tagClass: 'tag-combine'
+        });
+        daysRecovered += 2;
+      }
       steps.push({
-        title: `Skip optional lessons (${unit.optionalLessons.join(', ')})`,
-        detail: `These lessons reinforce concepts but are not required for assessment coverage. Recovers ${unit.optionalLessons.length} day(s).`,
-        tag: 'skip', tagClass: 'tag-skip'
+        title: 'Focus on high-priority standards for remaining lessons',
+        detail: `${unit.standards.slice(0,2).join(' and ')} carry the most weight on the assessment. Prioritize lessons that build toward these.`,
+        tag: 'priority', tagClass: 'tag-keep'
       });
-      daysRecovered += unit.optionalLessons.length;
-    }
-    if (remaining.length >= 4) {
-      const pairs = perfVal <= 20 ? 3 : 2;
+    } else {
       steps.push({
-        title: `Combine ${pairs} lesson pairs that share objectives`,
-        detail: `Lessons covering the same standard can be taught in a single extended session. Recovers ${pairs} days.`,
-        tag: 'combine', tagClass: 'tag-combine'
+        title: 'Continue current pacing',
+        detail: `${detection.completedCount} of ${detection.totalRequired} required lessons completed. Your class is on track.`,
+        tag: 'on track', tagClass: 'tag-keep'
       });
-      daysRecovered += pairs;
+      if (unit.optionalLessons.length > 0) {
+        steps.push({
+          title: `Include optional lessons for additional practice`,
+          detail: `Lessons ${unit.optionalLessons.join(', ')} provide reinforcement for students who need it.`,
+          tag: 'optional', tagClass: 'tag-review'
+        });
+      }
     }
-    if (perfVal <= 20) {
-      steps.push({
-        title: 'Shorten warm-ups to 5 minutes for remaining lessons',
-        detail: 'Reduce warm-up activities to quick number talks, freeing time within each lesson for core instruction.',
-        tag: 'compress', tagClass: 'tag-skip'
-      });
-    }
-    const priorityLessons = remaining.slice(0, 3);
-    if (priorityLessons.length > 0) {
-      steps.push({
-        title: `Prioritize lessons that directly map to assessed standards`,
-        detail: `${priorityLessons.map(l => 'Lesson ' + l.id).join(', ')} cover the highest-weight standards on the end-of-unit assessment.`,
-        tag: 'keep', tagClass: 'tag-keep'
-      });
-    }
-  } else if (perfVal <= 60) {
-    // On track: maintain pace
+  } else if (mode === 'assessment') {
+    // Assessment coming up mode: focus on what matters for the test
+    const nextAssess = detection.nextAssess;
+    const assessLabel = nextAssess ? nextAssess.label : 'End-of-Unit Assessment';
+    const lessonsAway = nextAssess ? nextAssess.lessonsAway : remaining.length;
+
     steps.push({
-      title: 'Continue current pacing',
-      detail: `Your class is on track. ${completedNonOpt} of ${allNonOptional.length} required lessons completed with adequate time remaining.`,
-      tag: 'keep', tagClass: 'tag-keep'
+      title: `${assessLabel} is ${lessonsAway} lesson${lessonsAway !== 1 ? 's' : ''} away`,
+      detail: `The assessment covers ${unit.standards.join(', ')}. Here is the recommended path to maximize readiness.`,
+      tag: 'assessment', tagClass: 'tag-review'
     });
-    if (unit.optionalLessons.length > 0) {
+
+    // Identify which remaining lessons directly map to assessed standards
+    const stdMap = buildStandardLessonMap(unit);
+    const criticalLessonIds = new Set();
+    unit.standards.forEach(std => {
+      (stdMap[std] || []).forEach(id => { if (!completed.has(id)) criticalLessonIds.add(id); });
+    });
+
+    if (criticalLessonIds.size > 0) {
+      const criticalNames = [...criticalLessonIds].slice(0, 5).map(id => {
+        let name = '';
+        unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === id) name = l.name; }));
+        return `Lesson ${id}: ${name}`;
+      });
       steps.push({
-        title: `Include optional lessons if time allows (${unit.optionalLessons.join(', ')})`,
-        detail: 'These provide additional practice and reinforce understanding for students who need it.',
-        tag: 'optional', tagClass: 'tag-review'
+        title: `${criticalLessonIds.size} remaining lesson${criticalLessonIds.size !== 1 ? 's' : ''} directly map to assessed standards`,
+        detail: criticalNames.join(', '),
+        tag: 'critical', tagClass: 'tag-keep'
       });
     }
+
+    if (unit.optionalLessons.length > 0) {
+      const optRemaining = unit.optionalLessons.filter(id => !completed.has(id));
+      if (optRemaining.length > 0) {
+        steps.push({
+          title: `Skip ${optRemaining.length} optional lesson${optRemaining.length !== 1 ? 's' : ''} to reach the assessment faster`,
+          detail: `Lessons ${optRemaining.join(', ')} are not required for assessment topics. This recovers ${optRemaining.length} day${optRemaining.length !== 1 ? 's' : ''}.`,
+          tag: 'skip', tagClass: 'tag-skip'
+        });
+        daysRecovered += optRemaining.length;
+      }
+    }
+
+    steps.push({
+      title: 'Add a structured review session before the assessment',
+      detail: `Dedicate one day to revisiting ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
+      tag: 'review', tagClass: 'tag-review'
+    });
   } else {
-    // Ahead: enrich and deepen
-    steps.push({
-      title: 'Teach all lessons including optional content',
-      detail: `With extra time available, include optional lessons (${unit.optionalLessons.join(', ')}) to give students additional practice.`,
-      tag: 'enrich', tagClass: 'tag-keep'
-    });
-    steps.push({
-      title: 'Add a reteach day for challenging standards',
-      detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} with small-group targeted instruction for students who need reinforcement.`,
-      tag: 'reteach', tagClass: 'tag-review'
-    });
-    if (perfVal > 80) {
+    // Auto mode: system picks the best approach
+    if (detection.behind) {
+      return buildModePlan(unit, 'performance');
+    } else if (detection.nextAssess && detection.nextAssess.lessonsAway <= 5) {
+      return buildModePlan(unit, 'assessment');
+    } else {
       steps.push({
-        title: 'Add enrichment activities for advanced students',
-        detail: 'Extend lessons with problem-solving challenges and peer teaching opportunities.',
-        tag: 'enrich', tagClass: 'tag-combine'
+        title: 'Continue current pacing',
+        detail: `${detection.completedCount || 0} of ${detection.totalRequired || allNonOptional.length} required lessons completed. Pace is appropriate for the timeline.`,
+        tag: 'on track', tagClass: 'tag-keep'
+      });
+      if (unit.optionalLessons.length > 0) {
+        steps.push({
+          title: 'Include optional lessons for enrichment',
+          detail: `Lessons ${unit.optionalLessons.join(', ')} offer additional practice and deepen understanding.`,
+          tag: 'optional', tagClass: 'tag-review'
+        });
+      }
+      steps.push({
+        title: 'Structured review before assessment',
+        detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} through guided practice when the assessment approaches.`,
+        tag: 'review', tagClass: 'tag-review'
       });
     }
   }
-
-  // Always add assessment prep
-  steps.push({
-    title: 'Structured review session before the assessment',
-    detail: `Dedicate one day to revisiting ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
-    tag: 'review', tagClass: 'tag-review'
-  });
 
   let stepsHtml = '';
   steps.forEach((s, i) => {
@@ -1050,34 +1168,62 @@ function buildPacingPlan(unit, perfVal) {
     </div>`;
   });
 
-  const lessonsAfterPlan = remaining.length - (perfVal <= 40 && remaining.length >= 4 ? (perfVal <= 20 ? 3 : 2) : 0);
+  const lessonsAfterPlan = remaining.length - daysRecovered;
 
-  let impactHtml = `
+  stepsHtml += `<div class="ai-plan-impact">
     <div class="impact-item">
       <div class="impact-num">${daysRecovered}</div>
       <div class="impact-label">Days recovered</div>
     </div>
     <div class="impact-item">
-      <div class="impact-num">${lessonsAfterPlan}</div>
+      <div class="impact-num">${Math.max(0, lessonsAfterPlan)}</div>
       <div class="impact-label">Lessons remaining</div>
     </div>
     <div class="impact-item">
       <div class="impact-num">${unit.standards.length}</div>
       <div class="impact-label">Standards covered</div>
-    </div>`;
+    </div>
+  </div>`;
 
-  return { stepsHtml, impactHtml, daysRecovered };
+  stepsHtml += `<div class="ai-plan-actions">
+    <button class="btn-confirm" onclick="confirmPlan(${unit.id})">Confirm Plan</button>
+    <button class="btn-adjust" onclick="closeAIPanel()">Cancel</button>
+  </div>`;
+
+  return stepsHtml;
 }
 
 function renderAIPanel(unit) {
-  const completed = getCompleted(unit.id);
-  const allNonOptional = [];
-  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l); }));
-  const completedNonOpt = allNonOptional.filter(l => completed.has(l.id)).length;
-  const totalDays = unitTotalDays(unit);
+  const detection = detectBehind(unit);
+  const mode = state.aiMode || 'auto';
 
-  const perfVal = state.perfSlider || 50;
-  const plan = buildPacingPlan(unit, perfVal);
+  // System detection banner
+  let detectHtml = '';
+  if (detection.behind) {
+    detectHtml = `<div class="system-detect behind">
+      <div class="detect-icon">!</div>
+      <div class="detect-text">
+        <div class="detect-title">Your class appears to be behind pace</div>
+        <div class="detect-detail">${detection.completedCount || 0} of ${detection.totalRequired} required lessons completed, but ${detection.daysUsed} of ${detection.daysTotal} instructional days used (${detection.pctThrough}% of timeline).${detection.nextAssess ? ' ' + detection.nextAssess.label + ' is ' + detection.nextAssess.lessonsAway + ' lessons away.' : ''}</div>
+      </div>
+    </div>`;
+  } else if (detection.nextAssess && detection.nextAssess.lessonsAway <= 5) {
+    detectHtml = `<div class="system-detect">
+      <div class="detect-icon" style="background:var(--dark)">A</div>
+      <div class="detect-text">
+        <div class="detect-title">${detection.nextAssess.label} is coming up</div>
+        <div class="detect-detail">${detection.nextAssess.lessonsAway} lesson${detection.nextAssess.lessonsAway !== 1 ? 's' : ''} until the assessment. Consider focusing on assessed standards.</div>
+      </div>
+    </div>`;
+  } else {
+    detectHtml = `<div class="system-detect">
+      <div class="detect-icon" style="background:var(--mid)">&#10003;</div>
+      <div class="detect-text">
+        <div class="detect-title">On track</div>
+        <div class="detect-detail">Pacing looks appropriate for this unit. Adjust below if you want to explore options.</div>
+      </div>
+    </div>`;
+  }
 
   let html = `<div class="ai-overlay" onclick="if(event.target===this)closeAIPanel()">
     <div class="ai-panel">
@@ -1086,29 +1232,22 @@ function renderAIPanel(unit) {
         <button class="ai-close" onclick="closeAIPanel()">&times;</button>
       </div>
       <div class="ai-panel-body">
+        ${detectHtml}
 
-        <div class="perf-slider-section">
-          <div class="perf-slider-label">Where is your class relative to grade-level expectations?</div>
-          <div class="perf-slider-wrap">
-            <div class="perf-slider-track">
-              <span class="track-label">Behind</span>
-              <input type="range" min="0" max="100" value="${perfVal}" oninput="onPerfSlider(this.value)">
-              <span class="track-label">Ahead</span>
-            </div>
-          </div>
-          <div class="perf-slider-desc" id="perfSliderDesc">${getPerfDescription(perfVal)}</div>
+        <div class="mode-selector">
+          <button class="mode-option${mode === 'performance' ? ' active' : ''}" onclick="switchAIMode('performance')">
+            <span class="mode-title">By Student Performance</span>
+            <span class="mode-desc">Adjust based on where your class is relative to expectations</span>
+          </button>
+          <button class="mode-option${mode === 'assessment' ? ' active' : ''}" onclick="switchAIMode('assessment')">
+            <span class="mode-title">Assessment Coming Up</span>
+            <span class="mode-desc">Focus on what matters most for the upcoming assessment</span>
+          </button>
         </div>
 
         <div style="font-size:12px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px">Suggested Plan</div>
 
-        <div id="aiPlanSteps" style="margin-bottom:16px">${plan.stepsHtml}</div>
-
-        <div class="ai-plan-impact" id="aiPlanImpact">${plan.impactHtml}</div>
-
-        <div class="ai-plan-actions">
-          <button class="btn-confirm" onclick="confirmPlan(${unit.id})">Confirm Plan</button>
-          <button class="btn-adjust" onclick="adjustPlan(${unit.id})">Adjust Plan</button>
-        </div>
+        <div id="aiPlanArea">${buildModePlan(unit, mode)}</div>
       </div>
     </div>
   </div>`;
@@ -1116,11 +1255,15 @@ function renderAIPanel(unit) {
 }
 
 function confirmPlan(unitId) {
+  // Show a confirmation banner briefly
+  const unit = UNITS.find(u => u.id === unitId);
   closeAIPanel();
-}
-function adjustPlan(unitId) {
-  const steps = document.querySelectorAll('.ai-plan-step');
-  steps.forEach(s => { s.style.cursor = 'pointer'; s.title = 'Click to modify this step'; });
+  // Add a temporary notification
+  const notification = document.createElement('div');
+  notification.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;font-family:Lexend,sans-serif;z-index:500;box-shadow:0 4px 16px rgba(0,0,0,.25);animation:slideUp .3s ease';
+  notification.textContent = `Plan confirmed for Unit ${unitId}. Timeline updated.`;
+  document.body.appendChild(notification);
+  setTimeout(() => { if (notification.parentNode) notification.parentNode.removeChild(notification); }, 3000);
 }
 
 // ============================================
