@@ -1483,18 +1483,7 @@ function buildModePlan(unit, mode) {
     }
     const progressPct = progressTotal > 0 ? Math.round((progressDone / progressTotal) * 100) : 0;
 
-    // Assessment toggle + auto-detect summary
-    const hasBoth = midAssess && endAssess;
-    let toggleHtml = '';
-    if (hasBoth) {
-      toggleHtml = `<div style="display:flex;gap:0;margin-bottom:14px;border:1px solid var(--border);border-radius:6px;overflow:hidden">
-        <button onclick="switchAssessTarget('mid')" style="flex:1;padding:8px 12px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:'Lexend',sans-serif;transition:all .15s;${isMidTarget ? 'background:var(--black);color:#fff' : 'background:var(--white);color:var(--mid)'}">${midAssess.label}</button>
-        <button onclick="switchAssessTarget('end')" style="flex:1;padding:8px 12px;font-size:12px;font-weight:600;border:none;border-left:1px solid var(--border);cursor:pointer;font-family:'Lexend',sans-serif;transition:all .15s;${isEndTarget ? 'background:var(--black);color:#fff' : 'background:var(--white);color:var(--mid)'}">${endAssess.label}</button>
-      </div>`;
-    }
-
     sliderHtml = `<div class="perf-slider-section" style="display:block">
-      ${toggleHtml}
       <div style="display:flex;justify-content:space-between;margin-bottom:12px">
         <div>
           <div style="font-size:13px;font-weight:700">Progress toward ${assessLabel}</div>
@@ -1667,7 +1656,7 @@ function renderAIPanel(unit) {
   return html;
 }
 
-let modifyState = { daysRecovered: 0, lessonsRemaining: 0, active: false };
+let modifyState = { daysRecovered: 0, lessonsRemaining: 0, maxRecoverable: 0, active: false };
 
 function enableModify(unitId) {
   const unit = UNITS.find(u => u.id === unitId);
@@ -1682,10 +1671,35 @@ function enableModify(unitId) {
     modifyState.lessonsRemaining = parseInt(impactNums[1].textContent) || 0;
   }
 
+  // Compute max recoverable days based on lessons remaining
+  const allNonOpt = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOpt.push(l); }));
+  const remainingLessons = allNonOpt.filter(l => !getCompleted(unit.id).has(l.id));
+  const optSkippable = unit.optionalLessons.filter(id => !getCompleted(unit.id).has(id));
+  const pairsAvail = findCombinablePairs(unit, remainingLessons);
+  modifyState.maxRecoverable = optSkippable.length + pairsAvail.length;
+
+  // ---- Insert assessment target toggle (only in Modify, only if unit has both) ----
+  const midAssess = unit.assessments.find(a => a.type === 'formative');
+  const endAssess = unit.assessments.find(a => a.type === 'summative');
+  const hasBoth = midAssess && endAssess;
+  const progressSection = document.querySelector('#aiPlanArea .perf-slider-section');
+  if (hasBoth && progressSection) {
+    const targetType = state.targetAssess || 'auto';
+    const completedCount = allNonOpt.filter(l => getCompleted(unit.id).has(l.id)).length;
+    const isMidTarget = (targetType === 'mid') || (targetType === 'auto' && midAssess && completedCount < midAssess.afterLesson);
+    const isEndTarget = !isMidTarget;
+    const toggleEl = document.createElement('div');
+    toggleEl.id = 'assessTargetToggle';
+    toggleEl.innerHTML = `<div style="display:flex;gap:0;margin-bottom:14px;border:1px solid var(--border);border-radius:6px;overflow:hidden">
+      <button onclick="switchAssessTarget('mid')" style="flex:1;padding:8px 12px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:'Lexend',sans-serif;transition:all .15s;${isMidTarget ? 'background:var(--black);color:#fff' : 'background:var(--white);color:var(--mid)'}">${midAssess.label}</button>
+      <button onclick="switchAssessTarget('end')" style="flex:1;padding:8px 12px;font-size:12px;font-weight:600;border:none;border-left:1px solid var(--border);cursor:pointer;font-family:'Lexend',sans-serif;transition:all .15s;${isEndTarget ? 'background:var(--black);color:#fff' : 'background:var(--white);color:var(--mid)'}">${endAssess.label}</button>
+    </div>
+    <div style="font-size:11px;color:var(--mid);margin-bottom:12px;margin-top:-8px">Change assessment target to adjust your plan scope</div>`;
+    progressSection.insertBefore(toggleEl, progressSection.firstChild);
+  }
+
   // ---- Insert lesson completion checklist above the suggested plan ----
-  const planLabel = document.querySelector('#aiPlanArea .perf-slider-section');
-  const suggestedLabel = document.querySelector('#aiPlanArea div[style*="SUGGESTED"]') ||
-    [...document.querySelectorAll('#aiPlanArea div')].find(d => d.textContent.trim() === 'Suggested Plan');
 
   // Build checklist
   const completed = getCompleted(unit.id);
@@ -1773,6 +1787,7 @@ function enableModify(unitId) {
           <button onclick="modifyImpact('days',-1,${unitId})">-</button>
           <button onclick="modifyImpact('days',1,${unitId})">+</button>
         </div>
+        <div style="font-size:10px;color:var(--mid);margin-top:2px">${modifyState.maxRecoverable} recoverable</div>
       </div>
       <div class="impact-item">
         <div class="impact-num editable" id="modLessons">${modifyState.lessonsRemaining}</div>
@@ -1786,6 +1801,11 @@ function enableModify(unitId) {
         <div class="impact-num">${unit.standards.length}</div>
         <div class="impact-label">Standards covered</div>
       </div>`;
+    // Insert warning area after impact section
+    const warningDiv = document.createElement('div');
+    warningDiv.id = 'daysWarning';
+    warningDiv.style.cssText = 'display:none;font-size:12px;color:var(--mid);padding:10px 14px;background:#FFF8E1;border:1px solid #FFE082;border-radius:6px;margin-top:8px;line-height:1.5';
+    impactEl.parentNode.insertBefore(warningDiv, impactEl.nextSibling);
   }
 
   // Make steps toggleable
@@ -1943,10 +1963,34 @@ function rebuildPlanSteps(unitId) {
 }
 
 function modifyImpact(type, delta, unitId) {
+  const warningEl = document.getElementById('daysWarning');
+
   if (type === 'days') {
-    modifyState.daysRecovered = Math.max(0, modifyState.daysRecovered + delta);
+    const newVal = Math.max(0, modifyState.daysRecovered + delta);
+    modifyState.daysRecovered = newVal;
     const el = document.getElementById('modDays');
-    if (el) el.textContent = modifyState.daysRecovered;
+    if (el) {
+      el.textContent = newVal;
+      // Visual feedback based on limits
+      if (newVal > modifyState.maxRecoverable) {
+        el.style.color = '#C62828';
+      } else {
+        el.style.color = '';
+      }
+    }
+    // Warning messaging
+    if (warningEl) {
+      if (newVal > modifyState.maxRecoverable) {
+        const over = newVal - modifyState.maxRecoverable;
+        warningEl.innerHTML = `<span style="color:#C62828;font-weight:600">Exceeds recoverable days by ${over}.</span> This will require skipping required lessons or shortening activities, which may leave gaps in student understanding before the assessment.`;
+        warningEl.style.display = 'block';
+      } else if (newVal === modifyState.maxRecoverable) {
+        warningEl.innerHTML = 'At the maximum recoverable days. All optional lessons skipped and available pairs combined.';
+        warningEl.style.display = 'block';
+      } else {
+        warningEl.style.display = 'none';
+      }
+    }
   } else if (type === 'lessons') {
     modifyState.lessonsRemaining = Math.max(0, modifyState.lessonsRemaining + delta);
     const el = document.getElementById('modLessons');
