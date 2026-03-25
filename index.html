@@ -1328,81 +1328,75 @@ function buildPerformancePlan(unit, perfVal) {
 
   if (perfVal <= 40) {
     // Behind: aggressive, specific recommendations
-    // 1. Skip optional lessons
+    // 1. High-priority lessons
+    const priority = findHighPriorityLessons(unit, remaining);
+    const topLessons = priority.slice(0, Math.min(5, priority.length));
+    if (topLessons.length > 0) {
+      const priorityList = topLessons.map(p => `L${p.lesson.id}: ${p.lesson.name}`);
+      steps.push({
+        title: `Keep ${topLessons.length} high-priority lesson${topLessons.length !== 1 ? 's' : ''} directly aligned to the assessment`,
+        detail: priorityList.join(', '),
+        tag: 'critical', tagClass: 'tag-keep'
+      });
+    }
+
+    // 2. Skip optional lessons
     if (unit.optionalLessons.length > 0) {
       const optNames = unit.optionalLessons.map(id => {
         let name = '';
         unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === id) name = l.name; }));
-        return `Lesson ${id}: ${name}`;
+        return `L${id}: ${name}`;
       });
       steps.push({
-        title: `Skip ${unit.optionalLessons.length} optional lesson${unit.optionalLessons.length > 1 ? 's' : ''}`,
-        detail: optNames.join(', ') + '. These reinforce concepts but are not assessed. Recovers ' + unit.optionalLessons.length + ' day' + (unit.optionalLessons.length > 1 ? 's' : '') + '.',
+        title: `Skip ${unit.optionalLessons.length} optional lesson${unit.optionalLessons.length > 1 ? 's' : ''} to recover ${unit.optionalLessons.length} day${unit.optionalLessons.length > 1 ? 's' : ''}`,
+        detail: optNames.join(', '),
         tag: 'skip', tagClass: 'tag-skip'
       });
       daysRecovered += unit.optionalLessons.length;
     }
 
-    // 2. Combine specific lesson pairs
+    // 3. Combine lesson pairs
     const pairs = findCombinablePairs(unit, remaining);
     const numPairs = perfVal <= 20 ? Math.min(3, pairs.length) : Math.min(2, pairs.length);
     if (numPairs > 0) {
-      const pairDetails = pairs.slice(0, numPairs).map(p =>
-        `Lessons ${p.a.id} + ${p.b.id} (${p.a.name} and ${p.b.name})`
-      );
+      const pairDescs = pairs.slice(0, numPairs).map(p => `L${p.a.id} + L${p.b.id}`);
       steps.push({
-        title: `Combine ${numPairs} lesson pair${numPairs > 1 ? 's' : ''} into extended sessions`,
-        detail: pairDetails.join('. ') + '. ' + pairs.slice(0, numPairs).map(p => p.reason).join('. ') + `. Recovers ${numPairs} day${numPairs > 1 ? 's' : ''}.`,
+        title: `Combine ${numPairs} lesson pair${numPairs > 1 ? 's' : ''} to recover ${numPairs} day${numPairs > 1 ? 's' : ''}`,
+        detail: pairDescs.join(', '),
         tag: 'combine', tagClass: 'tag-combine'
       });
       daysRecovered += numPairs;
     }
 
-    // 3. Shorten warm-ups if severely behind
-    if (perfVal <= 20) {
-      steps.push({
-        title: 'Shorten warm-ups to 5 minutes for remaining lessons',
-        detail: 'Replace extended warm-ups with quick number talks. This frees 5 minutes per lesson for core instruction across all remaining sessions.',
-        tag: 'compress', tagClass: 'tag-skip'
-      });
-    }
-
-    // 4. Name specific high-priority lessons
-    const priority = findHighPriorityLessons(unit, remaining);
-    const topLessons = priority.slice(0, Math.min(5, priority.length));
-    if (topLessons.length > 0) {
-      const priorityList = topLessons.map(p =>
-        `Lesson ${p.lesson.id}: ${p.lesson.name} (${p.matchedStds.join(', ')})`
-      );
-      steps.push({
-        title: `${topLessons.length} high-priority lessons for the assessment`,
-        detail: 'These lessons cover the most assessed standards. Teach these first: ' + priorityList.join('; ') + '.',
-        tag: 'priority', tagClass: 'tag-keep'
-      });
-    }
+    // 4. Review
+    steps.push({
+      title: 'Add a structured review session before the assessment',
+      detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
+      tag: 'review', tagClass: 'tag-review'
+    });
 
   } else if (perfVal <= 60) {
     // On track
     steps.push({
       title: 'Continue current pacing',
-      detail: `${completedCount} of ${allNonOptional.length} required lessons completed. Your class is pacing well through the unit.`,
+      detail: `${completedCount} of ${allNonOptional.length} required lessons completed. On track.`,
       tag: 'on track', tagClass: 'tag-keep'
     });
     if (unit.optionalLessons.length > 0) {
       const optNames = unit.optionalLessons.map(id => {
         let name = '';
         unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === id) name = l.name; }));
-        return `Lesson ${id}: ${name}`;
+        return `L${id}: ${name}`;
       });
       steps.push({
         title: 'Include optional lessons if time allows',
-        detail: optNames.join(', ') + '. These provide additional practice for students who need reinforcement.',
+        detail: optNames.join(', '),
         tag: 'optional', tagClass: 'tag-review'
       });
     }
     steps.push({
-      title: 'Structured review before the assessment',
-      detail: `Dedicate one day to revisiting ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
+      title: 'Add a structured review session before the assessment',
+      detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
       tag: 'review', tagClass: 'tag-review'
     });
 
@@ -1412,26 +1406,26 @@ function buildPerformancePlan(unit, perfVal) {
       const optNames = unit.optionalLessons.map(id => {
         let name = '';
         unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === id) name = l.name; }));
-        return `Lesson ${id}: ${name}`;
+        return `L${id}: ${name}`;
       });
       steps.push({
         title: 'Teach all lessons including optional content',
-        detail: 'With extra time available, include: ' + optNames.join(', ') + '. These give students additional practice and deeper understanding.',
+        detail: optNames.join(', '),
         tag: 'enrich', tagClass: 'tag-keep'
       });
     }
     steps.push({
       title: 'Add a reteach day for challenging standards',
-      detail: `Use small-group targeted instruction to revisit ${unit.standards.slice(0,2).join(' and ')}. Pull students who scored below proficiency on the Mid-Unit Assessment.`,
+      detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} with small-group targeted instruction.`,
       tag: 'reteach', tagClass: 'tag-review'
     });
     if (perfVal > 80) {
       const priority = findHighPriorityLessons(unit, remaining);
       const extendLessons = priority.slice(0, 3);
-      const extendList = extendLessons.map(p => `Lesson ${p.lesson.id}: ${p.lesson.name}`);
+      const extendList = extendLessons.map(p => `L${p.lesson.id}: ${p.lesson.name}`);
       steps.push({
         title: 'Extend lessons with enrichment activities',
-        detail: (extendList.length > 0 ? 'Add problem-solving challenges to ' + extendList.join(', ') + '. ' : '') + 'Include peer teaching opportunities where students explain their strategies to classmates.',
+        detail: extendList.length > 0 ? extendList.join(', ') : 'Add peer teaching opportunities.',
         tag: 'enrich', tagClass: 'tag-combine'
       });
     }
@@ -1547,53 +1541,54 @@ function buildModePlan(unit, mode) {
       });
     });
 
+    // 1. Keep critical lessons
     if (criticalLessonIds.size > 0) {
       const criticalNames = [...criticalLessonIds].map(id => {
         let name = '';
         unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === id) name = l.name; }));
-        return `Lesson ${id}: ${name}`;
+        return `L${id}: ${name}`;
       });
       steps.push({
-        title: `${criticalLessonIds.size} lesson${criticalLessonIds.size !== 1 ? 's' : ''} directly map to assessed standards`,
-        detail: 'Teach these to maximize assessment readiness: ' + criticalNames.join(', ') + '.',
+        title: `Keep ${criticalLessonIds.size} lesson${criticalLessonIds.size !== 1 ? 's' : ''} directly aligned to the assessment`,
+        detail: criticalNames.join(', '),
         tag: 'critical', tagClass: 'tag-keep'
       });
     }
 
-    if (unit.optionalLessons.length > 0) {
-      const optRemaining = unit.optionalLessons.filter(id => !completed.has(id));
-      if (optRemaining.length > 0) {
-        const optNames = optRemaining.map(id => {
-          let name = '';
-          unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === id) name = l.name; }));
-          return `Lesson ${id}: ${name}`;
-        });
-        steps.push({
-          title: `Skip ${optRemaining.length} optional lesson${optRemaining.length !== 1 ? 's' : ''} to reach the assessment faster`,
-          detail: optNames.join(', ') + '. Not required for assessment topics. Recovers ' + optRemaining.length + ' day' + (optRemaining.length !== 1 ? 's' : '') + '.',
-          tag: 'skip', tagClass: 'tag-skip'
-        });
-        daysRecovered += optRemaining.length;
-      }
+    // 2. Skip optional lessons
+    const optRemaining = unit.optionalLessons.filter(id => !completed.has(id));
+    if (optRemaining.length > 0) {
+      const optNames = optRemaining.map(id => {
+        let name = '';
+        unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === id) name = l.name; }));
+        return `L${id}: ${name}`;
+      });
+      steps.push({
+        title: `Skip ${optRemaining.length} optional lesson${optRemaining.length !== 1 ? 's' : ''} to recover ${optRemaining.length} day${optRemaining.length !== 1 ? 's' : ''}`,
+        detail: optNames.join(', '),
+        tag: 'skip', tagClass: 'tag-skip'
+      });
+      daysRecovered += optRemaining.length;
     }
 
-    // If many lessons remain, suggest combining
+    // 3. Combine lesson pairs
     if (lessonsUntilAssess > 5) {
       const pairs = findCombinablePairs(unit, scopedRemaining);
       if (pairs.length > 0) {
-        const pair = pairs[0];
+        const pairDescs = pairs.map(p => `L${p.a.id} + L${p.b.id}`);
         steps.push({
-          title: 'Combine 1 lesson pair to save a day',
-          detail: `Lessons ${pair.a.id} + ${pair.b.id} (${pair.a.name} and ${pair.b.name}). ${pair.reason}. Recovers 1 day.`,
+          title: `Combine ${pairs.length} lesson pair${pairs.length !== 1 ? 's' : ''} to recover ${pairs.length} day${pairs.length !== 1 ? 's' : ''}`,
+          detail: pairDescs.join(', '),
           tag: 'combine', tagClass: 'tag-combine'
         });
-        daysRecovered += 1;
+        daysRecovered += pairs.length;
       }
     }
 
+    // 4. Add structured review
     steps.push({
       title: 'Add a structured review session before the assessment',
-      detail: `Dedicate one day to revisiting ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
+      detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
       tag: 'review', tagClass: 'tag-review'
     });
   }
