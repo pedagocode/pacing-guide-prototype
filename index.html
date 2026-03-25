@@ -1665,22 +1665,6 @@ function buildModePlan(unit, mode) {
     </div>`;
   });
 
-  // Days lost = how many days behind schedule. Computed from detection or remaining vs expected.
-  const detection = detectBehind(unit);
-  const daysLost = Math.max(0, (detection.daysUsed || 0) - (detection.completedCount || 0));
-  const lessonsAfterPlan = remaining.length - daysRecovered;
-
-  stepsHtml += `<div class="ai-plan-impact">
-    <div class="impact-item">
-      <div class="impact-num">${daysLost}</div>
-      <div class="impact-label">Days lost</div>
-    </div>
-    <div class="impact-item">
-      <div class="impact-num">${daysRecovered}</div>
-      <div class="impact-label">Days recovered</div>
-    </div>
-  </div>`;
-
   stepsHtml += `<div class="ai-plan-actions">
     <button class="btn-confirm" onclick="confirmPlan(${unit.id})">Confirm Plan</button>
     <button class="btn-adjust" onclick="enableModify(${unit.id})">Modify</button>
@@ -1861,10 +1845,11 @@ function enableModify(unitId) {
     rebuildPlanSteps(unitId);
   }
 
-  // Transform impact section into editable steppers
-  const impactEl = document.querySelector('.ai-plan-impact');
-  if (impactEl) {
-    impactEl.classList.add('editable');
+  // Insert editable impact section (only appears in Modify flow)
+  const actionsEl = document.querySelector('.ai-plan-actions');
+  if (actionsEl) {
+    const impactEl = document.createElement('div');
+    impactEl.className = 'ai-plan-impact editable';
     impactEl.innerHTML = `
       <div class="impact-item">
         <div class="impact-num editable" id="modDays">${modifyState.daysRecovered}</div>
@@ -1875,11 +1860,12 @@ function enableModify(unitId) {
         </div>
         <div style="font-size:10px;color:var(--mid);margin-top:2px">${modifyState.maxRecoverable} recoverable</div>
       </div>`;
+    actionsEl.parentNode.insertBefore(impactEl, actionsEl);
     // Insert warning area after impact section
     const warningDiv = document.createElement('div');
     warningDiv.id = 'daysWarning';
     warningDiv.style.cssText = 'display:none;font-size:12px;color:var(--mid);padding:10px 14px;background:#FFF8E1;border:1px solid #FFE082;border-radius:6px;margin-top:8px;line-height:1.5';
-    impactEl.parentNode.insertBefore(warningDiv, impactEl.nextSibling);
+    impactEl.parentNode.insertBefore(warningDiv, actionsEl);
   }
 
   // Make steps toggleable
