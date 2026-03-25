@@ -236,6 +236,19 @@
     border-radius:50%;background:var(--black);border:3px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
   .perf-slider-desc{font-size:12px;color:var(--mid);margin-top:10px;line-height:1.45;min-height:32px}
 
+  /* Modify mode */
+  .ai-plan-impact.editable{border:2px solid var(--black)}
+  .impact-stepper{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px}
+  .impact-stepper button{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);
+    background:var(--white);cursor:pointer;font-size:14px;font-weight:700;font-family:'Lexend',sans-serif;
+    display:flex;align-items:center;justify-content:center;transition:var(--transition);color:var(--black);padding:0;line-height:1}
+  .impact-stepper button:hover{background:var(--black);color:#fff;border-color:var(--black)}
+  .impact-num.editable{font-size:22px;min-width:28px;text-align:center}
+  .ai-plan-step.excluded{opacity:.35;text-decoration:line-through}
+  .ai-plan-step.modifiable{cursor:pointer;border-radius:var(--radius-sm);margin:0 -8px;padding:12px 8px;transition:background .15s}
+  .ai-plan-step.modifiable:hover{background:#F8F8F8}
+  .modify-helper{font-size:11px;color:var(--mid);text-align:center;margin-top:8px;line-height:1.4}
+
   .ai-plan-summary{background:#F8F8F8;border:1px solid var(--border);border-radius:var(--radius);
     padding:16px 20px;margin-bottom:16px;font-size:13px;line-height:1.6}
   .ai-plan-summary .plan-context{font-size:12px;color:var(--mid);margin-bottom:12px;line-height:1.5}
@@ -1402,43 +1415,183 @@ function renderAIPanel(unit) {
   return html;
 }
 
+let modifyState = { daysRecovered: 0, lessonsRemaining: 0, active: false };
+
 function enableModify(unitId) {
+  const unit = UNITS.find(u => u.id === unitId);
+  if (!unit) return;
+
+  modifyState.active = true;
+
+  // Read current impact values
+  const impactNums = document.querySelectorAll('.ai-plan-impact .impact-num');
+  if (impactNums.length >= 2) {
+    modifyState.daysRecovered = parseInt(impactNums[0].textContent) || 0;
+    modifyState.lessonsRemaining = parseInt(impactNums[1].textContent) || 0;
+  }
+
+  // Transform impact section into editable steppers
+  const impactEl = document.querySelector('.ai-plan-impact');
+  if (impactEl) {
+    impactEl.classList.add('editable');
+    impactEl.innerHTML = `
+      <div class="impact-item">
+        <div class="impact-num editable" id="modDays">${modifyState.daysRecovered}</div>
+        <div class="impact-label">Days recovered</div>
+        <div class="impact-stepper">
+          <button onclick="modifyImpact('days',-1,${unitId})">-</button>
+          <button onclick="modifyImpact('days',1,${unitId})">+</button>
+        </div>
+      </div>
+      <div class="impact-item">
+        <div class="impact-num editable" id="modLessons">${modifyState.lessonsRemaining}</div>
+        <div class="impact-label">Lessons remaining</div>
+        <div class="impact-stepper">
+          <button onclick="modifyImpact('lessons',-1,${unitId})">-</button>
+          <button onclick="modifyImpact('lessons',1,${unitId})">+</button>
+        </div>
+      </div>
+      <div class="impact-item">
+        <div class="impact-num">${unit.standards.length}</div>
+        <div class="impact-label">Standards covered</div>
+      </div>`;
+  }
+
+  // Make steps toggleable
   const steps = document.querySelectorAll('.ai-plan-step');
   steps.forEach(s => {
-    s.style.cursor = 'pointer';
-    s.style.transition = 'all .15s ease';
-    // Add toggle behavior: click to toggle skip/include
-    if (!s.dataset.modifiable) {
-      s.dataset.modifiable = 'true';
+    s.classList.add('modifiable');
+    if (!s.dataset.bound) {
+      s.dataset.bound = 'true';
       s.addEventListener('click', function() {
-        const isExcluded = this.dataset.excluded === 'true';
-        if (isExcluded) {
-          this.style.opacity = '1';
-          this.style.textDecoration = 'none';
-          this.dataset.excluded = 'false';
-        } else {
-          this.style.opacity = '.4';
-          this.style.textDecoration = 'line-through';
-          this.dataset.excluded = 'true';
-        }
+        this.classList.toggle('excluded');
+        recalcModifyImpact(unitId);
       });
     }
   });
-  // Change button label to indicate modify mode is active
+
+  // Update button
   const modifyBtn = document.querySelector('.btn-adjust');
   if (modifyBtn) {
-    modifyBtn.textContent = 'Modifying...';
-    modifyBtn.style.borderColor = 'var(--black)';
-    modifyBtn.style.fontWeight = '700';
+    modifyBtn.textContent = 'Reset';
+    modifyBtn.onclick = function() { resetModify(unitId); };
   }
-  // Show helper text
+
+  // Add helper
   const actionsDiv = document.querySelector('.ai-plan-actions');
   if (actionsDiv && !document.getElementById('modifyHelper')) {
     const helper = document.createElement('div');
     helper.id = 'modifyHelper';
-    helper.style.cssText = 'font-size:11px;color:var(--mid);text-align:center;margin-top:8px;width:100%';
-    helper.textContent = 'Click any step to remove it from the plan, then confirm.';
+    helper.className = 'modify-helper';
+    helper.textContent = 'Use +/- to adjust your targets. Click any step to include or exclude it.';
     actionsDiv.parentNode.insertBefore(helper, actionsDiv.nextSibling);
+  }
+}
+
+function modifyImpact(type, delta, unitId) {
+  if (type === 'days') {
+    modifyState.daysRecovered = Math.max(0, modifyState.daysRecovered + delta);
+    const el = document.getElementById('modDays');
+    if (el) el.textContent = modifyState.daysRecovered;
+  } else if (type === 'lessons') {
+    modifyState.lessonsRemaining = Math.max(0, modifyState.lessonsRemaining + delta);
+    const el = document.getElementById('modLessons');
+    if (el) el.textContent = modifyState.lessonsRemaining;
+  }
+  // Update plan suggestions based on new targets
+  updatePlanForTargets(unitId);
+}
+
+function updatePlanForTargets(unitId) {
+  const unit = UNITS.find(u => u.id === unitId);
+  if (!unit) return;
+
+  const completed = getCompleted(unit.id);
+  const allNonOptional = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l); }));
+  const remaining = allNonOptional.filter(l => !completed.has(l.id));
+
+  const targetDays = modifyState.daysRecovered;
+  const targetLessons = modifyState.lessonsRemaining;
+  const lessonsToRemove = remaining.length - targetLessons;
+
+  // Build a recommendation note
+  let noteHtml = '';
+  if (lessonsToRemove > 0 && targetDays > 0) {
+    // Figure out how to hit both targets
+    const optSkippable = unit.optionalLessons.filter(id => !completed.has(id));
+    const pairsAvailable = findCombinablePairs(unit, remaining);
+    const fromOpt = Math.min(optSkippable.length, targetDays);
+    const fromCombine = Math.min(pairsAvailable.length, Math.max(0, targetDays - fromOpt));
+
+    let recs = [];
+    if (fromOpt > 0) {
+      const optNames = optSkippable.slice(0, fromOpt).map(id => {
+        let n = ''; unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === id) n = l.name; })); return `Lesson ${id}: ${n}`;
+      });
+      recs.push(`Skip ${fromOpt} optional: ${optNames.join(', ')}`);
+    }
+    if (fromCombine > 0) {
+      const combNames = pairsAvailable.slice(0, fromCombine).map(p => `Lessons ${p.a.id}+${p.b.id}`);
+      recs.push(`Combine ${fromCombine} pair${fromCombine > 1 ? 's' : ''}: ${combNames.join(', ')}`);
+    }
+    if (recs.length > 0) {
+      noteHtml = `<div style="font-size:12px;color:var(--dark);background:#F8F8F8;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-top:10px;line-height:1.45">
+        <strong>To reach your targets:</strong> ${recs.join('. ')}.
+      </div>`;
+    }
+  }
+
+  // Insert/update recommendation
+  let noteEl = document.getElementById('modifyRec');
+  if (noteHtml) {
+    if (noteEl) {
+      noteEl.innerHTML = noteHtml;
+    } else {
+      const impactEl = document.querySelector('.ai-plan-impact');
+      if (impactEl) {
+        const div = document.createElement('div');
+        div.id = 'modifyRec';
+        div.innerHTML = noteHtml;
+        impactEl.parentNode.insertBefore(div, impactEl.nextSibling);
+      }
+    }
+  } else if (noteEl) {
+    noteEl.innerHTML = '';
+  }
+}
+
+function recalcModifyImpact(unitId) {
+  // Count excluded steps and adjust days
+  const steps = document.querySelectorAll('.ai-plan-step');
+  let excludedCount = 0;
+  steps.forEach(s => { if (s.classList.contains('excluded')) excludedCount++; });
+
+  // Simple heuristic: each excluded step roughly adjusts days by 1
+  const unit = UNITS.find(u => u.id === unitId);
+  if (!unit) return;
+  const completed = getCompleted(unit.id);
+  const allNonOptional = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l); }));
+  const remaining = allNonOptional.filter(l => !completed.has(l.id));
+
+  // Recalc from original plan minus excluded
+  const origDays = modifyState.daysRecovered;
+  const adjustedDays = Math.max(0, origDays - excludedCount);
+  const adjustedLessons = remaining.length - adjustedDays;
+
+  const daysEl = document.getElementById('modDays');
+  const lessonsEl = document.getElementById('modLessons');
+  if (daysEl) daysEl.textContent = adjustedDays;
+  if (lessonsEl) lessonsEl.textContent = Math.max(0, adjustedLessons);
+}
+
+function resetModify(unitId) {
+  modifyState.active = false;
+  const unit = UNITS.find(u => u.id === unitId);
+  if (unit) {
+    const planArea = document.getElementById('aiPlanArea');
+    if (planArea) planArea.innerHTML = buildModePlan(unit, state.aiMode);
   }
 }
 
