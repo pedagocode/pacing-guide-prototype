@@ -1318,10 +1318,10 @@ function findHighPriorityLessons(unit, remaining) {
 }
 
 function getPerformanceTier(val) {
-  if (val <= 25) return 'struggling';
-  if (val <= 50) return 'developing';
-  if (val <= 75) return 'on-track';
-  return 'excelling';
+  if (val <= 25) return 'developing';
+  if (val <= 50) return 'approaching';
+  if (val <= 75) return 'mastery';
+  return 'exceeds';
 }
 
 function buildPerformancePlan(unit, perfVal) {
@@ -1335,8 +1335,8 @@ function buildPerformancePlan(unit, perfVal) {
   let daysRecovered = 0;
   const tier = getPerformanceTier(perfVal);
 
-  if (tier === 'struggling') {
-    // Struggling: slow down, reteach, add practice
+  if (tier === 'developing') {
+    // Developing: slow down, reteach, add practice
     // 1. Reteach foundational standards
     const foundational = unit.standards.slice(0, 2);
     steps.push({
@@ -1373,8 +1373,8 @@ function buildPerformancePlan(unit, perfVal) {
       tag: 'practice', tagClass: 'tag-combine'
     });
 
-  } else if (tier === 'developing') {
-    // Developing: reinforce, keep optionals, steady pace
+  } else if (tier === 'approaching') {
+    // Approaching: reinforce, keep optionals, steady pace
     // 1. Reinforce key lessons
     const priority = findHighPriorityLessons(unit, remaining);
     const reinforceLessons = priority.slice(0, Math.min(4, priority.length));
@@ -1408,7 +1408,7 @@ function buildPerformancePlan(unit, perfVal) {
       tag: 'review', tagClass: 'tag-review'
     });
 
-  } else if (tier === 'on-track') {
+  } else if (tier === 'mastery') {
     // On Track: continue as planned, include enrichment if room
     steps.push({
       title: 'Continue current pacing',
@@ -1504,10 +1504,10 @@ function buildModePlan(unit, mode) {
     sliderHtml = `<div class="perf-slider-section">
       <div class="perf-slider-label">How is your class performing on this unit's standards?</div>
       <div class="perf-tier-indicator">
-        <span class="tier-dot${tier === 'struggling' ? ' active' : ''}" data-tier="struggling">Struggling</span>
         <span class="tier-dot${tier === 'developing' ? ' active' : ''}" data-tier="developing">Developing</span>
-        <span class="tier-dot${tier === 'on-track' ? ' active' : ''}" data-tier="on-track">On Track</span>
-        <span class="tier-dot${tier === 'excelling' ? ' active' : ''}" data-tier="excelling">Excelling</span>
+        <span class="tier-dot${tier === 'approaching' ? ' active' : ''}" data-tier="approaching">Approaching</span>
+        <span class="tier-dot${tier === 'mastery' ? ' active' : ''}" data-tier="mastery">Mastery</span>
+        <span class="tier-dot${tier === 'exceeds' ? ' active' : ''}" data-tier="exceeds">Exceeds</span>
       </div>
       <div class="perf-slider-wrap">
         <div class="perf-slider-track">
@@ -1708,9 +1708,9 @@ function onPerfSlider(val) {
 
 function getPerfDescription(val) {
   const tier = getPerformanceTier(val);
-  if (tier === 'struggling') return 'Students need more time with foundational concepts. The plan slows down, adds reteach days, and prioritizes depth over coverage.';
-  if (tier === 'developing') return 'Students are building understanding but need reinforcement. The plan maintains pace with extended practice on key lessons.';
-  if (tier === 'on-track') return 'Students are meeting expectations. The plan continues current pacing with optional content and review before the assessment.';
+  if (tier === 'developing') return 'Students need more time with foundational concepts. The plan slows down, adds reteach days, and prioritizes depth over coverage.';
+  if (tier === 'approaching') return 'Students are building understanding but need reinforcement. The plan maintains pace with extended practice on key lessons.';
+  if (tier === 'mastery') return 'Students are meeting expectations. The plan continues current pacing with optional content and review before the assessment.';
   return 'Students are exceeding expectations. The plan accelerates by combining lessons, skipping reinforcement, and adding enrichment.';
 }
 
