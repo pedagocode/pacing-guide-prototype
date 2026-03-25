@@ -169,6 +169,27 @@
   .plan-badge-inline.tag-keep{background:var(--black);color:#fff}
   .plan-badge-inline.tag-skip{background:#F0F0F0;color:var(--mid)}
   .plan-badge-inline.tag-combine{background:#E8E8E8;color:var(--dark)}
+
+  /* Combined lesson plan styles */
+  .combined-plan-section{margin-top:32px;padding:24px;border-radius:var(--radius);background:#FAFAFA;border:1px solid var(--border)}
+  .combined-plan-header{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+  .combined-plan-header h3{font-size:15px;font-weight:700;margin:0}
+  .combined-plan-meta{font-size:12px;color:var(--mid);margin-bottom:20px}
+  .cp-activity{padding:12px 16px;border-radius:8px;margin-bottom:8px;position:relative}
+  .cp-activity.cp-keep{background:#fff;border:1px solid var(--border);border-left:3px solid var(--black)}
+  .cp-activity.cp-compress{background:#fff;border:1px solid #E0D8B0;border-left:3px solid #BBA800}
+  .cp-activity.cp-skip{background:#F8F8F8;border:1px solid #EAEAEA;opacity:.55}
+  .cp-activity-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .cp-activity-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--mid)}
+  .cp-activity-action{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 8px;border-radius:4px}
+  .cp-action-keep{background:var(--black);color:#fff}
+  .cp-action-compress{background:#FFF8E1;color:#8B7800;border:1px solid #E0D8B0}
+  .cp-action-skip{background:#F0F0F0;color:var(--mid);text-decoration:line-through}
+  .cp-activity-title{font-size:13px;font-weight:600;margin-bottom:2px}
+  .cp-activity-time{font-size:11px;color:var(--mid)}
+  .cp-activity-reason{font-size:11px;color:var(--mid);font-style:italic;margin-top:4px}
+  .cp-activity-source{font-size:10px;color:var(--border);margin-top:2px}
+  .cp-time-savings{display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:8px;background:var(--black);color:#fff;font-size:13px;font-weight:600;margin-top:12px}
   .lesson-card.completed{border-left:3px solid var(--black)}
   .lesson-card .lesson-num{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.3px}
   .lesson-card .lesson-name{font-size:13px;font-weight:600;margin-top:4px;line-height:1.35}
@@ -2024,12 +2045,61 @@ function rebuildPlanSteps(unitId) {
     // Recalculate available recovery
     const optSkippable = unit.optionalLessons.filter(id => !completed.has(id));
     const pairs = findCombinablePairs(unit, remaining);
-    modifyState.daysRecovered = optSkippable.length + pairs.length;
+    modifyState.maxRecoverable = optSkippable.length + pairs.length;
+    modifyState.daysRecovered = modifyState.maxRecoverable;
     daysEl.textContent = modifyState.daysRecovered;
+    // Update the "X recoverable" hint
+    const hintEl = daysEl.closest('.impact-item')?.querySelector('div[style*="font-size:10px"]');
+    if (hintEl) hintEl.textContent = modifyState.maxRecoverable + ' recoverable';
   }
   if (lessonsEl) {
     modifyState.lessonsRemaining = remaining.length;
     lessonsEl.textContent = remaining.length;
+  }
+
+  // Re-render the suggested plan steps
+  const planArea = document.getElementById('aiPlanArea');
+  if (planArea) {
+    // Remove existing step elements and "Suggested Plan" label
+    const existingSteps = planArea.querySelectorAll('.ai-plan-step');
+    existingSteps.forEach(s => s.remove());
+    // Remove "Suggested Plan" label
+    for (const child of [...planArea.children]) {
+      if (child.textContent.trim() === 'Suggested Plan' && !child.classList) child.remove();
+      if (child.tagName === 'DIV' && child.textContent.trim() === 'Suggested Plan' && !child.querySelector('.ai-plan-step')) child.remove();
+    }
+
+    // Regenerate steps from buildModePlan, extract just the step data
+    const mode = state.aiMode || 'assessment';
+    const freshPlan = buildModePlan(unit, mode);
+    // Parse step HTML from freshPlan and insert before actions
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = freshPlan;
+    const newSteps = tempDiv.querySelectorAll('.ai-plan-step');
+    // Find the "Suggested Plan" label in the fresh HTML
+    let newLabel = null;
+    for (const child of tempDiv.children) {
+      if (child.textContent.trim() === 'Suggested Plan' && !child.querySelector('.ai-plan-step')) {
+        newLabel = child;
+        break;
+      }
+    }
+
+    const actionsEl = planArea.querySelector('.ai-plan-actions');
+    if (actionsEl) {
+      if (newLabel) planArea.insertBefore(newLabel, actionsEl);
+      newSteps.forEach(step => {
+        planArea.insertBefore(step, actionsEl);
+        // Re-apply modifiable behavior if in modify mode
+        if (modifyState.active) {
+          step.classList.add('modifiable');
+          step.addEventListener('click', function() {
+            this.classList.toggle('excluded');
+            recalcModifyImpact(unitId);
+          });
+        }
+      });
+    }
   }
 }
 
@@ -2210,6 +2280,10 @@ function confirmPlan(unitId) {
       planTags[p.b.id] = {tag: 'combine', tagClass: 'tag-combine', label: 'Combine'};
     });
 
+    // Store pair data for lesson-level combined plans
+    if (!state.confirmedPairs) state.confirmedPairs = {};
+    state.confirmedPairs[unitId] = pairs.map(p => ({ a: p.a.id, b: p.b.id, lessonA: p.a, lessonB: p.b }));
+
   } else {
     // Class Performance mode
     const perfVal = state.perfSlider || 50;
@@ -2239,6 +2313,11 @@ function confirmPlan(unitId) {
       unit.optionalLessons.filter(id => !completed.has(id)).forEach(id => {
         planTags[id] = {tag: 'skip', tagClass: 'tag-skip', label: 'Skip'};
       });
+
+      // Store pair data for lesson-level combined plans
+      if (!state.confirmedPairs) state.confirmedPairs = {};
+      if (!state.confirmedPairs[unitId]) state.confirmedPairs[unitId] = [];
+      state.confirmedPairs[unitId] = pairs.map(p => ({ a: p.a.id, b: p.b.id, lessonA: p.a, lessonB: p.b }));
     }
   }
 
@@ -2260,6 +2339,138 @@ function confirmPlan(unitId) {
 function getPlanTag(unitId, lessonId) {
   if (state.confirmedPlans && state.confirmedPlans[unitId]) {
     return state.confirmedPlans[unitId][lessonId] || null;
+  }
+  return null;
+}
+
+// Build a combined lesson plan showing which activities to keep, compress, or skip
+function buildCombinedPlan(lessonA, lessonB) {
+  const dataA = LESSON_ACTIVITY_DATA[lessonA.id];
+  const dataB = LESSON_ACTIVITY_DATA[lessonB.id];
+  if (!dataA || !dataB) return null;
+
+  const plan = [];
+
+  // Categorize activities
+  const warmupA = dataA.activities.find(a => a.label === 'Warm-Up');
+  const warmupB = dataB.activities.find(a => a.label === 'Warm-Up');
+  const synthA = dataA.activities.find(a => a.label === 'Lesson Synthesis');
+  const synthB = dataB.activities.find(a => a.label === 'Lesson Synthesis');
+  const coreA = dataA.activities.filter(a => a.label !== 'Warm-Up' && a.label !== 'Lesson Synthesis' && a.label !== 'Cool-Down');
+  const coreB = dataB.activities.filter(a => a.label !== 'Warm-Up' && a.label !== 'Lesson Synthesis' && a.label !== 'Cool-Down');
+
+  // Warm-ups: check if same routine
+  const sameWarmupRoutine = warmupA && warmupB &&
+    (warmupA.title.split(':')[0] === warmupB.title.split(':')[0]);
+
+  if (warmupA) {
+    plan.push({
+      ...warmupA, lesson: lessonA.id, action: 'keep',
+      reason: sameWarmupRoutine ? 'Same routine as L' + lessonB.id + ', keep this one' : 'Different routine, keep'
+    });
+  }
+  if (warmupB) {
+    if (sameWarmupRoutine) {
+      plan.push({
+        ...warmupB, lesson: lessonB.id, action: 'skip',
+        reason: 'Same routine as L' + lessonA.id + ' warm-up, skip to recover time'
+      });
+    } else {
+      // Different routine - check if it introduces a new year-long routine
+      const introducesRoutine = warmupB.title.toLowerCase().includes('introduction');
+      plan.push({
+        ...warmupB, lesson: lessonB.id, action: introducesRoutine ? 'keep' : 'compress',
+        time: introducesRoutine ? warmupB.time : Math.max(5, parseInt(warmupB.time) - 5) + ' min',
+        reason: introducesRoutine ? 'Introduces a new routine, keep at full length' : 'Compress to save time'
+      });
+    }
+  }
+
+  // Core activities from lesson A
+  coreA.forEach(a => {
+    const isCenters = a.title.toLowerCase().includes('centers: choice time');
+    if (isCenters) {
+      plan.push({
+        ...a, lesson: lessonA.id, action: 'skip',
+        reason: 'Centers from both lessons merged into one shorter block below'
+      });
+    } else {
+      plan.push({
+        ...a, lesson: lessonA.id, action: 'keep',
+        reason: 'Core activity, keep at full length'
+      });
+    }
+  });
+
+  // Core activities from lesson B
+  coreB.forEach(a => {
+    const isCenters = a.title.toLowerCase().includes('centers: choice time');
+    if (isCenters) {
+      // Check if lesson A also had centers
+      const centersInA = coreA.some(x => x.title.toLowerCase().includes('centers: choice time'));
+      if (centersInA) {
+        plan.push({
+          ...a, lesson: lessonB.id, action: 'compress',
+          time: '10 min',
+          reason: 'Merged centers from both lessons into a shorter block'
+        });
+      } else {
+        plan.push({
+          ...a, lesson: lessonB.id, action: 'compress',
+          time: '10 min',
+          reason: 'Shorten centers to make room for combined lesson'
+        });
+      }
+    } else {
+      // Check if same routine as an activity in A (e.g. both "How Many Do You See")
+      const sameRoutineInA = coreA.find(x => x.title.split(':')[0] === a.title.split(':')[0]);
+      if (sameRoutineInA) {
+        plan.push({
+          ...a, lesson: lessonB.id, action: 'keep',
+          reason: 'Builds on L' + lessonA.id + '\'s ' + sameRoutineInA.title.split(':')[0] + ', keep for progression'
+        });
+      } else {
+        plan.push({
+          ...a, lesson: lessonB.id, action: 'keep',
+          reason: 'Core activity, keep at full length'
+        });
+      }
+    }
+  });
+
+  // Synthesis: merge into one
+  if (synthA && synthB) {
+    plan.push({
+      label: 'Lesson Synthesis', title: 'Combined Synthesis',
+      time: '5 min', grouping: 'Whole Class',
+      desc: (synthA.desc || '') + ' ' + (synthB.desc || ''),
+      lesson: 'combined', action: 'compress',
+      reason: 'Merged synthesis from both lessons into one reflection'
+    });
+  } else if (synthA || synthB) {
+    const synth = synthA || synthB;
+    plan.push({
+      ...synth, lesson: synthA ? lessonA.id : lessonB.id, action: 'keep',
+      reason: 'Single synthesis, keep'
+    });
+  }
+
+  // Calculate total time
+  const totalTime = plan.reduce((sum, a) => {
+    if (a.action === 'skip') return sum;
+    return sum + (parseInt(a.time) || 0);
+  }, 0);
+
+  return { activities: plan, totalTime };
+}
+
+// Get the combine partner for a lesson
+function getCombinePartner(unitId, lessonId) {
+  if (!state.confirmedPairs || !state.confirmedPairs[unitId]) return null;
+  const pairs = state.confirmedPairs[unitId];
+  for (const p of pairs) {
+    if (p.a === lessonId) return { partner: p.b, isFirst: true };
+    if (p.b === lessonId) return { partner: p.a, isFirst: false };
   }
   return null;
 }
@@ -2391,6 +2602,69 @@ function renderLessonView(unit, section, lesson) {
     }
   });
   html += `</div>`;
+
+  // Combined Lesson Plan (when this lesson has a combine tag)
+  const planTag = getPlanTag(unit.id, lesson.id);
+  if (planTag && planTag.tag === 'combine') {
+    const pairInfo = getCombinePartner(unit.id, lesson.id);
+    if (pairInfo) {
+      const partnerLesson = allLessons.find(l => l.id === pairInfo.partner);
+      if (partnerLesson) {
+        const lessonA = pairInfo.isFirst ? lesson : partnerLesson;
+        const lessonB = pairInfo.isFirst ? partnerLesson : lesson;
+        const combinedPlan = buildCombinedPlan(lessonA, lessonB);
+        if (combinedPlan) {
+          const originalTimeA = (LESSON_ACTIVITY_DATA[lessonA.id]?.activities || []).reduce((s, a) => s + (parseInt(a.time) || 0), 0);
+          const originalTimeB = (LESSON_ACTIVITY_DATA[lessonB.id]?.activities || []).reduce((s, a) => s + (parseInt(a.time) || 0), 0);
+          const originalTotal = originalTimeA + originalTimeB;
+          const timeSaved = originalTotal - combinedPlan.totalTime;
+
+          html += `<div class="combined-plan-section">`;
+          html += `<div class="combined-plan-header">
+            <span style="font-size:18px">&#x1F517;</span>
+            <h3>Combined Lesson Plan: L${lessonA.id} + L${lessonB.id}</h3>
+          </div>`;
+          html += `<div class="combined-plan-meta">
+            Lessons ${lessonA.id} (${lessonA.name}) and ${lessonB.id} (${lessonB.name}) combined into a single session.
+            Original: ${originalTotal} min total. Combined: ${combinedPlan.totalTime} min.
+          </div>`;
+
+          combinedPlan.activities.forEach(a => {
+            const actionCls = a.action === 'keep' ? 'cp-keep' : (a.action === 'compress' ? 'cp-compress' : 'cp-skip');
+            const actionBadgeCls = a.action === 'keep' ? 'cp-action-keep' : (a.action === 'compress' ? 'cp-action-compress' : 'cp-action-skip');
+            const actionLabel = a.action === 'keep' ? 'Keep' : (a.action === 'compress' ? 'Compress' : 'Skip');
+            const sourceLabel = a.lesson === 'combined' ? 'Combined' : ('From L' + a.lesson);
+
+            html += `<div class="cp-activity ${actionCls}">
+              <div class="cp-activity-top">
+                <span class="cp-activity-label">${a.label}</span>
+                <span class="cp-activity-action ${actionBadgeCls}">${actionLabel}</span>
+              </div>
+              <div class="cp-activity-title">${a.title || a.label}</div>
+              <div class="cp-activity-time">${a.action === 'skip' ? '<s>' + a.time + '</s>' : a.time}${a.grouping ? ' &middot; ' + a.grouping : ''}</div>
+              <div class="cp-activity-reason">${a.reason}</div>
+              <div class="cp-activity-source">${sourceLabel}</div>
+            </div>`;
+          });
+
+          if (timeSaved > 0) {
+            html += `<div class="cp-time-savings">
+              <span>&#x23F1;</span> ${timeSaved} minutes recovered by combining these lessons
+            </div>`;
+          }
+          html += `</div>`;
+        }
+      }
+    }
+  }
+
+  // Skip notice (when this lesson has a skip tag)
+  if (planTag && planTag.tag === 'skip') {
+    html += `<div style="margin-top:24px;padding:16px 18px;border-radius:var(--radius);background:#F8F8F8;border:1px solid var(--border);font-size:13px;color:var(--mid)">
+      <span style="font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-size:10px;color:var(--mid)">Skipped</span>
+      <div style="margin-top:6px">This ${lesson.optional ? 'optional ' : ''}lesson is skipped in the confirmed plan to recover pacing time.</div>
+    </div>`;
+  }
 
   // Assessment notice
   if (assess) {
