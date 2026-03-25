@@ -663,7 +663,7 @@ let state = {
   heroTab: 1,
   aiPanelOpen: false,
   aiScenario: null,
-  aiMode: 'performance',
+  aiMode: 'assessment',
   completed: {},
   perfSlider: 50
 };
@@ -1013,7 +1013,7 @@ function renderAdjustPacingBtn(unit) {
   </button>`;
 }
 
-function openAIPanel() { state.aiPanelOpen = true; state.aiMode = state.aiMode || 'auto'; render(); }
+function openAIPanel() { state.aiPanelOpen = true; state.aiMode = state.aiMode || 'assessment'; render(); }
 function closeAIPanel() { state.aiPanelOpen = false; render(); }
 
 function switchAIMode(mode) {
@@ -1385,13 +1385,13 @@ function renderAIPanel(unit) {
       </div>
       <div class="ai-panel-body">
         <div class="mode-selector">
-          <button class="mode-option${mode === 'performance' ? ' active' : ''}" onclick="switchAIMode('performance')">
-            <span class="mode-title">By Student Performance</span>
-            <span class="mode-desc">Adjust based on where your class is relative to expectations</span>
-          </button>
           <button class="mode-option${mode === 'assessment' ? ' active' : ''}" onclick="switchAIMode('assessment')">
             <span class="mode-title">Assessment Coming Up</span>
             <span class="mode-desc">Focus on what matters most for the upcoming assessment</span>
+          </button>
+          <button class="mode-option${mode === 'performance' ? ' active' : ''}" onclick="switchAIMode('performance')">
+            <span class="mode-title">By Student Performance</span>
+            <span class="mode-desc">Adjust based on where your class is relative to expectations</span>
           </button>
         </div>
 
