@@ -1643,12 +1643,6 @@ function buildModePlan(unit, mode) {
       }
     }
 
-    // 4. Add structured review
-    steps.push({
-      title: 'Add a structured review session before the assessment',
-      detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
-      tag: 'review', tagClass: 'tag-review'
-    });
   }
 
   let stepsHtml = sliderHtml;
