@@ -562,6 +562,172 @@ const KIDDOM_ASSESS_NODES = {
   8: {end: 'e407c821-2410-11ef-9f62-02133630717d'}
 };
 
+// Real lesson activity data from Kiddom MCP (Unit 1)
+const LESSON_ACTIVITY_DATA = {
+  1: {
+    activities: [
+      {label:'Warm-Up', title:'Notice and Wonder: Connecting Cubes', time:'15 min', grouping:'Partners', desc:'Students observe connecting cubes and share what they notice and wonder with a partner.'},
+      {label:'Activity 1', title:'Introduce Connecting Cubes, Explore', time:'15 min', grouping:'Partners', desc:'Students freely explore connecting cubes, building objects and sharing what they made with a partner.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'10 min', grouping:'Whole Class', desc:'Students discuss what it means to do math together and begin the Math Community poster.'},
+    ],
+    materials: ['Connecting cubes', 'Chart paper'],
+  },
+  2: {
+    activities: [
+      {label:'Warm-Up', title:'Notice and Wonder: Pattern Blocks', time:'10 min', grouping:'Partners', desc:'Students observe pattern blocks and share what they notice and wonder with a partner.'},
+      {label:'Activity 1', title:'Introduce Pattern Blocks, Explore', time:'15 min', grouping:'Partners', desc:'Students freely explore pattern blocks, creating designs or sorting shapes, then share with a partner.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'10 min', grouping:'Whole Class', desc:'Students revisit the Math Community poster and add new ideas about doing math together.'},
+    ],
+    materials: ['Pattern blocks', 'Math community poster'],
+  },
+  3: {
+    activities: [
+      {label:'Warm-Up', title:'Notice and Wonder: Counters and 5-Frames', time:'15 min', grouping:'Partners', desc:'Students observe four math tools (5-frame, counters, connecting cubes, pattern blocks) and share what they notice and wonder.'},
+      {label:'Activity 1', title:'Explore Counters and 5-Frames', time:'15 min', grouping:'Individual', desc:'Students freely explore two-color counters and 5-frames, placing counters on frames or creating designs.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'10 min', grouping:'Whole Class', desc:'Students discuss which tools can be used for counting or making shapes and practice counting to 10 as a class.'},
+    ],
+    materials: ['Two-color counters', '5-frame (blackline master)', 'Math community poster'],
+  },
+  4: {
+    activities: [
+      {label:'Warm-Up', title:'Notice and Wonder: Geoblocks', time:'10 min', grouping:'Partners', desc:'Students observe geoblocks and share what they notice and wonder with a partner.'},
+      {label:'Activity 1', title:'Introduce Geoblocks, Explore', time:'15 min', grouping:'Partners', desc:'Students freely explore geoblocks, building structures and describing what they made to a partner.'},
+      {label:'Activity 2', title:'Introduce Geoblocks, Build to Match', time:'10 min', grouping:'Partners', desc:'Students use geoblocks to build objects pictured on cards, choosing which blocks to use and describing their creations.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'10 min', grouping:'Whole Class', desc:'Students finalize the Math Community poster by drafting norms for how the class will do math together.'},
+    ],
+    materials: ['Geoblocks', 'Solid shapes', 'Geoblocks Stage 2 Cards (blackline master)', 'Math community poster'],
+  },
+  5: {
+    activities: [
+      {label:'Warm-Up', title:'Notice and Wonder: Using Different Tools', time:'10 min', grouping:'Partners', desc:'Students consider how different tools can be used to represent the same thing.'},
+      {label:'Activity 1', title:'Introduce Connecting Cubes: Build to Match', time:'10 min', grouping:'Partners', desc:'Students use cubes to build objects pictured on cards.'},
+      {label:'Activity 2', title:'Introduce Pattern Blocks: Puzzles', time:'15 min', grouping:'Partners', desc:'Students fill in simple puzzles with pattern blocks.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'15 min', grouping:'Whole Class', desc:'Students choose from previously introduced center activities that focus on using math tools.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'10 min', grouping:'Whole Class', desc:'Students reflect on choosing math tools and practice counting to 10.'},
+    ],
+    materials: ['Connecting cubes', 'Pattern blocks', 'Connecting Cubes Stage 2 Cards', 'Pattern Blocks Stage 2 Mats', 'Materials from previous centers'],
+  },
+  6: {
+    activities: [
+      {label:'Warm-Up', title:'Act It Out: Introduction', time:'10 min', grouping:'Partners', desc:'Students are introduced to the Act It Out routine, which will be used throughout the year.'},
+      {label:'Activity 1', title:'How Many Do You See: Introduction', time:'10 min', grouping:'Partners', desc:'Students are introduced to the How Many Do You See? routine, which will be used throughout the year.'},
+      {label:'Activity 2', title:'Introduce Picture Books, Explore', time:'10 min', grouping:'Partners', desc:'Students learn Stage 1 of the Picture Books center by exploring math-related picture books.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'25 min', grouping:'Whole Class', desc:'Students choose from previously introduced center activities that focus on using math tools.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students revisit the norms established as a class about doing mathematics.'},
+    ],
+    materials: ['Math community poster', 'Picture books', 'Materials from previous centers'],
+  },
+  7: {
+    activities: [
+      {label:'Warm-Up', title:'Act It Out: How Can We Show It?', time:'10 min', grouping:'Partners', desc:'Students revisit a story and consider ways to act it out.'},
+      {label:'Activity 1', title:'How Many Do You See: Two Images', time:'10 min', grouping:'Partners', desc:'Students recognize quantities without counting and describe how they know how many dots are displayed.'},
+      {label:'Activity 2', title:'Classroom Scavenger Hunt', time:'10 min', grouping:'Partners', desc:'Students recognize small groups of objects in their classroom environment.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'25 min', grouping:'Whole Class', desc:'Students choose from activities that focus on using math tools and recognizing quantities.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students share groups of objects they found in the classroom.'},
+    ],
+    materials: ['Materials from previous centers'],
+  },
+  8: {
+    activities: [
+      {label:'Warm-Up', title:'Act It Out: Another Way', time:'10 min', grouping:'Partners', desc:'Students consider different ways of acting out a story.'},
+      {label:'Activity 1', title:'How Many Do You See: 1, 2, 3', time:'10 min', grouping:'Partners', desc:'Students recognize and name small groups of dots and describe how they see them.'},
+      {label:'Activity 2', title:'Card Sort: Different Groups, Same Quantity', time:'10 min', grouping:'Partners', desc:'Students recognize, name, and match groups with the same number of images.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'25 min', grouping:'Whole Class', desc:'Students choose from activities that focus on recognizing and naming quantities.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students discuss matching groups that had the same number of things.'},
+    ],
+    materials: ['Card Sort Different Groups Same Quantity Cards', 'Materials from previous centers'],
+  },
+  9: {
+    activities: [
+      {label:'Warm-Up', title:'Act It Out: The Story Changes', time:'10 min', grouping:'Partners', desc:'Students revisit a story with a new verse and suggest different ways to act it out.'},
+      {label:'Activity 1', title:'How Many Do You See: What Do You Notice?', time:'10 min', grouping:'Partners', desc:'Students recognize and name small groups of dots, then discuss different arrangements of 2 dots.'},
+      {label:'Activity 2', title:'Introduce Picture Books: Create', time:'10 min', grouping:'Whole Class', desc:'Students find groups of 2 objects in their classroom and record them to create a page in their own picture book.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'25 min', grouping:'Small Groups', desc:'Students choose from Connecting Cubes, Pattern Blocks, Geoblocks, or Picture Books centers.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students practice saying the verbal count sequence to 10.'},
+    ],
+    materials: ['Colored pencils or crayons', 'Picture Books Stage 2 Recording Sheet', 'Materials from previous centers'],
+  },
+  10: {
+    activities: [
+      {label:'Warm-Up', title:'How Many Do You See: Building On', time:'10 min', grouping:'Partners', desc:'Students recognize and name small groups of dots and may notice images are the same with one additional dot.'},
+      {label:'Activity 1', title:'Act It Out: 4 Frogs (Part 1)', time:'10 min', grouping:'Partners', desc:'Students are introduced to a new story about frogs, make sense of it, and orally explain what it is about.'},
+      {label:'Activity 2', title:'Are There Enough?', time:'10 min', grouping:'Groups of 4', desc:'Students determine if there are enough pencils and erasers for each student in their group.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'25 min', grouping:'Small Groups', desc:'Students choose from Connecting Cubes, Pattern Blocks, Geoblocks, or Picture Books centers.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students discuss what it means when there are enough and when there are not enough.'},
+    ],
+    materials: ['Pencils', 'Erasers', 'Materials from previous centers'],
+  },
+  11: {
+    activities: [
+      {label:'Warm-Up', title:'How Many Do You See: In a Flash', time:'10 min', grouping:'Partners', desc:'Students see groups of dots flashed quickly and determine how many without counting.'},
+      {label:'Activity 1', title:'Act It Out: 4 Frogs (Part 2)', time:'10 min', grouping:'Partners', desc:'Students hear the frog story a second time and suggest ways to act it out using objects, fingers, or pictures.'},
+      {label:'Activity 2', title:'Get Enough', time:'10 min', grouping:'Groups of 4', desc:'Students get enough pencils for each person in their group, practicing one-to-one correspondence.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'25 min', grouping:'Small Groups', desc:'Students choose from Connecting Cubes, Pattern Blocks, Geoblocks, or Picture Books centers.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students practice the verbal count sequence to 10 with movement (clapping, stomping, jumping).'},
+    ],
+    materials: ['Pencils (at least 8 per group of 4)', 'Materials from previous centers'],
+  },
+  12: {
+    activities: [
+      {label:'Warm-Up', title:'Questions About Us: How Many of Us Are Here Today?', time:'10 min', grouping:'Whole Class', desc:'Students are introduced to the Questions About Us routine, counting how many students are present.'},
+      {label:'Activity 1', title:'Counting Collections', time:'15 min', grouping:'Individual', desc:'Students count collections of 6-10 objects in a way that makes sense to them.'},
+      {label:'Activity 2', title:'Count to 10 (Optional)', time:'10 min', grouping:'Partners', desc:'Students practice the verbal count sequence to 10.'},
+      {label:'Activity 3', title:'Introduce Pattern Blocks: Get and Build', time:'20 min', grouping:'Partners', desc:'Students use a direction sheet to get a specified number of each block and build a creation.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students discuss how they counted their collections of objects.'},
+    ],
+    materials: ['5-frames', 'Collections of up to 20 small objects', 'Bags', 'Counting Mat', 'Pattern blocks', 'Pattern Blocks Stage 3 Directions', 'Materials from previous centers'],
+  },
+  13: {
+    activities: [
+      {label:'Warm-Up', title:'Questions About Us: Attendance', time:'10 min', grouping:'Whole Class', desc:'Students figure out how many are present and develop ideas for keeping track of which students have been counted.'},
+      {label:'Activity 1', title:'Counting Collections', time:'15 min', grouping:'Individual', desc:'Students count collections of 6-10 objects, focusing on keeping track of which objects have been counted.'},
+      {label:'Activity 2', title:'Pair Objects and Numbers (Optional)', time:'10 min', grouping:'Individual', desc:'Students practice pairing the verbal count sequence with objects by placing objects into a container as they count.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'20 min', grouping:'Small Groups', desc:'Students choose from Connecting Cubes, Pattern Blocks, Geoblocks, or Picture Books centers.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students discuss methods for keeping track of which objects they have counted.'},
+    ],
+    materials: ['Counting mats', '5-frames', 'Collections of up to 20 small objects', 'Bags', 'Collections of up to 10 small objects', 'Buckets or containers', 'Materials from previous centers'],
+  },
+  14: {
+    activities: [
+      {label:'Warm-Up', title:'Questions About Us: Represent Attendance (Part 1)', time:'10 min', grouping:'Whole Class', desc:'Students brainstorm and create a representation showing how many students are present today.'},
+      {label:'Activity 1', title:'Counting Collections: How Many?', time:'15 min', grouping:'Partners', desc:'Students count a collection of up to 10 objects and answer "how many?" questions to develop cardinality understanding.'},
+      {label:'Activity 2', title:'Egg Carton Counting (Optional)', time:'10 min', grouping:'Partners', desc:'Students place objects into egg carton sections one at a time to practice one-to-one correspondence while counting.'},
+      {label:'Activity 3', title:'Introduce Connecting Cubes: Get and Build', time:'20 min', grouping:'Partners', desc:'Students follow direction sheets to get specific numbers of colored connecting cubes and build an object.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students ask each other "how many" questions about objects in the classroom.'},
+    ],
+    materials: ['Chart paper', '5-frames', 'Counting mats', 'Collections of up to 10 small objects', 'Egg cartons', 'Connecting cubes', 'Materials from previous centers'],
+  },
+  15: {
+    activities: [
+      {label:'Warm-Up', title:'Questions About Us: Represent Attendance (Part 2)', time:'10 min', grouping:'Whole Class', desc:'Students continue developing ways to represent class attendance by drawing or writing names on a poster.'},
+      {label:'Activity 1', title:'Counting Collections: Share How You Counted', time:'15 min', grouping:'Partners', desc:'Students count collections of up to 20 objects and explain their counting strategy to a partner.'},
+      {label:'Activity 2', title:'Use a Counting Mat to Keep Track (Optional)', time:'10 min', grouping:'Partners', desc:'Students use a counting mat to move objects from one side to the other as they count.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'20 min', grouping:'Partners', desc:'Students choose from previously learned centers including Connecting Cubes, Pattern Blocks, Geoblocks, and Picture Books.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students discuss which math tools helped them count and what words they used to explain their counting.'},
+    ],
+    materials: ['Chart paper', 'Counting mats', '5-frames', 'Collections of up to 20 small objects', 'Materials from previous centers'],
+  },
+  16: {
+    activities: [
+      {label:'Warm-Up', title:'Questions About Us: Attendance Display', time:'10 min', grouping:'Whole Class', desc:'Students use 5-frames to represent how many students are present and compare it to the previous attendance poster.'},
+      {label:'Activity 1', title:'Counting Collections: Show How Many', time:'15 min', grouping:'Partners', desc:'Students count collections of 6-10 objects and create a representation to show how many.'},
+      {label:'Activity 2', title:'Answer How Many? Questions (Optional)', time:'10 min', grouping:'Partners', desc:'Students practice answering "how many?" without recounting by stating the last number from their count.'},
+      {label:'Activity 3', title:'Centers: Choice Time', time:'20 min', grouping:'Partners', desc:'Students choose from centers including Connecting Cubes, Pattern Blocks, Geoblocks, and Picture Books.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'5 min', grouping:'Whole Class', desc:'Students ask each other "how many" questions about objects in the classroom.'},
+    ],
+    materials: ['Chart paper', 'Counting mats', '5-frames', 'Collections of 6-10 small objects', 'Egg cartons', 'Materials from previous centers'],
+  },
+  17: {
+    activities: [
+      {label:'Warm-Up', title:'Notice and Wonder: Made of Bricks', time:'10 min', grouping:'Partners', desc:'Students observe an image of buildings made from toy bricks and discuss what they notice and wonder.'},
+      {label:'Activity 1', title:'Creating Classroom Objects', time:'20 min', grouping:'Partners', desc:'Students choose a math tool (connecting cubes, pattern blocks, counters, or geoblocks) to build a model of a classroom object.'},
+      {label:'Activity 2', title:'Sharing Our Creations', time:'20 min', grouping:'Whole Class', desc:'Students do a Gallery Walk, asking and answering "how many?" questions about each other\'s models.'},
+      {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'10 min', grouping:'Whole Class', desc:'Students reflect on the choices they made when selecting objects to model and which math tools to use.'},
+    ],
+    materials: ['Two-color counters', 'Connecting cubes', 'Geoblocks', 'Pattern blocks'],
+  },
+};
+
 function getKiddomLessonUrl(unitId, lessonId) {
   const nodes = KIDDOM_LESSON_NODES[unitId];
   if (nodes && lessonId >= 1 && lessonId <= nodes.length) {
@@ -1271,7 +1437,7 @@ function buildModePlan(unit, mode) {
     daysRecovered = plan.daysRecovered;
 
   } else if (mode === 'assessment') {
-    // Assessment coming up mode: auto-detect progress toward assessment
+    // Approaching Assessment mode: auto-detect progress toward assessment
     const completedCount = allNonOptional.filter(l => completed.has(l.id)).length;
 
     // Find both assessments
@@ -1485,11 +1651,11 @@ function renderAIPanel(unit) {
       <div class="ai-panel-body">
         <div class="mode-selector">
           <button class="mode-option${mode === 'assessment' ? ' active' : ''}" onclick="switchAIMode('assessment')">
-            <span class="mode-title">Assessment Coming Up</span>
+            <span class="mode-title">Approaching Assessment</span>
             <span class="mode-desc">Focus on what matters most for the upcoming assessment</span>
           </button>
           <button class="mode-option${mode === 'performance' ? ' active' : ''}" onclick="switchAIMode('performance')">
-            <span class="mode-title">By Student Performance</span>
+            <span class="mode-title">Standards Mastery</span>
             <span class="mode-desc">Adjust based on where your class is relative to expectations</span>
           </button>
         </div>
@@ -1914,25 +2080,33 @@ function renderLessonView(unit, section, lesson) {
   const prev = idx > 0 ? allLessons[idx-1] : null;
   const next = idx < allLessons.length - 1 ? allLessons[idx+1] : null;
 
-  // Activity sequence data
-  const activities = [
+  // Activity sequence data from Kiddom MCP
+  const lessonData = (LESSON_ACTIVITY_DATA[lesson.id]) || null;
+  const activities = lessonData ? lessonData.activities.map((a, i) => {
+    const isWarmup = a.label === 'Warm-Up';
+    const isSynthesis = a.label === 'Lesson Synthesis';
+    const isCooldown = a.label === 'Cool-Down';
+    return {
+      type: isWarmup ? 'warmup' : (isCooldown ? 'cooldown' : (isSynthesis ? 'synthesis' : 'activity')),
+      headerCls: isWarmup ? 'warmup' : (isCooldown ? 'cooldown' : (isSynthesis ? 'cooldown' : 'activity')),
+      label: a.label, time: a.time,
+      title: (isSynthesis && !a.title) ? 'Lesson Synthesis' : a.title,
+      desc: a.desc,
+      stds: isWarmup ? displayStds.slice(0,1) : (isSynthesis || isCooldown ? [] : displayStds.slice(0,2)),
+      assessed: isCooldown || isSynthesis,
+      grouping: a.grouping,
+      transitionNote: ''
+    };
+  }) : [
     {type:'warmup', headerCls:'warmup', label:'Warm-Up', time:'10 min',
-     title:'True or False?',
-     desc:'Teacher displays an equation or statement. Students vote and explain their reasoning.',
-     stds: displayStds.slice(0,1), assessed: false,
-     grouping: 'Whole class',
-     transitionNote: 'Form groups of 3-4. Distribute manipulatives to each group.'},
-    {type:'activity', headerCls:'activity', label:'Activity', time:'25 min',
-     title:'Sorting Activity',
-     desc:'Students sort cards or objects by a key attribute. Groups share and compare sorting decisions.',
-     stds: displayStds.slice(0,2), assessed: false,
-     grouping: 'Groups of 3-4',
-     transitionNote: 'Return to whole class. Collect manipulatives. Students get journals for cool-down.'},
-    {type:'cooldown', headerCls:'cooldown', label:'Cool-Down', time:'5 min',
-     title:'Quick Write',
-     desc:'Students write or draw one thing they learned and one question they still have.',
-     stds: [], assessed: true,
-     grouping: 'Individual'}
+     title:'Warm-Up Activity', desc:'Students engage in a warm-up routine.',
+     stds: displayStds.slice(0,1), assessed: false, grouping: 'Whole Class', transitionNote: ''},
+    {type:'activity', headerCls:'activity', label:'Activity 1', time:'25 min',
+     title:'Main Activity', desc:'Students work on the main lesson activity.',
+     stds: displayStds.slice(0,2), assessed: false, grouping: 'Partners', transitionNote: ''},
+    {type:'synthesis', headerCls:'cooldown', label:'Lesson Synthesis', time:'5 min',
+     title:'Lesson Synthesis', desc:'Students reflect on what they learned.',
+     stds: [], assessed: true, grouping: 'Whole Class', transitionNote: ''}
   ];
 
   // I Can Statements (generated from lesson context)
@@ -1942,8 +2116,14 @@ function renderLessonView(unit, section, lesson) {
     'I can check my work'
   ];
 
-  // Materials
-  const materials = ['Counters (two-color)', 'Pattern blocks', 'Whiteboards and markers', 'Math journals'];
+  // Materials from Kiddom data or fallback
+  const materials = lessonData ? lessonData.materials : ['Counters (two-color)', 'Pattern blocks', 'Whiteboards and markers', 'Math journals'];
+
+  // Compute total lesson time from activities
+  const totalTime = activities.reduce((sum, a) => {
+    const mins = parseInt(a.time) || 0;
+    return sum + mins;
+  }, 0);
 
   let html = `<div class="lesson-view"><div class="lesson-layout">`;
 
@@ -1974,7 +2154,7 @@ function renderLessonView(unit, section, lesson) {
   html += `<div class="lesson-header">
     <div class="lesson-header-text">
       <h2>Lesson ${lesson.id}: ${lesson.name}</h2>
-      <div class="lesson-subtitle">Unit ${unit.id} &middot; 40 min total${lesson.optional ? ' &middot; Optional' : ''}</div>
+      <div class="lesson-subtitle">Unit ${unit.id} &middot; ${totalTime} min total${lesson.optional ? ' &middot; Optional' : ''}</div>
     </div>
   </div>`;
 
@@ -2038,7 +2218,7 @@ function renderLessonView(unit, section, lesson) {
   // ---- SIDEBAR ----
   html += `<div class="lesson-sidebar">`;
   html += `<div class="sidebar-title">Lesson ${lesson.id}: ${lesson.name}</div>`;
-  html += `<div class="sidebar-subtitle">Unit ${unit.id} &middot; 40 min total</div>`;
+  html += `<div class="sidebar-subtitle">Unit ${unit.id} &middot; ${totalTime} min total</div>`;
 
   // Learning Goal
   html += `<div class="sidebar-section">
