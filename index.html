@@ -1227,6 +1227,39 @@ function switchAssessTarget(type) {
   state.targetAssess = type;
   const unit = UNITS.find(x => x.id === state.unitId);
   if (!unit) return;
+
+  if (modifyState.active) {
+    // Stay in Modify mode: update toggle styling, progress display, and plan steps
+    const toggleBtns = document.querySelectorAll('#assessTargetToggle button');
+    if (toggleBtns.length === 2) {
+      const midAssess = unit.assessments.find(a => a.type === 'formative');
+      const endAssess = unit.assessments.find(a => a.type === 'summative');
+      const isMid = type === 'mid';
+      toggleBtns[0].style.background = isMid ? 'var(--black)' : 'var(--white)';
+      toggleBtns[0].style.color = isMid ? '#fff' : 'var(--mid)';
+      toggleBtns[1].style.background = !isMid ? 'var(--black)' : 'var(--white)';
+      toggleBtns[1].style.color = !isMid ? '#fff' : 'var(--mid)';
+    }
+    // Recompute max recoverable for the new scope
+    const allNonOpt = [];
+    unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOpt.push(l); }));
+    const completed = getCompleted(unit.id);
+    const midAssess = unit.assessments.find(a => a.type === 'formative');
+    let scopedRemaining = allNonOpt.filter(l => !completed.has(l.id));
+    if (type === 'mid' && midAssess) {
+      scopedRemaining = allNonOpt.filter(l => l.id <= midAssess.afterLesson && !completed.has(l.id));
+    }
+    const optSkippable = unit.optionalLessons.filter(id => !completed.has(id));
+    const pairsAvail = findCombinablePairs(unit, scopedRemaining);
+    modifyState.maxRecoverable = optSkippable.length + pairsAvail.length;
+    // Update the recoverable hint
+    const recoverHint = document.querySelector('.impact-item div[style*="font-size:10px"]');
+    if (recoverHint) recoverHint.textContent = modifyState.maxRecoverable + ' recoverable';
+    // Update progress display and plan steps
+    rebuildPlanSteps(unit.id);
+    return;
+  }
+
   const planArea = document.getElementById('aiPlanArea');
   if (planArea) planArea.innerHTML = buildModePlan(unit, 'assessment');
 }
