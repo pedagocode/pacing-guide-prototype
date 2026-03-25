@@ -677,6 +677,7 @@ let state = {
   aiPanelOpen: false,
   aiScenario: null,
   aiMode: 'assessment',
+  targetAssess: 'auto',
   completed: {},
   perfSlider: 50
 };
@@ -1029,6 +1030,14 @@ function renderAdjustPacingBtn(unit) {
 function openAIPanel() { state.aiPanelOpen = true; state.aiMode = state.aiMode || 'assessment'; render(); }
 function closeAIPanel() { state.aiPanelOpen = false; render(); }
 
+function switchAssessTarget(type) {
+  state.targetAssess = type;
+  const unit = UNITS.find(x => x.id === state.unitId);
+  if (!unit) return;
+  const planArea = document.getElementById('aiPlanArea');
+  if (planArea) planArea.innerHTML = buildModePlan(unit, 'assessment');
+}
+
 function switchAIMode(mode) {
   state.aiMode = mode;
   const unit = UNITS.find(x => x.id === state.unitId);
@@ -1236,49 +1245,91 @@ function buildModePlan(unit, mode) {
 
   } else if (mode === 'assessment') {
     // Assessment coming up mode: auto-detect progress toward assessment
-    const detection = detectBehind(unit);
     const completedCount = allNonOptional.filter(l => completed.has(l.id)).length;
 
-    // Find next assessment
+    // Find both assessments
     const midAssess = unit.assessments.find(a => a.type === 'formative');
     const endAssess = unit.assessments.find(a => a.type === 'summative');
+
+    // Determine which assessment to target
+    // Default: auto-detect next one, but teacher can override via state.targetAssess
     let targetAssess = null;
     let lessonsUntilAssess = 0;
+    const targetType = state.targetAssess || 'auto';
 
-    if (midAssess && completedCount < midAssess.afterLesson) {
+    if (targetType === 'mid' && midAssess) {
       targetAssess = midAssess;
-      // Count non-optional lessons between completed and assessment
       const nonOptBeforeAssess = allNonOptional.filter(l => l.id <= midAssess.afterLesson && !completed.has(l.id));
       lessonsUntilAssess = nonOptBeforeAssess.length;
-    } else if (endAssess) {
+    } else if (targetType === 'end' && endAssess) {
       targetAssess = endAssess;
       lessonsUntilAssess = remaining.length;
+    } else {
+      // Auto: pick whichever is next
+      if (midAssess && completedCount < midAssess.afterLesson) {
+        targetAssess = midAssess;
+        const nonOptBeforeAssess = allNonOptional.filter(l => l.id <= midAssess.afterLesson && !completed.has(l.id));
+        lessonsUntilAssess = nonOptBeforeAssess.length;
+      } else if (endAssess) {
+        targetAssess = endAssess;
+        lessonsUntilAssess = remaining.length;
+      }
     }
 
     const assessLabel = targetAssess ? targetAssess.label : 'End-of-Unit Assessment';
+    const isMidTarget = targetAssess && targetAssess.type === 'formative';
+    const isEndTarget = targetAssess && targetAssess.type === 'summative';
 
-    // Auto-detect summary
+    // Progress bar: scoped to the target assessment's lesson range
+    let progressTotal = allNonOptional.length;
+    let progressDone = completedCount;
+    if (isMidTarget && midAssess) {
+      const beforeMid = allNonOptional.filter(l => l.id <= midAssess.afterLesson);
+      progressTotal = beforeMid.length;
+      progressDone = beforeMid.filter(l => completed.has(l.id)).length;
+    }
+    const progressPct = progressTotal > 0 ? Math.round((progressDone / progressTotal) * 100) : 0;
+
+    // Assessment toggle + auto-detect summary
+    const hasBoth = midAssess && endAssess;
+    let toggleHtml = '';
+    if (hasBoth) {
+      toggleHtml = `<div style="display:flex;gap:0;margin-bottom:14px;border:1px solid var(--border);border-radius:6px;overflow:hidden">
+        <button onclick="switchAssessTarget('mid')" style="flex:1;padding:8px 12px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:'Lexend',sans-serif;transition:all .15s;${isMidTarget ? 'background:var(--black);color:#fff' : 'background:var(--white);color:var(--mid)'}">${midAssess.label}</button>
+        <button onclick="switchAssessTarget('end')" style="flex:1;padding:8px 12px;font-size:12px;font-weight:600;border:none;border-left:1px solid var(--border);cursor:pointer;font-family:'Lexend',sans-serif;transition:all .15s;${isEndTarget ? 'background:var(--black);color:#fff' : 'background:var(--white);color:var(--mid)'}">${endAssess.label}</button>
+      </div>`;
+    }
+
     sliderHtml = `<div class="perf-slider-section" style="display:block">
+      ${toggleHtml}
       <div style="display:flex;justify-content:space-between;margin-bottom:12px">
         <div>
           <div style="font-size:13px;font-weight:700">Progress toward ${assessLabel}</div>
-          <div style="font-size:12px;color:var(--mid);margin-top:2px">${completedCount} of ${allNonOptional.length} required lessons completed</div>
+          <div style="font-size:12px;color:var(--mid);margin-top:2px">${progressDone} of ${progressTotal} required lessons completed</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:22px;font-weight:700">${lessonsUntilAssess}</div>
-          <div style="font-size:11px;color:var(--mid)">lessons until assessment</div>
+          <div style="font-size:11px;color:var(--mid)">lessons remaining</div>
         </div>
       </div>
       <div style="height:6px;background:#E0E0E0;border-radius:3px;overflow:hidden">
-        <div style="height:100%;background:var(--black);border-radius:3px;width:${allNonOptional.length > 0 ? Math.round((completedCount / allNonOptional.length) * 100) : 0}%;transition:width .6s ease"></div>
+        <div style="height:100%;background:var(--black);border-radius:3px;width:${progressPct}%;transition:width .6s ease"></div>
       </div>
     </div>`;
+
+    // Scope remaining lessons to target assessment
+    let scopedRemaining = remaining;
+    if (isMidTarget && midAssess) {
+      scopedRemaining = allNonOptional.filter(l => l.id <= midAssess.afterLesson && !completed.has(l.id));
+    }
 
     // Identify which remaining lessons directly map to assessed standards
     const stdMap = buildStandardLessonMap(unit);
     const criticalLessonIds = new Set();
     unit.standards.forEach(std => {
-      (stdMap[std] || []).forEach(id => { if (!completed.has(id)) criticalLessonIds.add(id); });
+      (stdMap[std] || []).forEach(id => {
+        if (scopedRemaining.find(l => l.id === id)) criticalLessonIds.add(id);
+      });
     });
 
     if (criticalLessonIds.size > 0) {
@@ -1313,7 +1364,7 @@ function buildModePlan(unit, mode) {
 
     // If many lessons remain, suggest combining
     if (lessonsUntilAssess > 5) {
-      const pairs = findCombinablePairs(unit, remaining);
+      const pairs = findCombinablePairs(unit, scopedRemaining);
       if (pairs.length > 0) {
         const pair = pairs[0];
         steps.push({
