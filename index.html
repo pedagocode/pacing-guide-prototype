@@ -162,7 +162,6 @@
   .plan-badge.tag-combine{background:#E8E8E8;color:var(--dark)}
   .lesson-card.plan-skip{opacity:.5}
   .lesson-card.plan-combine{border-left:3px solid #999}
-  .lesson-card.plan-critical{border-left:3px solid var(--black)}
   .lesson-card.plan-keep{border-left:3px solid var(--black)}
   .lesson-card.plan-reinforce{border-left:3px solid var(--black)}
   .plan-badge-inline{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;
@@ -1627,7 +1626,7 @@ function buildModePlan(unit, mode) {
       steps.push({
         title: `Keep ${criticalLessonIds.size} lesson${criticalLessonIds.size !== 1 ? 's' : ''} directly aligned to the assessment`,
         detail: criticalNames.join(', '),
-        tag: 'critical', tagClass: 'tag-keep'
+        tag: 'keep', tagClass: 'tag-keep'
       });
     }
 
@@ -2197,7 +2196,7 @@ function confirmPlan(unitId) {
         if (scopedRemaining.find(l => l.id === id)) criticalIds.add(id);
       });
     });
-    criticalIds.forEach(id => { planTags[id] = {tag: 'critical', tagClass: 'tag-keep', label: 'Keep'}; });
+    criticalIds.forEach(id => { planTags[id] = {tag: 'keep', tagClass: 'tag-keep', label: 'Keep'}; });
 
     // Skip: optional lessons
     unit.optionalLessons.filter(id => !completed.has(id)).forEach(id => {
