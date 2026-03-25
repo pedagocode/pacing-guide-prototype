@@ -1046,15 +1046,20 @@ function switchAIMode(mode) {
 }
 
 // Helper: find combinable lesson pairs (lessons in same section covering similar standards)
+// Each lesson can only appear in one pair.
 function findCombinablePairs(unit, remaining) {
   const pairs = [];
+  const used = new Set();
   unit.sections.forEach(section => {
     const sectionRemaining = section.lessons.filter(l => remaining.find(r => r.id === l.id) && !l.optional);
     for (let i = 0; i < sectionRemaining.length - 1; i++) {
-      // Adjacent lessons in the same section are combinable
       const a = sectionRemaining[i];
       const b = sectionRemaining[i + 1];
+      // Skip if either lesson is already used in another pair
+      if (used.has(a.id) || used.has(b.id)) continue;
       pairs.push({ a, b, section: section.id, reason: `Both build toward ${section.name}` });
+      used.add(a.id);
+      used.add(b.id);
     }
   });
   return pairs;
