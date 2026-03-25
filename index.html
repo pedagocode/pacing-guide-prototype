@@ -155,6 +155,21 @@
   .lesson-card.optional{border-style:dashed;opacity:.7}
   .lesson-card.optional .opt-badge{display:inline-block;font-size:10px;background:#F0F0F0;color:var(--dark);
     padding:2px 6px;border-radius:4px;font-weight:600;margin-top:6px}
+  .plan-badge{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;
+    padding:2px 8px;border-radius:4px;margin-top:6px}
+  .plan-badge.tag-keep{background:var(--black);color:#fff}
+  .plan-badge.tag-skip{background:#F0F0F0;color:var(--mid);text-decoration:line-through}
+  .plan-badge.tag-combine{background:#E8E8E8;color:var(--dark)}
+  .lesson-card.plan-skip{opacity:.5}
+  .lesson-card.plan-combine{border-left:3px solid #999}
+  .lesson-card.plan-critical{border-left:3px solid var(--black)}
+  .lesson-card.plan-keep{border-left:3px solid var(--black)}
+  .lesson-card.plan-reinforce{border-left:3px solid var(--black)}
+  .plan-badge-inline{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;
+    padding:1px 6px;border-radius:3px;vertical-align:middle}
+  .plan-badge-inline.tag-keep{background:var(--black);color:#fff}
+  .plan-badge-inline.tag-skip{background:#F0F0F0;color:var(--mid)}
+  .plan-badge-inline.tag-combine{background:#E8E8E8;color:var(--dark)}
   .lesson-card.completed{border-left:3px solid var(--black)}
   .lesson-card .lesson-num{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.3px}
   .lesson-card .lesson-name{font-size:13px;font-weight:600;margin-top:4px;line-height:1.35}
@@ -1128,10 +1143,13 @@ function renderUnitView(unit) {
       let cls = 'lesson-card';
       if (isOpt) cls += ' optional';
       if (isCompleted) cls += ' completed';
+      const planTag = getPlanTag(unit.id, lesson.id);
+      if (planTag) cls += ' plan-tagged plan-' + planTag.tag;
       html += `<div class="${cls}" onclick="goLesson(${unit.id},${lesson.id})">
         <div class="lesson-num">Lesson ${lesson.id}</div>
         <div class="lesson-name">${lesson.name}</div>`;
-      if (isOpt) html += `<span class="opt-badge">Optional</span>`;
+      if (planTag) html += `<span class="plan-badge ${planTag.tagClass}">${planTag.label}</span>`;
+      else if (isOpt) html += `<span class="opt-badge">Optional</span>`;
       html += `</div>`;
 
       // Insert assessment as its own block after the relevant lesson
@@ -2148,15 +2166,103 @@ function resetModify(unitId) {
 }
 
 function confirmPlan(unitId) {
-  // Show a confirmation banner briefly
   const unit = UNITS.find(u => u.id === unitId);
+  if (!unit) { closeAIPanel(); return; }
+
+  const mode = state.aiMode || 'assessment';
+  const completed = getCompleted(unit.id);
+  const allNonOptional = [];
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l); }));
+  const remaining = allNonOptional.filter(l => !completed.has(l.id));
+
+  // Build plan tags per lesson
+  const planTags = {}; // lessonId -> {tag, tagClass, label}
+
+  if (mode === 'assessment') {
+    // Determine scoped remaining
+    const midAssess = unit.assessments.find(a => a.type === 'formative');
+    const targetType = state.targetAssess || 'auto';
+    const completedCount = allNonOptional.filter(l => completed.has(l.id)).length;
+    const isMid = (targetType === 'mid') || (targetType === 'auto' && midAssess && completedCount < midAssess.afterLesson);
+    let scopedRemaining = remaining;
+    if (isMid && midAssess) {
+      scopedRemaining = allNonOptional.filter(l => l.id <= midAssess.afterLesson && !completed.has(l.id));
+    }
+
+    // Critical: lessons mapped to assessed standards
+    const stdMap = buildStandardLessonMap(unit);
+    const criticalIds = new Set();
+    unit.standards.forEach(std => {
+      (stdMap[std] || []).forEach(id => {
+        if (scopedRemaining.find(l => l.id === id)) criticalIds.add(id);
+      });
+    });
+    criticalIds.forEach(id => { planTags[id] = {tag: 'critical', tagClass: 'tag-keep', label: 'Keep'}; });
+
+    // Skip: optional lessons
+    unit.optionalLessons.filter(id => !completed.has(id)).forEach(id => {
+      planTags[id] = {tag: 'skip', tagClass: 'tag-skip', label: 'Skip'};
+    });
+
+    // Combine: lesson pairs
+    const pairs = findCombinablePairs(unit, scopedRemaining);
+    pairs.forEach(p => {
+      planTags[p.a.id] = {tag: 'combine', tagClass: 'tag-combine', label: 'Combine'};
+      planTags[p.b.id] = {tag: 'combine', tagClass: 'tag-combine', label: 'Combine'};
+    });
+
+  } else {
+    // Class Performance mode
+    const perfVal = state.perfSlider || 50;
+    const tier = getPerformanceTier(perfVal);
+
+    if (tier === 'developing') {
+      // Keep all at depth, skip optional for reteach room
+      remaining.forEach(l => { planTags[l.id] = {tag: 'keep', tagClass: 'tag-keep', label: 'Keep'}; });
+      unit.optionalLessons.filter(id => !completed.has(id)).forEach(id => {
+        planTags[id] = {tag: 'skip', tagClass: 'tag-skip', label: 'Skip'};
+      });
+    } else if (tier === 'approaching') {
+      // Reinforce key lessons
+      const priority = findHighPriorityLessons(unit, remaining);
+      priority.slice(0, 4).forEach(p => {
+        planTags[p.lesson.id] = {tag: 'reinforce', tagClass: 'tag-keep', label: 'Reinforce'};
+      });
+    } else if (tier === 'mastery') {
+      // On track, no special tags
+    } else {
+      // Exceeds: combine and skip
+      const pairs = findCombinablePairs(unit, remaining);
+      pairs.forEach(p => {
+        planTags[p.a.id] = {tag: 'combine', tagClass: 'tag-combine', label: 'Combine'};
+        planTags[p.b.id] = {tag: 'combine', tagClass: 'tag-combine', label: 'Combine'};
+      });
+      unit.optionalLessons.filter(id => !completed.has(id)).forEach(id => {
+        planTags[id] = {tag: 'skip', tagClass: 'tag-skip', label: 'Skip'};
+      });
+    }
+  }
+
+  // Store confirmed plan in state
+  if (!state.confirmedPlans) state.confirmedPlans = {};
+  state.confirmedPlans[unitId] = planTags;
+
   closeAIPanel();
-  // Add a temporary notification
+  render();
+
+  // Show confirmation notification
   const notification = document.createElement('div');
   notification.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;font-family:Lexend,sans-serif;z-index:500;box-shadow:0 4px 16px rgba(0,0,0,.25);animation:slideUp .3s ease';
-  notification.textContent = `Plan confirmed for Unit ${unitId}. Timeline updated.`;
+  notification.textContent = `Plan confirmed for Unit ${unitId}. Lesson tags updated.`;
   document.body.appendChild(notification);
   setTimeout(() => { if (notification.parentNode) notification.parentNode.removeChild(notification); }, 3000);
+}
+
+function getPlanTag(unitId, lessonId) {
+  if (state.confirmedPlans && state.confirmedPlans[unitId]) {
+    return state.confirmedPlans[unitId][lessonId] || null;
+  }
+  return null;
 }
 
 // ============================================
@@ -2252,7 +2358,10 @@ function renderLessonView(unit, section, lesson) {
   html += `<div class="lesson-header">
     <div class="lesson-header-text">
       <h2>Lesson ${lesson.id}: ${lesson.name}</h2>
-      <div class="lesson-subtitle">Unit ${unit.id} &middot; ${totalTime} min total${lesson.optional ? ' &middot; Optional' : ''}</div>
+      <div class="lesson-subtitle">Unit ${unit.id} &middot; ${totalTime} min total${lesson.optional ? ' &middot; Optional' : ''}${(() => {
+        const pt = getPlanTag(unit.id, lesson.id);
+        return pt ? ` &middot; <span class="plan-badge-inline ${pt.tagClass}">${pt.label}</span>` : '';
+      })()}</div>
     </div>
   </div>`;
 
