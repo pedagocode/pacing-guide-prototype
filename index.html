@@ -251,17 +251,18 @@
   .perf-slider-section{background:#F8F8F8;border:1px solid var(--border);border-radius:var(--radius);
     padding:20px 24px;margin-bottom:20px}
   .perf-slider-label{font-size:13px;font-weight:700;margin-bottom:14px}
+  .perf-tier-indicator{display:flex;justify-content:space-between;margin-bottom:10px;gap:4px}
+  .tier-dot{font-size:10px;font-weight:600;color:var(--border);transition:all .2s;padding:4px 2px;flex:1;text-align:center;white-space:nowrap}
+  .tier-dot.active{color:var(--black);border-bottom:2px solid var(--black)}
   .perf-slider-wrap{position:relative;padding:0 4px}
-  .perf-slider-track{display:flex;align-items:center;gap:12px}
-  .perf-slider-track .track-label{font-size:11px;font-weight:600;color:var(--mid);white-space:nowrap;min-width:48px}
-  .perf-slider-track .track-label:last-child{text-align:right}
+  .perf-slider-track{display:flex;align-items:center;gap:0}
   .perf-slider-track input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:6px;
-    background:linear-gradient(to right,var(--black),#999,#ccc);border-radius:3px;outline:none;cursor:pointer}
-  .perf-slider-track input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;
+    background:linear-gradient(to right,#ccc,#999,#666,var(--black));border-radius:3px;outline:none;cursor:pointer}
+  .perf-slider-track input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;
     border-radius:50%;background:var(--black);border:3px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
-  .perf-slider-track input[type=range]::-moz-range-thumb{width:20px;height:20px;
+  .perf-slider-track input[type=range]::-moz-range-thumb{width:22px;height:22px;
     border-radius:50%;background:var(--black);border:3px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
-  .perf-slider-desc{font-size:12px;color:var(--mid);margin-top:10px;line-height:1.45;min-height:32px}
+  .perf-slider-desc{font-size:12px;color:var(--mid);margin-top:12px;line-height:1.45;min-height:32px}
 
   /* Modify mode */
   .ai-plan-impact.editable{border:2px solid var(--black)}
@@ -1316,6 +1317,13 @@ function findHighPriorityLessons(unit, remaining) {
   return lessonPriority;
 }
 
+function getPerformanceTier(val) {
+  if (val <= 25) return 'struggling';
+  if (val <= 50) return 'developing';
+  if (val <= 75) return 'on-track';
+  return 'excelling';
+}
+
 function buildPerformancePlan(unit, perfVal) {
   const completed = getCompleted(unit.id);
   const allNonOptional = [];
@@ -1325,22 +1333,26 @@ function buildPerformancePlan(unit, perfVal) {
 
   const steps = [];
   let daysRecovered = 0;
+  const tier = getPerformanceTier(perfVal);
 
-  if (perfVal <= 40) {
-    // Behind: aggressive, specific recommendations
-    // 1. High-priority lessons
-    const priority = findHighPriorityLessons(unit, remaining);
-    const topLessons = priority.slice(0, Math.min(5, priority.length));
-    if (topLessons.length > 0) {
-      const priorityList = topLessons.map(p => `L${p.lesson.id}: ${p.lesson.name}`);
-      steps.push({
-        title: `Keep ${topLessons.length} high-priority lesson${topLessons.length !== 1 ? 's' : ''} directly aligned to the assessment`,
-        detail: priorityList.join(', '),
-        tag: 'critical', tagClass: 'tag-keep'
-      });
-    }
+  if (tier === 'struggling') {
+    // Struggling: slow down, reteach, add practice
+    // 1. Reteach foundational standards
+    const foundational = unit.standards.slice(0, 2);
+    steps.push({
+      title: `Reteach ${foundational.length} foundational standard${foundational.length !== 1 ? 's' : ''}`,
+      detail: `Add practice days for ${foundational.join(' and ')}. Use small-group instruction to close gaps before moving on.`,
+      tag: 'reteach', tagClass: 'tag-review'
+    });
 
-    // 2. Skip optional lessons
+    // 2. Keep all required lessons (slow down, don't skip)
+    steps.push({
+      title: `Keep all ${remaining.length} remaining lessons at full depth`,
+      detail: 'Students need more time with this content. Prioritize understanding over coverage.',
+      tag: 'keep', tagClass: 'tag-keep'
+    });
+
+    // 3. Skip optional to make room for reteach
     if (unit.optionalLessons.length > 0) {
       const optNames = unit.optionalLessons.map(id => {
         let name = '';
@@ -1348,40 +1360,62 @@ function buildPerformancePlan(unit, perfVal) {
         return `L${id}: ${name}`;
       });
       steps.push({
-        title: `Skip ${unit.optionalLessons.length} optional lesson${unit.optionalLessons.length > 1 ? 's' : ''} to recover ${unit.optionalLessons.length} day${unit.optionalLessons.length > 1 ? 's' : ''}`,
+        title: `Skip ${unit.optionalLessons.length} optional lesson${unit.optionalLessons.length !== 1 ? 's' : ''} to make room for reteach`,
         detail: optNames.join(', '),
         tag: 'skip', tagClass: 'tag-skip'
       });
-      daysRecovered += unit.optionalLessons.length;
     }
 
-    // 3. Combine lesson pairs
-    const pairs = findCombinablePairs(unit, remaining);
-    const numPairs = perfVal <= 20 ? Math.min(3, pairs.length) : Math.min(2, pairs.length);
-    if (numPairs > 0) {
-      const pairDescs = pairs.slice(0, numPairs).map(p => `L${p.a.id} + L${p.b.id}`);
+    // 4. Add structured practice
+    steps.push({
+      title: 'Add a structured practice session',
+      detail: `Dedicate a day to hands-on practice with ${foundational[0] || unit.standards[0]} using manipulatives and partner work.`,
+      tag: 'practice', tagClass: 'tag-combine'
+    });
+
+  } else if (tier === 'developing') {
+    // Developing: reinforce, keep optionals, steady pace
+    // 1. Reinforce key lessons
+    const priority = findHighPriorityLessons(unit, remaining);
+    const reinforceLessons = priority.slice(0, Math.min(4, priority.length));
+    if (reinforceLessons.length > 0) {
+      const names = reinforceLessons.map(p => `L${p.lesson.id}: ${p.lesson.name}`);
       steps.push({
-        title: `Combine ${numPairs} lesson pair${numPairs > 1 ? 's' : ''} to recover ${numPairs} day${numPairs > 1 ? 's' : ''}`,
-        detail: pairDescs.join(', '),
-        tag: 'combine', tagClass: 'tag-combine'
+        title: `Reinforce ${reinforceLessons.length} key lesson${reinforceLessons.length !== 1 ? 's' : ''} with extended practice`,
+        detail: names.join(', '),
+        tag: 'reinforce', tagClass: 'tag-keep'
       });
-      daysRecovered += numPairs;
     }
 
-    // 4. Review
+    // 2. Include optional content for extra practice
+    if (unit.optionalLessons.length > 0) {
+      const optNames = unit.optionalLessons.map(id => {
+        let name = '';
+        unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === id) name = l.name; }));
+        return `L${id}: ${name}`;
+      });
+      steps.push({
+        title: 'Include optional lessons for additional practice',
+        detail: optNames.join(', '),
+        tag: 'reinforce', tagClass: 'tag-review'
+      });
+    }
+
+    // 3. Review before assessment
     steps.push({
       title: 'Add a structured review session before the assessment',
       detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
       tag: 'review', tagClass: 'tag-review'
     });
 
-  } else if (perfVal <= 60) {
-    // On track
+  } else if (tier === 'on-track') {
+    // On Track: continue as planned, include enrichment if room
     steps.push({
       title: 'Continue current pacing',
-      detail: `${completedCount} of ${allNonOptional.length} required lessons completed. On track.`,
+      detail: `${completedCount} of ${allNonOptional.length} required lessons completed. Class is performing well.`,
       tag: 'on track', tagClass: 'tag-keep'
     });
+
     if (unit.optionalLessons.length > 0) {
       const optNames = unit.optionalLessons.map(id => {
         let name = '';
@@ -1394,6 +1428,7 @@ function buildPerformancePlan(unit, perfVal) {
         tag: 'optional', tagClass: 'tag-review'
       });
     }
+
     steps.push({
       title: 'Add a structured review session before the assessment',
       detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} through guided practice and formative checks.`,
@@ -1401,7 +1436,20 @@ function buildPerformancePlan(unit, perfVal) {
     });
 
   } else {
-    // Ahead: enrich
+    // Excelling: accelerate, combine, skip reinforcement, enrich
+    // 1. Combine lessons to accelerate
+    const pairs = findCombinablePairs(unit, remaining);
+    if (pairs.length > 0) {
+      const pairDescs = pairs.map(p => `L${p.a.id} + L${p.b.id}`);
+      steps.push({
+        title: `Combine ${pairs.length} lesson pair${pairs.length !== 1 ? 's' : ''} to recover ${pairs.length} day${pairs.length !== 1 ? 's' : ''}`,
+        detail: pairDescs.join(', '),
+        tag: 'combine', tagClass: 'tag-combine'
+      });
+      daysRecovered += pairs.length;
+    }
+
+    // 2. Skip optional (students don't need the reinforcement)
     if (unit.optionalLessons.length > 0) {
       const optNames = unit.optionalLessons.map(id => {
         let name = '';
@@ -1409,26 +1457,31 @@ function buildPerformancePlan(unit, perfVal) {
         return `L${id}: ${name}`;
       });
       steps.push({
-        title: 'Teach all lessons including optional content',
-        detail: optNames.join(', '),
+        title: `Skip ${unit.optionalLessons.length} optional lesson${unit.optionalLessons.length !== 1 ? 's' : ''} to recover ${unit.optionalLessons.length} day${unit.optionalLessons.length !== 1 ? 's' : ''}`,
+        detail: optNames.join(', ') + '. Students have demonstrated understanding.',
+        tag: 'skip', tagClass: 'tag-skip'
+      });
+      daysRecovered += unit.optionalLessons.length;
+    }
+
+    // 3. Enrich with extension activities
+    const priority = findHighPriorityLessons(unit, remaining);
+    const extendLessons = priority.slice(0, 3);
+    if (extendLessons.length > 0) {
+      const extendList = extendLessons.map(p => `L${p.lesson.id}: ${p.lesson.name}`);
+      steps.push({
+        title: 'Add enrichment activities to deepen understanding',
+        detail: extendList.join(', ') + '. Add problem-solving challenges and peer teaching.',
         tag: 'enrich', tagClass: 'tag-keep'
       });
     }
+
+    // 4. Consider moving ahead
     steps.push({
-      title: 'Add a reteach day for challenging standards',
-      detail: `Revisit ${unit.standards.slice(0,2).join(' and ')} with small-group targeted instruction.`,
-      tag: 'reteach', tagClass: 'tag-review'
+      title: 'Use recovered days to begin the next unit early',
+      detail: `With ${daysRecovered} day${daysRecovered !== 1 ? 's' : ''} recovered, consider starting Unit ${unit.id + 1} to build momentum.`,
+      tag: 'accelerate', tagClass: 'tag-combine'
     });
-    if (perfVal > 80) {
-      const priority = findHighPriorityLessons(unit, remaining);
-      const extendLessons = priority.slice(0, 3);
-      const extendList = extendLessons.map(p => `L${p.lesson.id}: ${p.lesson.name}`);
-      steps.push({
-        title: 'Extend lessons with enrichment activities',
-        detail: extendList.length > 0 ? extendList.join(', ') : 'Add peer teaching opportunities.',
-        tag: 'enrich', tagClass: 'tag-combine'
-      });
-    }
   }
 
   return { steps, daysRecovered, remaining };
@@ -1447,13 +1500,18 @@ function buildModePlan(unit, mode) {
   if (mode === 'performance') {
     // Show slider, then plan based on slider value
     const perfVal = state.perfSlider || 50;
+    const tier = getPerformanceTier(perfVal);
     sliderHtml = `<div class="perf-slider-section">
-      <div class="perf-slider-label">Where is your class relative to grade-level expectations?</div>
+      <div class="perf-slider-label">How is your class performing on this unit's standards?</div>
+      <div class="perf-tier-indicator">
+        <span class="tier-dot${tier === 'struggling' ? ' active' : ''}" data-tier="struggling">Struggling</span>
+        <span class="tier-dot${tier === 'developing' ? ' active' : ''}" data-tier="developing">Developing</span>
+        <span class="tier-dot${tier === 'on-track' ? ' active' : ''}" data-tier="on-track">On Track</span>
+        <span class="tier-dot${tier === 'excelling' ? ' active' : ''}" data-tier="excelling">Excelling</span>
+      </div>
       <div class="perf-slider-wrap">
         <div class="perf-slider-track">
-          <span class="track-label">Behind</span>
           <input type="range" min="0" max="100" value="${perfVal}" oninput="onPerfSlider(this.value)">
-          <span class="track-label">Ahead</span>
         </div>
       </div>
       <div class="perf-slider-desc" id="perfSliderDesc">${getPerfDescription(perfVal)}</div>
@@ -1618,12 +1676,8 @@ function buildModePlan(unit, mode) {
       <div class="impact-label">Days lost</div>
     </div>
     <div class="impact-item">
-      <div class="impact-num">${Math.max(0, lessonsAfterPlan)}</div>
-      <div class="impact-label">Lessons remaining</div>
-    </div>
-    <div class="impact-item">
-      <div class="impact-num">${unit.standards.length}</div>
-      <div class="impact-label">Standards covered</div>
+      <div class="impact-num">${daysRecovered}</div>
+      <div class="impact-label">Days recovered</div>
     </div>
   </div>`;
 
@@ -1639,21 +1693,25 @@ function onPerfSlider(val) {
   state.perfSlider = parseInt(val);
   const desc = document.getElementById('perfSliderDesc');
   if (desc) desc.textContent = getPerfDescription(state.perfSlider);
-  // Re-render just the plan steps (below the slider)
+  // Update tier indicators
+  const tier = getPerformanceTier(state.perfSlider);
+  document.querySelectorAll('.tier-dot').forEach(d => {
+    d.classList.toggle('active', d.dataset.tier === tier);
+  });
+  // Re-render plan
   const unit = UNITS.find(x => x.id === state.unitId);
   if (unit) {
-    // Rebuild the full mode plan and extract just the steps portion
     const planArea = document.getElementById('aiPlanArea');
     if (planArea) planArea.innerHTML = buildModePlan(unit, 'performance');
   }
 }
 
 function getPerfDescription(val) {
-  if (val <= 20) return 'Significantly behind. The plan will aggressively compress by skipping optional content, combining lessons, and shortening warm-ups.';
-  if (val <= 40) return 'Somewhat behind. The plan will skip optional lessons and combine a few sessions to recover instructional days.';
-  if (val <= 60) return 'On track. Current pacing is appropriate. The plan focuses on maintaining momentum and preparing for the assessment.';
-  if (val <= 80) return 'Slightly ahead. The plan adds review days and includes optional lessons to deepen understanding.';
-  return 'Well ahead. The plan adds reteach opportunities, optional enrichment, and extra assessment prep time.';
+  const tier = getPerformanceTier(val);
+  if (tier === 'struggling') return 'Students need more time with foundational concepts. The plan slows down, adds reteach days, and prioritizes depth over coverage.';
+  if (tier === 'developing') return 'Students are building understanding but need reinforcement. The plan maintains pace with extended practice on key lessons.';
+  if (tier === 'on-track') return 'Students are meeting expectations. The plan continues current pacing with optional content and review before the assessment.';
+  return 'Students are exceeding expectations. The plan accelerates by combining lessons, skipping reinforcement, and adding enrichment.';
 }
 
 function renderAIPanel(unit) {
@@ -1672,7 +1730,7 @@ function renderAIPanel(unit) {
             <span class="mode-desc">Focus on what matters most for the upcoming assessment</span>
           </button>
           <button class="mode-option${mode === 'performance' ? ' active' : ''}" onclick="switchAIMode('performance')">
-            <span class="mode-title">Standards Mastery</span>
+            <span class="mode-title">Class Performance</span>
             <span class="mode-desc">Adjust based on where your class is relative to expectations</span>
           </button>
         </div>
@@ -1816,18 +1874,6 @@ function enableModify(unitId) {
           <button onclick="modifyImpact('days',1,${unitId})">+</button>
         </div>
         <div style="font-size:10px;color:var(--mid);margin-top:2px">${modifyState.maxRecoverable} recoverable</div>
-      </div>
-      <div class="impact-item">
-        <div class="impact-num editable" id="modLessons">${modifyState.lessonsRemaining}</div>
-        <div class="impact-label">Lessons remaining</div>
-        <div class="impact-stepper">
-          <button onclick="modifyImpact('lessons',-1,${unitId})">-</button>
-          <button onclick="modifyImpact('lessons',1,${unitId})">+</button>
-        </div>
-      </div>
-      <div class="impact-item">
-        <div class="impact-num">${unit.standards.length}</div>
-        <div class="impact-label">Standards covered</div>
       </div>`;
     // Insert warning area after impact section
     const warningDiv = document.createElement('div');
