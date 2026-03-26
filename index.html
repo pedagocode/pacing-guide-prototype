@@ -215,15 +215,13 @@
 
   /* Adjust pacing button */
   .adjust-pacing-btn{position:fixed;bottom:28px;right:28px;background:var(--black);color:#fff;border:none;
-    padding:14px 24px;border-radius:28px;font-size:14px;font-weight:600;cursor:pointer;
+    padding:10px 18px;border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;
     box-shadow:0 4px 16px rgba(0,0,0,.25);transition:var(--transition);z-index:50;
-    display:flex;align-items:center;gap:8px;font-family:'Lexend',sans-serif}
+    display:flex;align-items:center;gap:6px;font-family:'Lexend',sans-serif}
   .adjust-pacing-btn:hover{background:var(--dark);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.35)}
-  .adjust-pacing-btn svg{width:18px;height:18px}
-  .adjust-pacing-btn.pulsing{animation:btnPulse 2s ease-in-out infinite}
-  @keyframes btnPulse{0%{box-shadow:0 4px 16px rgba(0,0,0,.25)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 8px rgba(0,0,0,.08)}100%{box-shadow:0 4px 16px rgba(0,0,0,.25)}}
-  .adjust-pacing-btn .pulse-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:dotPulse 2s ease-in-out infinite}
-  @keyframes dotPulse{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+  .adjust-pacing-btn svg{width:16px;height:16px}
+  .adjust-pacing-btn.pulsing svg{animation:boltBlink 1.5s ease-in-out infinite}
+  @keyframes boltBlink{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
 
   /* Mode selector in AI panel */
   .mode-selector{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
@@ -472,6 +470,95 @@
     transition:border-color .15s}
   .date-input:focus{border-color:var(--black)}
 
+  /* ============================================
+     KIDDOM APP SHELL
+     ============================================ */
+
+  /* App layout: sidebar + main */
+  .app-shell{display:flex;min-height:100vh}
+
+  /* Left sidebar */
+  .k-sidebar{width:56px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;position:fixed;top:0;left:0;bottom:0;z-index:150}
+  .k-sidebar-logo{width:36px;height:36px;border-radius:10px;background:#E8573A;display:flex;align-items:center;justify-content:center;margin-bottom:20px;cursor:pointer}
+  .k-sidebar-logo svg{width:20px;height:20px;fill:#fff}
+  .k-sidebar-top,.k-sidebar-bottom{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .k-sidebar-bottom{margin-top:auto}
+  .k-sidebar-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;color:var(--light);position:relative}
+  .k-sidebar-icon:hover{background:#F0F0F0;color:var(--dark)}
+  .k-sidebar-icon.active{color:#6C5CE7;background:#F0EEFF}
+  .k-sidebar-icon svg{width:20px;height:20px}
+
+  /* Main content area */
+  .k-main{flex:1;margin-left:56px;display:flex;flex-direction:column;min-height:100vh}
+
+  /* Class header bar */
+  .k-class-header{display:flex;align-items:center;gap:16px;padding:14px 24px;background:var(--white);border-bottom:1px solid var(--border);position:relative;z-index:60}
+  .k-class-icon{width:36px;height:36px;border-radius:8px;background:#6C5CE7;display:flex;align-items:center;justify-content:center}
+  .k-class-icon svg{width:18px;height:18px;fill:#fff}
+  .k-class-info{display:flex;flex-direction:column}
+  .k-class-name{font-size:16px;font-weight:700;color:var(--black);line-height:1.2}
+  .k-class-code{font-size:12px;color:var(--light)}
+  .k-class-sep{width:1px;height:28px;background:var(--border)}
+  .k-class-tab{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--black);cursor:pointer;padding:6px 12px;border-radius:6px;transition:background .15s}
+  .k-class-tab:hover{background:#F0F0F0}
+  .k-class-tab svg{width:14px;height:14px;color:var(--mid)}
+
+  /* Nav bar (Today, month/year, filter) */
+  .k-nav-bar{display:flex;align-items:center;padding:10px 24px;background:var(--white);border-bottom:1px solid var(--border);gap:12px}
+  .k-nav-arrows{display:flex;align-items:center;gap:0}
+  .k-nav-btn{width:32px;height:32px;border:1px solid var(--border);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--dark);transition:all .15s;font-family:'Lexend',sans-serif}
+  .k-nav-btn:first-child{border-radius:6px 0 0 6px}
+  .k-nav-btn:last-child{border-radius:0 6px 6px 0;border-left:none}
+  .k-nav-btn:hover{background:#F0F0F0}
+  .k-nav-today{height:32px;padding:0 14px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;font-weight:500;cursor:pointer;font-family:'Lexend',sans-serif;color:var(--dark);transition:all .15s}
+  .k-nav-today:hover{background:#F0F0F0}
+  .k-nav-title{font-size:15px;font-weight:600;color:var(--black);margin-left:auto;margin-right:auto;cursor:pointer;display:flex;align-items:center;gap:6px}
+  .k-nav-title svg{width:14px;height:14px;color:var(--mid)}
+  .k-nav-filter{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--mid);cursor:pointer;padding:6px 12px;border-radius:6px;transition:all .15s;margin-left:auto}
+  .k-nav-filter:hover{background:#F0F0F0;color:var(--dark)}
+  .k-nav-filter svg{width:14px;height:14px}
+
+  /* Day-of-week header row for calendar views */
+  .k-dow-row{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--border);background:var(--white)}
+  .k-dow-cell{padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mid);text-align:center}
+  .k-dow-cell.today-col{color:#6C5CE7}
+
+  /* Month calendar grid */
+  .k-month-grid{display:grid;grid-template-columns:repeat(5,1fr);flex:1;background:var(--white);padding-bottom:80px}
+  .k-month-cell{border-right:1px dashed var(--border);border-bottom:1px solid var(--border);min-height:120px;padding:8px;position:relative}
+  .k-month-cell:nth-child(5n){border-right:none}
+  .k-month-cell.today-cell{background:#EEF0FF}
+  .k-month-cell .cell-date{font-size:12px;font-weight:600;color:var(--mid);margin-bottom:6px}
+  .k-month-cell.today-cell .cell-date{color:#6C5CE7;background:#6C5CE7;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+  .k-month-cell .cell-lesson{font-size:11px;padding:4px 8px;border-radius:4px;margin-bottom:3px;cursor:pointer;transition:all .15s;line-height:1.3;background:#F8F8F8}
+  .k-month-cell .cell-lesson:hover{background:#EFEFEF;transform:translateX(2px)}
+  .k-month-cell .cell-lesson.optional{border-left:3px dashed var(--light);background:#FAFAFA;opacity:1;font-style:italic}
+  .k-month-cell .cell-lesson.optional .opt-tag{font-size:9px;font-weight:700;color:var(--light);font-style:normal;text-transform:uppercase;letter-spacing:.3px;display:block;margin-top:2px}
+  .k-month-cell .cell-lesson.assessment{border-left-color:#6C5CE7;background:#F0EEFF;font-weight:600}
+  .k-month-cell .cell-holiday{font-size:10px;color:#E8573A;font-weight:600}
+
+  /* Week calendar grid */
+  .k-week-grid{display:grid;grid-template-columns:repeat(5,1fr);flex:1;background:var(--white)}
+  .k-week-cell{border-right:1px dashed var(--border);min-height:400px;padding:12px;position:relative}
+  .k-week-cell:nth-child(5n){border-right:none}
+  .k-week-cell.today-cell{background:#EEF0FF}
+  .k-week-cell .cell-date{font-size:13px;font-weight:600;color:var(--mid);margin-bottom:12px}
+  .k-week-activity{padding:10px 12px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border);background:var(--white);transition:all .15s}
+  .k-week-activity:hover{box-shadow:var(--shadow)}
+  .k-week-activity .wa-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
+  .k-week-activity .wa-label.warmup{color:#E8573A}
+  .k-week-activity .wa-label.activity{color:#6C5CE7}
+  .k-week-activity .wa-label.synthesis{color:var(--mid)}
+  .k-week-activity .wa-title{font-size:12px;font-weight:600;margin-bottom:2px}
+  .k-week-activity .wa-time{font-size:11px;color:var(--mid)}
+  .k-week-activity .wa-desc{font-size:11px;color:var(--mid);margin-top:4px;line-height:1.4}
+
+  /* Content area */
+  .k-content{flex:1;overflow-y:auto;background:var(--bg)}
+
+  /* Override container for new layout */
+  .k-content .container{max-width:100%;padding:24px 24px}
+
   /* Responsive */
   @media(max-width:768px){
     .container{padding:16px}
@@ -480,29 +567,100 @@
     .lessons-grid{grid-template-columns:1fr 1fr}
     .peek-nav{flex-direction:column}
     .overview-panel{grid-template-columns:1fr}
+    .k-sidebar{display:none}
+    .k-main{margin-left:0}
   }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-logo">kiddom.</div>
-  <div class="header-divider"></div>
-  <div class="header-curriculum">IM v.360 Math &middot; Kindergarten</div>
-  <div class="header-right">
-    <div class="header-day" id="headerDay" style="display:none">Day 67 of 148</div>
+<div class="app-shell">
+  <!-- Left Sidebar -->
+  <nav class="k-sidebar">
+    <div class="k-sidebar-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L19.18 7.5 12 10.82 4.82 7.5 12 4.18z"/></svg>
+    </div>
+    <div class="k-sidebar-top">
+      <div class="k-sidebar-icon" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      </div>
+      <div class="k-sidebar-icon" title="Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>
+      </div>
+      <div class="k-sidebar-icon active" title="Assignments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <div class="k-sidebar-icon" title="Documents">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+      </div>
+    </div>
+    <div class="k-sidebar-bottom">
+      <div class="k-sidebar-icon" title="Sync">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      </div>
+      <div class="k-sidebar-icon" title="Messages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div class="k-sidebar-icon" title="People">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Area -->
+  <div class="k-main">
+    <!-- Class Header -->
+    <div class="k-class-header">
+      <div class="k-class-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" fill="#fff"/><rect x="14" y="3" width="7" height="7" rx="1" fill="#fff"/><rect x="3" y="14" width="7" height="7" rx="1" fill="#fff"/><rect x="14" y="14" width="7" height="7" rx="1" fill="#fff"/></svg>
+      </div>
+      <div class="k-class-info">
+        <div class="k-class-name">IM v.360 Math - Kindergarten</div>
+        <div class="k-class-code">KC-S76CH</div>
+      </div>
+      <div class="k-class-sep"></div>
+      <div class="k-class-tab" style="position:relative" onclick="toggleClassDropdown()">
+        Assignments
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        <div id="classDropdown" style="display:none;position:absolute;top:100%;left:0;margin-top:6px;background:var(--white);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);min-width:180px;z-index:50;overflow:hidden">
+          <div style="padding:10px 16px;font-size:13px;font-weight:700;color:var(--black);background:#F8F8F8;cursor:pointer" onclick="goYear()">Assignments</div>
+          <div style="padding:10px 16px;font-size:13px;font-weight:500;color:var(--mid);cursor:pointer" onclick="goReports(state.unitId)" onmouseover="this.style.background='#F0F0F0'" onmouseout="this.style.background='transparent'">Reports</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Setup bar -->
+    <div class="setup-bar">
+      <button class="setup-btn" id="yearOverviewLink" onclick="goYear()" style="display:none">Year Overview</button>
+      <div class="setup-sep" id="yearOverviewSep" style="display:none"></div>
+      <button class="k-nav-today" onclick="navToday()">Today</button>
+      <div class="setup-sep"></div>
+      <span class="setup-value" id="startDateDisplay">Sep 4, 2025</span>
+      <span class="setup-label">&ndash;</span>
+      <span class="setup-value" id="endDateDisplay">Jun 26, 2026</span>
+      <div class="setup-sep"></div>
+      <button class="setup-btn" onclick="openHolidayModal()">Set holidays</button>
+      <div class="setup-sep"></div>
+      <button class="setup-btn" onclick="openStartDateModal()">Adjust dates</button>
+    </div>
+
+    <!-- Peek nav (unit/lesson navigation) -->
+    <div id="peekNav" style="display:none"></div>
+
+    <!-- Day-of-week row (hidden on year view, shown on month/week) -->
+    <div class="k-dow-row" id="dowRow" style="display:none">
+      <div class="k-dow-cell">MON</div>
+      <div class="k-dow-cell">TUE</div>
+      <div class="k-dow-cell">WED</div>
+      <div class="k-dow-cell">THU</div>
+      <div class="k-dow-cell">FRI</div>
+    </div>
+
+    <!-- Content -->
+    <div class="k-content" id="app"></div>
   </div>
 </div>
-<div class="setup-bar">
-  <span class="setup-label">Year starts</span>
-  <span class="setup-value" id="startDateDisplay">Aug 12, 2025</span>
-  <div class="setup-sep"></div>
-  <button class="setup-btn" onclick="openHolidayModal()">Set holidays</button>
-  <div class="setup-sep"></div>
-  <button class="setup-btn" onclick="openStartDateModal()">Adjust start date</button>
-</div>
-<div class="breadcrumb" id="breadcrumb"></div>
-<div class="container" id="app"></div>
+
 <div id="modal-root"></div>
 
 <script>
@@ -794,8 +952,10 @@ function unitTotalDays(unit) { return unit.days + unit.assessments.length; }
 // ============================================
 // SETUP STATE (must be before scheduling engine)
 // ============================================
-let yearStartDate = new Date(2025, 7, 12); // Aug 12, 2025
+let yearStartDate = new Date(2025, 8, 4); // Sep 4, 2025
+let yearEndDate = new Date(2026, 5, 26); // Jun 26, 2026
 let holidays = new Set(); // Store as 'YYYY-MM-DD' strings
+let holidayLabels = {}; // dateKey -> label string
 
 function dateToKey(d) {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -805,6 +965,86 @@ function formatDateDisplay(d) {
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
+
+// US Bank / School Holidays
+// Returns holidays for a given school year (startYear to startYear+1)
+function getUSBankHolidays(startYear) {
+  const endYear = startYear + 1;
+  const list = [];
+
+  // Helper: nth weekday of a month (1-indexed, dow: 0=Sun..6=Sat)
+  function nthWeekday(year, month, dow, n) {
+    const d = new Date(year, month, 1);
+    let count = 0;
+    while (count < n) {
+      if (d.getDay() === dow) count++;
+      if (count < n) d.setDate(d.getDate() + 1);
+    }
+    return d;
+  }
+
+  // Labor Day: 1st Monday of September (startYear)
+  list.push({ date: nthWeekday(startYear, 8, 1, 1), label: 'Labor Day' });
+
+  // Columbus Day / Indigenous Peoples Day: 2nd Monday of October
+  list.push({ date: nthWeekday(startYear, 9, 1, 2), label: 'Indigenous Peoples Day' });
+
+  // Veterans Day: Nov 11 (observed on nearest weekday if weekend)
+  const vet = new Date(startYear, 10, 11);
+  if (vet.getDay() === 0) vet.setDate(12);
+  else if (vet.getDay() === 6) vet.setDate(10);
+  list.push({ date: vet, label: 'Veterans Day' });
+
+  // Thanksgiving: 4th Thursday of November + Friday after
+  const tg = nthWeekday(startYear, 10, 4, 4);
+  list.push({ date: new Date(tg), label: 'Thanksgiving' });
+  const tgFri = new Date(tg);
+  tgFri.setDate(tgFri.getDate() + 1);
+  list.push({ date: tgFri, label: 'Thanksgiving Break' });
+
+  // Winter Break: Dec 23 - Jan 2 (weekdays only)
+  for (let d = new Date(startYear, 11, 23); d <= new Date(endYear, 0, 2); d.setDate(d.getDate() + 1)) {
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) {
+      list.push({ date: new Date(d), label: 'Winter Break' });
+    }
+  }
+
+  // New Year's Day: Jan 1 (already covered by winter break, but label it)
+
+  // MLK Day: 3rd Monday of January
+  list.push({ date: nthWeekday(endYear, 0, 1, 3), label: 'MLK Day' });
+
+  // Presidents Day: 3rd Monday of February
+  list.push({ date: nthWeekday(endYear, 1, 1, 3), label: "Presidents' Day" });
+
+  // Spring Break: 3rd full week of March (Mon-Fri)
+  const springMon = nthWeekday(endYear, 2, 1, 3);
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(springMon);
+    d.setDate(d.getDate() + i);
+    list.push({ date: d, label: 'Spring Break' });
+  }
+
+  // Memorial Day: Last Monday of May
+  const memDay = new Date(endYear, 4, 31);
+  while (memDay.getDay() !== 1) memDay.setDate(memDay.getDate() - 1);
+  list.push({ date: memDay, label: 'Memorial Day' });
+
+  return list;
+}
+
+function prefillBankHolidays() {
+  const bankHolidays = getUSBankHolidays(yearStartDate.getFullYear());
+  bankHolidays.forEach(h => {
+    const key = dateToKey(h.date);
+    holidays.add(key);
+    holidayLabels[key] = h.label;
+  });
+}
+
+// Auto-prefill on load
+prefillBankHolidays();
 
 // Base total (no holidays removed)
 const BASE_TOTAL_DAYS = UNITS.reduce((sum, u) => sum + unitTotalDays(u), 0);
@@ -821,7 +1061,8 @@ function buildSchedule() {
   let totalInstrDays = 0;
 
   for (const unit of UNITS) {
-    const needed = unitTotalDays(unit);
+    // Use plan-aware day count: buildUnitDayItems respects skips and combines
+    const needed = buildUnitDayItems(unit).length;
     let instrCount = 0;
     const unitStartDate = new Date(cursor);
 
@@ -926,37 +1167,302 @@ function toggleComplete(unitId, lessonId) {
 // ============================================
 // NAVIGATION
 // ============================================
-function goYear() { state.view='year'; state.unitId=null; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; render(); }
-function goUnit(id) { state.view='unit'; state.unitId=id; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; render(); }
+function goYear() { state.view='year'; state.unitId=null; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
+function goUnit(id) { state.view='unit'; state.unitId=id; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
+function goReports(unitId) { state.view='reports'; state.unitId=unitId||null; render(); }
+function goGradebook(unitId, lessonId, actIdx) { state.view='gradebook'; state.unitId=unitId; state.lessonId=lessonId; state.activityIdx=actIdx; render(); }
 function switchHero(tab) { state.heroTab=tab; render(); }
 function goLesson(unitId, lessonId) { state.view='lesson'; state.unitId=unitId; state.lessonId=lessonId; state.aiPanelOpen=false; state.aiScenario=null; render(); }
 
 // ============================================
 // RENDER
 // ============================================
-function render() {
-  // Update header day count
-  const totalD = getTotalDays();
-  const currentD = getCurrentDay();
-  document.getElementById('headerDay').textContent = `Day ${currentD} of ${totalD}`;
+// Nav bar helpers
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
+function updateNavBar() {
+  const dowRow = document.getElementById('dowRow');
+
+  if (state.view === 'year' || state.view === 'reports' || state.view === 'lesson' || state.view === 'gradebook') {
+    dowRow.style.display = 'none';
+  } else if (state.view === 'unit') {
+    const { schedule } = buildSchedule();
+    const s = schedule.find(x => x.unit.id === state.unitId);
+    if (s) {
+      const m = state.monthOffset != null ? state.monthOffset : s.startDate.getMonth();
+      const y = state.monthYear != null ? state.monthYear : s.startDate.getFullYear();
+      state.monthOffset = m;
+      state.monthYear = y;
+    }
+    dowRow.style.display = 'grid';
+    updateDowHighlight();
+  } else if (state.view === 'lesson') {
+    dowRow.style.display = 'grid';
+    updateDowHighlight();
+  }
+}
+
+function updateDowHighlight() {
+  const cells = document.querySelectorAll('.k-dow-row .k-dow-cell');
+  const today = new Date();
+  const todayDow = today.getDay(); // 0=Sun, 1=Mon...
+  cells.forEach((c, i) => {
+    c.classList.toggle('today-col', todayDow === i + 1);
+  });
+}
+
+function getWeekStart(d) {
+  const result = new Date(d);
+  const day = result.getDay();
+  const diff = day === 0 ? -6 : 1 - day; // Monday
+  result.setDate(result.getDate() + diff);
+  return result;
+}
+
+function getLessonDate(unitId, lessonId) {
+  const { schedule } = buildSchedule();
+  const s = schedule.find(x => x.unit.id === unitId);
+  if (!s) return null;
+  const unit = s.unit;
+  let cursor = new Date(s.startDate);
+  let instrCount = 0;
+  let lessonDay = 0;
+  // Walk through unit days to find this lesson's date
+  const allItems = buildUnitDayItems(unit);
+  for (const item of allItems) {
+    // Advance cursor to next instructional day
+    while (true) {
+      const dow = cursor.getDay();
+      const key = dateToKey(cursor);
+      if (dow !== 0 && dow !== 6 && !holidays.has(key)) {
+        instrCount++;
+        break;
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    if (item.type === 'lesson' && item.lesson.id === lessonId) {
+      return new Date(cursor);
+    }
+    if (item.type === 'combined' && item.lessons.some(l => l.id === lessonId)) {
+      return new Date(cursor);
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return null;
+}
+
+// Build ordered list of day-items for a unit (lessons + assessments in correct order)
+function buildUnitDayItems(unit) {
+  const items = [];
+  const planTags = (state.confirmedPlans && state.confirmedPlans[unit.id]) || {};
+  const combinePairs = (state.confirmedPairs && state.confirmedPairs[unit.id]) || [];
+
+  // Build set of "second" lessons in combine pairs (they share a day with the first)
+  const combineSecondIds = new Set(combinePairs.map(p => p.b));
+
+  unit.sections.forEach(sec => {
+    sec.lessons.forEach(l => {
+      const tag = planTags[l.id];
+
+      // Skip lessons tagged as "skip"
+      if (tag && tag.tag === 'skip') return;
+
+      // If this is the second lesson in a combine pair, skip it as a separate day item
+      // (it will be added as a co-item with the first lesson)
+      if (combineSecondIds.has(l.id)) return;
+
+      // Check if this is the first lesson in a combine pair
+      const pair = combinePairs.find(p => p.a === l.id);
+      if (pair) {
+        // Add both lessons as a combined item (one day)
+        const partnerLesson = { id: pair.b };
+        unit.sections.forEach(s => s.lessons.forEach(ll => { if (ll.id === pair.b) partnerLesson.full = ll; }));
+        items.push({ type: 'combined', lessons: [l, partnerLesson.full || { id: pair.b, name: 'Combined' }], section: sec });
+      } else {
+        items.push({ type: 'lesson', lesson: l, section: sec });
+      }
+
+      // Check if assessment falls after this lesson
+      const assess = unit.assessments.find(a => a.afterLesson === l.id);
+      if (assess) {
+        items.push({ type: 'assessment', assess, section: sec });
+      }
+
+      // Also check assessment after the combined partner
+      if (pair) {
+        const assess2 = unit.assessments.find(a => a.afterLesson === pair.b);
+        if (assess2) {
+          items.push({ type: 'assessment', assess: assess2, section: sec });
+        }
+      }
+    });
+  });
+  return items;
+}
+
+function navPrev() {
+  if (state.view === 'unit' && state.monthOffset != null) {
+    state.monthOffset--;
+    if (state.monthOffset < 0) { state.monthOffset = 11; state.monthYear--; }
+    render();
+  } else if (state.view === 'year') {
+    // no-op for year
+  }
+}
+
+function navNext() {
+  if (state.view === 'unit' && state.monthOffset != null) {
+    state.monthOffset++;
+    if (state.monthOffset > 11) { state.monthOffset = 0; state.monthYear++; }
+    render();
+  }
+}
+
+function navToday() {
+  if (state.view === 'unit') {
+    const today = new Date();
+    state.monthOffset = today.getMonth();
+    state.monthYear = today.getFullYear();
+    render();
+  } else if (state.view === 'year') {
+    // scroll to current position in timeline
+  }
+}
+
+function toggleClassDropdown() {
+  const dd = document.getElementById('classDropdown');
+  if (dd.style.display === 'none') {
+    dd.style.display = 'block';
+    // Close on click outside
+    setTimeout(() => {
+      document.addEventListener('click', function closeDD(e) {
+        if (!e.target.closest('#classDropdown') && !e.target.closest('.k-class-tab')) {
+          dd.style.display = 'none';
+          document.removeEventListener('click', closeDD);
+        }
+      });
+    }, 0);
+  } else {
+    dd.style.display = 'none';
+  }
+}
+
+function openFilterMenu() {
+  // Open setup/filter options (holidays, start date)
+  openHolidayModal();
+}
+
+function render() {
   const app = document.getElementById('app');
-  const bc = document.getElementById('breadcrumb');
+
   if (state.view === 'year') {
-    bc.innerHTML = '<span class="current">Kindergarten Year Overview</span>';
-    app.innerHTML = renderYearView();
+    app.innerHTML = '<div class="container">' + renderYearView() + '</div>';
   } else if (state.view === 'unit') {
     const u = UNITS.find(x => x.id === state.unitId);
-    bc.innerHTML = `<a onclick="goYear()">Year Overview</a><span class="sep">/</span><span class="current">Unit ${u.id}: ${u.name}</span>`;
     app.innerHTML = renderUnitView(u) + renderAdjustPacingBtn(u);
     if (state.aiPanelOpen) app.innerHTML += renderAIPanel(u);
   } else if (state.view === 'lesson') {
     const u = UNITS.find(x => x.id === state.unitId);
     let lesson = null, section = null;
     u.sections.forEach(s => s.lessons.forEach(l => { if (l.id === state.lessonId) { lesson = l; section = s; } }));
-    bc.innerHTML = `<a onclick="goYear()">Year Overview</a><span class="sep">/</span><a onclick="goUnit(${u.id})">Unit ${u.id}: ${u.short}</a><span class="sep">/</span><span class="current">Lesson ${lesson.id}: ${lesson.name}</span>`;
     app.innerHTML = renderLessonView(u, section, lesson);
+  } else if (state.view === 'reports') {
+    app.innerHTML = '<div class="container">' + renderReportsView() + '</div>';
+  } else if (state.view === 'gradebook') {
+    app.innerHTML = renderGradebookView();
   }
+
+  // Hide setup bar on reports view
+  const setupBar = document.querySelector('.setup-bar');
+  if (setupBar) setupBar.style.display = (state.view === 'reports') ? 'none' : 'flex';
+
+  // Show/hide nav link in setup bar
+  const yoLink = document.getElementById('yearOverviewLink');
+  const yoSep = document.getElementById('yearOverviewSep');
+  if (yoLink && yoSep) {
+    if (state.view === 'unit') {
+      yoLink.textContent = 'Year Overview';
+      yoLink.onclick = function() { goYear(); };
+      yoLink.style.display = 'inline';
+      yoSep.style.display = 'block';
+    } else if (state.view === 'lesson') {
+      const u = UNITS.find(x => x.id === state.unitId);
+      yoLink.textContent = 'Unit ' + u.id;
+      yoLink.onclick = function() { goUnit(u.id); };
+      yoLink.style.display = 'inline';
+      yoSep.style.display = 'block';
+    } else if (state.view === 'gradebook') {
+      yoLink.style.display = 'none';
+      yoSep.style.display = 'none';
+    } else {
+      yoLink.style.display = 'none';
+      yoSep.style.display = 'none';
+    }
+  }
+
+  // Peek nav
+  const peekNav = document.getElementById('peekNav');
+  if (peekNav) {
+    if (state.view === 'unit') {
+      const u = UNITS.find(x => x.id === state.unitId);
+      const prevUnit = UNITS.find(x => x.id === u.id - 1);
+      const nextUnit = UNITS.find(x => x.id === u.id + 1);
+      let phtml = `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:var(--white);border-bottom:1px solid var(--border);gap:12px">`;
+      if (prevUnit) {
+        phtml += `<div class="peek-block" onclick="goUnit(${prevUnit.id})"><span style="font-size:18px">&larr;</span><div><div class="peek-label">Unit ${prevUnit.id}</div><div class="peek-name">${prevUnit.short}</div></div></div>`;
+      } else {
+        phtml += `<div style="min-width:120px"></div>`;
+      }
+      phtml += `<span style="font-size:15px;font-weight:700;text-align:center">Unit ${u.id}: ${u.name}</span>`;
+      if (nextUnit) {
+        phtml += `<div class="peek-block" onclick="goUnit(${nextUnit.id})" style="flex-direction:row-reverse;text-align:right"><span style="font-size:18px">&rarr;</span><div><div class="peek-label">Unit ${nextUnit.id}</div><div class="peek-name">${nextUnit.short}</div></div></div>`;
+      } else {
+        phtml += `<div style="min-width:120px"></div>`;
+      }
+      phtml += `</div>`;
+      peekNav.innerHTML = phtml;
+      peekNav.style.display = 'block';
+    } else if (state.view === 'lesson') {
+      const u = UNITS.find(x => x.id === state.unitId);
+      const allLessons = [];
+      u.sections.forEach(s => s.lessons.forEach(l => allLessons.push(l)));
+      const idx = allLessons.findIndex(l => l.id === state.lessonId);
+      const prevL = idx > 0 ? allLessons[idx-1] : null;
+      const nextL = idx < allLessons.length - 1 ? allLessons[idx+1] : null;
+      const lesson = allLessons[idx];
+
+      let phtml = `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:var(--white);border-bottom:1px solid var(--border);gap:12px">`;
+      if (prevL) {
+        phtml += `<div class="peek-block" onclick="goLesson(${u.id},${prevL.id})"><span style="font-size:18px">&larr;</span><div><div class="peek-label">Lesson ${prevL.id}</div><div class="peek-name">${prevL.name}</div></div></div>`;
+      } else {
+        phtml += `<div class="peek-block" onclick="goUnit(${u.id})"><span style="font-size:18px">&larr;</span><div><div class="peek-label">Back</div><div class="peek-name">Unit ${u.id}</div></div></div>`;
+      }
+      phtml += `<span style="font-size:15px;font-weight:700;text-align:center">Lesson ${lesson.id}: ${lesson.name}</span>`;
+      if (nextL) {
+        phtml += `<div class="peek-block" onclick="goLesson(${u.id},${nextL.id})" style="flex-direction:row-reverse;text-align:right"><span style="font-size:18px">&rarr;</span><div><div class="peek-label">Lesson ${nextL.id}</div><div class="peek-name">${nextL.name}</div></div></div>`;
+      } else {
+        phtml += `<div style="min-width:120px"></div>`;
+      }
+      phtml += `</div>`;
+      peekNav.innerHTML = phtml;
+      peekNav.style.display = 'block';
+    } else if (state.view === 'gradebook') {
+      peekNav.innerHTML = '';
+      peekNav.style.display = 'none';
+    } else {
+      peekNav.innerHTML = '';
+      peekNav.style.display = 'none';
+    }
+  }
+
+  // Update dropdown label
+  const tabEl = document.querySelector('.k-class-tab');
+  if (tabEl) {
+    const label = state.view === 'reports' ? 'Reports' : 'Assignments';
+    tabEl.childNodes[0].textContent = '\n        ' + label + '\n        ';
+  }
+
+  updateNavBar();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -967,9 +1473,10 @@ function renderYearView() {
   const { schedule, totalInstrDays } = buildSchedule();
   const holidayNote = holidays.size > 0 ? ` &middot; ${holidays.size} holiday${holidays.size !== 1 ? 's' : ''}` : '';
 
+  const endYear = yearStartDate.getFullYear() + 1;
   let html = `<div class="year-view">
-    <h1 class="year-title">Kindergarten</h1>
-    <p class="year-subtitle">IM v.360 Math &middot; ${totalInstrDays} instructional days &middot; 8 units${holidayNote}</p>
+    <h1 class="year-title">Kindergarten ${yearStartDate.getFullYear()}&ndash;${endYear} Year Overview</h1>
+    <p class="year-subtitle" style="margin-bottom:16px">${totalInstrDays} instructional days &middot; 8 units${holidayNote}</p>
     <div class="timeline-wrapper">
       <div class="timeline">`;
 
@@ -1016,11 +1523,199 @@ function renderYearView() {
 }
 
 // ============================================
+// REPORTS VIEW
+// ============================================
+function renderReportsView() {
+  let html = `<div class="year-view">
+    <h1 class="year-title">Standards Coverage Report</h1>
+    <p class="year-subtitle" style="margin-bottom:24px">Assessment readiness by unit and standard</p>`;
+
+  UNITS.forEach(unit => {
+    const completed = getCompleted(unit.id);
+    const stdMap = buildStandardLessonMap(unit);
+    const allNonOptional = [];
+    unit.sections.forEach(s => s.lessons.forEach(l => { if (!l.optional) allNonOptional.push(l.id); }));
+    const completedNonOpt = allNonOptional.filter(id => completed.has(id)).length;
+    const readinessPct = allNonOptional.length > 0 ? Math.round(completedNonOpt / allNonOptional.length * 100) : 0;
+
+    const stdData = unit.standards.map(std => {
+      const requiredLessons = stdMap[std] || [];
+      const coveredCount = requiredLessons.filter(id => completed.has(id)).length;
+      const isCovered = coveredCount === requiredLessons.length && requiredLessons.length > 0;
+      const pct = requiredLessons.length > 0 ? Math.round(coveredCount / requiredLessons.length * 100) : 0;
+      return { std, requiredLessons, coveredCount, isCovered, pct };
+    });
+
+    html += `<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px;box-shadow:var(--shadow)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <h3 style="font-size:15px;font-weight:700;margin:0">Unit ${unit.id}: ${unit.name}</h3>
+          <p style="font-size:12px;color:var(--mid);margin-top:2px">${completedNonOpt} of ${allNonOptional.length} required lessons completed (${readinessPct}% overall)</p>
+        </div>
+        <span style="font-size:22px;font-weight:700">${readinessPct}%</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">`;
+
+    stdData.forEach(d => {
+      const lessonsNeeded = d.requiredLessons.length - d.coveredCount;
+      const lessonList = d.requiredLessons.filter(id => !completed.has(id));
+      html += `<div style="display:flex;align-items:center;gap:12px">
+        <div style="min-width:80px;font-size:12px;font-weight:600;text-align:right">${d.std}</div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+          <div class="bar-track" style="height:16px"><div class="bar-fill" style="width:${d.pct}%"></div></div>
+          <div style="font-size:11px;color:var(--mid)">${d.isCovered ? 'All ' + d.requiredLessons.length + ' lessons completed' : lessonsNeeded + ' remaining (lessons ' + lessonList.join(', ') + ')'}</div>
+        </div>
+        <div style="min-width:36px;font-size:12px;font-weight:600;text-align:right">${d.pct}%</div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+// ============================================
+// GRADEBOOK VIEW
+// ============================================
+function renderGradebookView() {
+  const unit = UNITS.find(x => x.id === state.unitId);
+  if (!unit) return '';
+  let lesson = null;
+  unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === state.lessonId) lesson = l; }));
+  if (!lesson) return '';
+
+  const lessonData = LESSON_ACTIVITY_DATA[lesson.id] || null;
+  const activities = lessonData ? lessonData.activities.filter(a => a.label !== 'Lesson Synthesis' && a.label !== 'Cool-Down') : [];
+  const actIdx = state.activityIdx || 0;
+  const activity = activities[actIdx] || { label: 'Activity', title: 'Activity', time: '15 min' };
+  const actNum = `${lesson.id}.${actIdx + 1}`;
+
+  const hasSubmissions = unit.id === 1 && lesson.id >= 1 && lesson.id <= 7;
+  const submitted = hasSubmissions ? 14 + ((lesson.id * 3 + actIdx * 7) % 10) : 0;
+  const total = 24;
+  const pct = Math.round(submitted / total * 100);
+
+  // Fake student names
+  const students = ['Aiden','Bella','Carlos','Diya','Ethan','Fatima','Grace','Hassan','Iris','Javier','Kai','Luna','Mason','Nora','Oliver','Priya','Quinn','Rosa','Sam','Talia','Uma','Victor','Wendy','Xander'];
+  // Deterministic statuses
+  const statuses = students.map((s, si) => {
+    const seed = (lesson.id * 17 + actIdx * 13 + si * 7) % 100;
+    if (hasSubmissions && si < submitted) {
+      const score = 60 + (seed % 41); // 60-100
+      return { name: s, status: 'submitted', score };
+    } else {
+      return { name: s, status: hasSubmissions ? (seed > 50 ? 'not_started' : 'in_progress') : 'not_started', score: null };
+    }
+  });
+
+  const lessonDate = getLessonDate(unit.id, lesson.id);
+  const dueDate = lessonDate ? `${MONTHS_FULL[lessonDate.getMonth()].slice(0,3)} ${lessonDate.getDate()}, ${lessonDate.getFullYear()}` : '';
+
+  let html = `<div style="background:var(--white);min-height:100%">`;
+
+  // Header bar
+  html += `<div style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--border)">
+    <span style="cursor:pointer;font-size:13px;color:var(--mid);font-weight:600" onclick="goLesson(${unit.id},${lesson.id})">&larr; Back to Lesson ${lesson.id}</span>
+    <span style="flex:1"></span>`;
+  if (actIdx > 0) {
+    html += `<span style="cursor:pointer;font-size:12px;color:var(--mid);font-weight:600" onclick="goGradebook(${unit.id},${lesson.id},${actIdx - 1})">&larr; ${lesson.id}.${actIdx}: ${activities[actIdx-1]?.label || 'Prev'}</span>`;
+  }
+  if (actIdx < activities.length - 1) {
+    html += `<span style="cursor:pointer;font-size:12px;color:var(--mid);font-weight:600;margin-left:16px" onclick="goGradebook(${unit.id},${lesson.id},${actIdx + 1})">${lesson.id}.${actIdx+2}: ${activities[actIdx+1]?.label || 'Next'} &rarr;</span>`;
+  }
+  html += `</div>`;
+
+  html += `<div style="padding:24px 32px;max-width:900px">`;
+
+  // Assignment title
+  html += `<h2 style="font-size:18px;font-weight:700;margin-bottom:4px">${actNum}: ${activity.label}: ${activity.title}</h2>
+    <div style="font-size:12px;color:var(--mid);margin-bottom:20px">Version: Original &middot; Due: ${dueDate}</div>`;
+
+  // Assignment Info bar
+  html += `<div style="border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-size:14px;font-weight:700">Assignment Info</span>
+      <div style="display:flex;gap:8px">
+        <span style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;color:var(--mid)">Participation</span>
+        <span style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;color:var(--mid)">Formative</span>
+        <span style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;color:var(--mid)">4 Points</span>
+        <span style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;color:var(--mid)">Due: ${dueDate}</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;padding:20px">
+      <div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:6px">Assignment Status</div>
+        <div style="font-size:22px;font-weight:700">${pct}%</div>
+        <div style="font-size:12px;color:var(--mid)">${submitted}/${total} Submitted</div>
+        <div style="height:6px;background:#F0F0F0;border-radius:3px;overflow:hidden;margin-top:8px">
+          <div style="height:100%;width:${pct}%;background:var(--black);border-radius:3px"></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:6px">Grade Average</div>
+        <div style="font-size:22px;font-weight:700">${submitted > 0 ? Math.round(statuses.filter(s=>s.score).reduce((a,s)=>a+s.score,0)/submitted) : 0}%</div>
+        <div style="height:6px;background:#F0F0F0;border-radius:3px;overflow:hidden;margin-top:8px">
+          <div style="height:100%;width:${submitted > 0 ? Math.round(statuses.filter(s=>s.score).reduce((a,s)=>a+s.score,0)/submitted) : 0}%;background:var(--black);border-radius:3px"></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:6px">Grade Distribution</div>
+        <div style="display:flex;gap:2px;height:40px;align-items:flex-end">`;
+  // Simple histogram
+  const buckets = [0,0,0,0,0]; // 0-59, 60-69, 70-79, 80-89, 90-100
+  statuses.forEach(s => { if (s.score) { if (s.score >= 90) buckets[4]++; else if (s.score >= 80) buckets[3]++; else if (s.score >= 70) buckets[2]++; else if (s.score >= 60) buckets[1]++; else buckets[0]++; }});
+  const maxB = Math.max(...buckets, 1);
+  buckets.forEach(b => {
+    html += `<div style="flex:1;background:var(--black);border-radius:2px;height:${Math.round(b/maxB*40)}px"></div>`;
+  });
+  html += `</div>
+      </div>
+    </div>
+  </div>`;
+
+  // Student Grades table
+  html += `<div style="border:1px solid var(--border);border-radius:var(--radius)">
+    <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-size:14px;font-weight:700">Student Grades</span>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);background:#FAFAFA">
+          <th style="text-align:left;padding:10px 20px;font-weight:600;color:var(--mid)">Student Name</th>
+          <th style="text-align:left;padding:10px 20px;font-weight:600;color:var(--mid)">Grade</th>
+          <th style="text-align:left;padding:10px 20px;font-weight:600;color:var(--mid)">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);background:#F8F8F8">
+          <td style="padding:10px 20px;font-weight:700">Class Total</td>
+          <td style="padding:10px 20px;font-weight:700">${submitted > 0 ? Math.round(statuses.filter(s=>s.score).reduce((a,s)=>a+s.score,0)/submitted) : '-'}%</td>
+          <td style="padding:10px 20px"><span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;background:${submitted===total?'#E8F5E9;color:#2E7D32':'#FFF3E0;color:#E65100'}">${submitted===total?'COMPLETE':'INCOMPLETE'}</span></td>
+        </tr>`;
+  statuses.forEach(s => {
+    const statusLabel = s.status === 'submitted' ? 'SUBMITTED' : (s.status === 'in_progress' ? 'IN PROGRESS' : 'NOT STARTED');
+    const statusColor = s.status === 'submitted' ? 'background:#E8F5E9;color:#2E7D32' : (s.status === 'in_progress' ? 'background:#FFF3E0;color:#E65100' : 'background:#F0F0F0;color:var(--mid)');
+    html += `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:10px 20px;display:flex;align-items:center;gap:8px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--dark)">${s.name[0]}</div>
+        ${s.name}
+      </td>
+      <td style="padding:10px 20px">${s.score ? s.score + '%' : '-'}</td>
+      <td style="padding:10px 20px"><span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;${statusColor}">${statusLabel}</span></td>
+    </tr>`;
+  });
+  html += `</tbody></table></div>`;
+
+  html += `</div></div>`;
+  return html;
+}
+
+// ============================================
 // UNIT VIEW
 // ============================================
 function renderUnitView(unit) {
-  const prevUnit = UNITS.find(u => u.id === unit.id - 1);
-  const nextUnit = UNITS.find(u => u.id === unit.id + 1);
   const completed = getCompleted(unit.id);
 
   const allNonOptional = [];
@@ -1032,157 +1727,124 @@ function renderUnitView(unit) {
 
   let html = `<div class="unit-view">`;
 
-  // Peek navigation
-  html += `<div class="peek-nav">`;
-  if (prevUnit) {
-    html += `<div class="peek-block" onclick="goUnit(${prevUnit.id})">
-      <span style="font-size:18px">&larr;</span>
-      <div><div class="peek-label">Unit ${prevUnit.id}</div><div class="peek-name">${prevUnit.short}</div></div>
-    </div>`;
-  } else {
-    html += `<div class="peek-placeholder"></div>`;
-  }
-  if (nextUnit) {
-    html += `<div class="peek-block" onclick="goUnit(${nextUnit.id})" style="flex-direction:row-reverse;text-align:right">
-      <span style="font-size:18px">&rarr;</span>
-      <div><div class="peek-label">Unit ${nextUnit.id}</div><div class="peek-name">${nextUnit.short}</div></div>
-    </div>`;
-  } else {
-    html += `<div class="peek-placeholder"></div>`;
-  }
+  // Unit header bar with back + unit name + prev/next
+  const prevUnit = UNITS.find(u => u.id === unit.id - 1);
+  const nextUnit = UNITS.find(u => u.id === unit.id + 1);
+  // (Peek nav rendered in chrome via render())
+
+  // (Hero dashboards moved to Reports view)
+
+  // Month calendar grid
+  html += renderMonthCalendar(unit, completed);
+
   html += `</div>`;
+  return html;
+}
 
-  // Hero tabs
-  const t = state.heroTab;
-  html += `<div class="hero-tabs">
-    <button class="hero-tab${t===1?' active':''}" onclick="switchHero(1)">Hero 1<span class="hero-tab-label">Ring + Standards</span></button>
-    <button class="hero-tab${t===2?' active':''}" onclick="switchHero(2)">Hero 2<span class="hero-tab-label">Bar Chart</span></button>
-    <button class="hero-tab${t===3?' active':''}" onclick="switchHero(3)">Hero 3<span class="hero-tab-label">Checklist</span></button>
-  </div>`;
+// Build month calendar for a unit
+function renderMonthCalendar(unit, completed) {
+  const { schedule } = buildSchedule();
+  const entry = schedule.find(s => s.unit.id === unit.id);
+  if (!entry) return '';
 
-  // Shared data
-  const ringR = 50, ringC = 2 * Math.PI * ringR;
-  const ringOffset = ringC - (readinessPct / 100) * ringC;
+  // Build a map: dateKey -> [items] for all days in the unit
+  const dayMap = {};
+  const items = buildUnitDayItems(unit);
+  let cursor = new Date(entry.startDate);
 
-  // Build per-standard coverage data
-  const stdData = unit.standards.map(std => {
-    const requiredLessons = stdMap[std] || [];
-    const coveredCount = requiredLessons.filter(id => completed.has(id)).length;
-    const isCovered = coveredCount === requiredLessons.length && requiredLessons.length > 0;
-    const pct = requiredLessons.length > 0 ? Math.round(coveredCount / requiredLessons.length * 100) : 0;
-    return { std, requiredLessons, coveredCount, isCovered, pct };
-  });
-
-  if (t === 1) {
-    // HERO 1: Ring + standard pills (original)
-    html += `<div class="hero-dashboard">
-      <div class="hero-layout-row">
-        <div class="hero-left">
-          <div class="hero-label">Assessment Readiness</div>
-          <div class="progress-ring">
-            <svg width="120" height="120" viewBox="0 0 120 120">
-              <circle class="ring-bg" cx="60" cy="60" r="${ringR}"/>
-              <circle class="ring-fg" cx="60" cy="60" r="${ringR}"
-                stroke-dasharray="${ringC}" stroke-dashoffset="${ringOffset}"/>
-            </svg>
-            <div class="progress-pct">${readinessPct}%</div>
-          </div>
-          <div class="hero-unit-label">Unit ${unit.id} Assessment</div>
-        </div>
-        <div class="hero-right">
-          <h3>Your students are ready for ${readinessPct}% of Unit ${unit.id} assessment topics</h3>
-          <p style="font-size:13px;color:var(--mid);margin-bottom:12px">${completedNonOpt} of ${allNonOptional.length} required lessons completed</p>
-          <div style="font-size:12px;font-weight:600;color:var(--mid);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Standards Coverage</div>
-          <div class="gap-grid">`;
-    stdData.forEach(d => {
-      html += `<span class="standard-pill ${d.isCovered ? 'covered' : 'uncovered'}" title="Covered by lessons ${d.requiredLessons.join(', ')}">${d.std}</span>`;
-    });
-    html += `</div>
-          <div class="hero-footer">Standards are marked once all associated lessons are completed.</div>
-        </div>
-      </div>
-    </div>`;
-
-  } else if (t === 2) {
-    // HERO 2: Per-standard horizontal bar chart
-    html += `<div class="hero-dashboard">
-      <div style="width:100%">
-        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px">Assessment Readiness: Unit ${unit.id}</h3>
-        <p style="font-size:13px;color:var(--mid);margin-bottom:4px">${completedNonOpt} of ${allNonOptional.length} required lessons completed (${readinessPct}% overall)</p>
-        <div style="font-size:12px;font-weight:600;color:var(--mid);margin-bottom:4px;margin-top:16px;text-transform:uppercase;letter-spacing:.4px">Coverage by Standard</div>
-        <div class="bar-chart">`;
-    stdData.forEach(d => {
-      html += `<div class="bar-row">
-        <div class="bar-label">${d.std}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${d.pct}%"></div></div>
-        <div class="bar-value">${d.pct}%</div>
-      </div>`;
-    });
-    html += `</div>
-        <div class="hero-footer">Each bar shows the percentage of required lessons completed for that standard.</div>
-      </div>
-    </div>`;
-
-  } else {
-    // HERO 3: Checklist with per-standard status
-    const coveredCount = stdData.filter(d => d.isCovered).length;
-    const gapCount = stdData.length - coveredCount;
-    html += `<div class="hero-dashboard">
-      <div style="width:100%">
-        <h3 style="font-size:15px;font-weight:700;margin-bottom:4px">Assessment Readiness: Unit ${unit.id}</h3>
-        <p style="font-size:13px;color:var(--mid);margin-bottom:4px">${coveredCount} of ${stdData.length} standards covered, ${gapCount} gap${gapCount !== 1 ? 's' : ''} remaining</p>
-        <ul class="checklist">`;
-    stdData.forEach(d => {
-      const lessonsNeeded = d.requiredLessons.length - d.coveredCount;
-      html += `<li class="checklist-item">
-        <div class="checklist-box${d.isCovered ? ' checked' : ''}"></div>
-        <div class="checklist-text">
-          <div class="checklist-std">${d.std}</div>
-          <div class="checklist-detail">${d.isCovered ? 'All ' + d.requiredLessons.length + ' lessons completed' : lessonsNeeded + ' lesson' + (lessonsNeeded !== 1 ? 's' : '') + ' remaining (lessons ' + d.requiredLessons.filter(id => !completed.has(id)).join(', ') + ')'}</div>
-        </div>
-        <div class="checklist-status" style="color:${d.isCovered ? 'var(--black)' : 'var(--light)'}">${d.pct}%</div>
-      </li>`;
-    });
-    html += `</ul>
-        <div class="hero-footer">Complete the remaining lessons to close gaps before the unit assessment.</div>
-      </div>
-    </div>`;
+  for (const item of items) {
+    while (true) {
+      const dow = cursor.getDay();
+      const key = dateToKey(cursor);
+      if (dow !== 0 && dow !== 6 && !holidays.has(key)) break;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    const key = dateToKey(cursor);
+    if (!dayMap[key]) dayMap[key] = [];
+    dayMap[key].push(item);
+    cursor.setDate(cursor.getDate() + 1);
   }
 
-  // Sections and lesson cards (assessments as standalone blocks)
-  unit.sections.forEach(section => {
-    html += `<div class="section-group">
-      <div class="section-header">
-        <div class="section-letter">Section ${section.id}:</div>
-        <div class="section-name">${section.name}</div>
-      </div>
-      <div class="lessons-grid">`;
-    section.lessons.forEach(lesson => {
-      const isOpt = lesson.optional;
-      const isCompleted = completed.has(lesson.id);
-      let cls = 'lesson-card';
-      if (isOpt) cls += ' optional';
-      if (isCompleted) cls += ' completed';
-      const planTag = getPlanTag(unit.id, lesson.id);
-      if (planTag) cls += ' plan-tagged plan-' + planTag.tag;
-      html += `<div class="${cls}" onclick="goLesson(${unit.id},${lesson.id})">
-        <div class="lesson-num">Lesson ${lesson.id}</div>
-        <div class="lesson-name">${lesson.name}</div>`;
-      if (planTag) html += `<span class="plan-badge ${planTag.tagClass}">${planTag.label}</span>`;
-      else if (isOpt) html += `<span class="opt-badge">Optional</span>`;
-      html += `</div>`;
+  const today = new Date();
+  const todayKey = dateToKey(today);
 
-      // Insert assessment as its own block after the relevant lesson
-      const assess = unit.assessments.find(a => a.afterLesson === lesson.id);
-      if (assess) {
-        html += `<div class="assess-block ${assess.type}">
-          <div class="assess-type">${assess.type === 'summative' ? 'Summative' : 'Formative'}</div>
-          <div class="assess-name">${assess.label}</div>
-        </div>`;
+  // Grid spans from the Monday of the unit's start week to Friday of the unit's end week
+  let gridStart = new Date(entry.startDate);
+  while (gridStart.getDay() !== 1) gridStart.setDate(gridStart.getDate() - 1);
+
+  let gridEnd = new Date(entry.endDate);
+  while (gridEnd.getDay() !== 5) gridEnd.setDate(gridEnd.getDate() + 1);
+
+  // Month labels for week rows
+  let html = `<div class="k-month-grid">`;
+
+  let d = new Date(gridStart);
+  while (d <= gridEnd) {
+    for (let dow = 1; dow <= 5; dow++) {
+      while (d.getDay() !== dow) d.setDate(d.getDate() + 1);
+
+      const key = dateToKey(d);
+      const isToday = key === todayKey;
+      const isHoliday = holidays.has(key);
+      const dayItems = dayMap[key] || [];
+      const isInUnit = d >= entry.startDate && d <= entry.endDate;
+
+      let cellCls = 'k-month-cell';
+      if (isToday) cellCls += ' today-cell';
+
+      html += `<div class="${cellCls}">`;
+
+      // Show month name on the 1st of each month
+      const dateLabel = d.getDate() === 1
+        ? `${MONTHS_FULL[d.getMonth()].slice(0,3)} ${d.getDate()}`
+        : `${d.getDate()}`;
+
+      if (isToday) {
+        html += `<div class="cell-date" style="color:#fff;background:#6C5CE7;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px">${d.getDate()}</div>`;
+      } else if (isInUnit) {
+        html += `<div class="cell-date">${dateLabel}</div>`;
+      } else {
+        html += `<div class="cell-date" style="opacity:.3">${dateLabel}</div>`;
       }
-    });
-    html += `</div></div>`;
-  });
+
+      if (isHoliday) {
+        const hLabel = holidayLabels[key] || 'Holiday';
+        html += `<div class="cell-holiday">${hLabel}</div>`;
+      }
+
+      dayItems.forEach(item => {
+        if (item.type === 'lesson') {
+          const l = item.lesson;
+          const isOpt = l.optional;
+          const planTag = getPlanTag(unit.id, l.id);
+          let cls = 'cell-lesson';
+          if (isOpt) cls += ' optional';
+          html += `<div class="${cls}" onclick="goLesson(${unit.id},${l.id})" title="Lesson ${l.id}: ${l.name}">
+            <div style="font-weight:700;font-size:9px;color:var(--mid);text-transform:uppercase;letter-spacing:.3px">Lesson ${l.id}</div>
+            <div style="font-weight:600;font-size:11px;margin-top:1px">${l.name}</div>`;
+          if (planTag) html += `<div style="font-size:9px;font-weight:700;color:var(--light);margin-top:2px">${planTag.label}</div>`;
+          if (isOpt) html += `<span class="opt-tag">Optional</span>`;
+          html += `</div>`;
+        } else if (item.type === 'combined') {
+          const [lA, lB] = item.lessons;
+          html += `<div class="cell-lesson" onclick="goLesson(${unit.id},${lA.id})" title="Combined: Lesson ${lA.id} + ${lB.id}" style="border-left:3px solid var(--dark)">
+            <div style="font-weight:700;font-size:9px;color:var(--mid);text-transform:uppercase;letter-spacing:.3px">Lessons ${lA.id} + ${lB.id}</div>
+            <div style="font-weight:600;font-size:11px;margin-top:1px">${lA.name}</div>
+            <div style="font-weight:600;font-size:10px;color:var(--mid);margin-top:1px">+ ${lB.name}</div>
+            <div style="font-size:9px;font-weight:700;color:var(--light);margin-top:2px">Combined</div>
+          </div>`;
+        } else if (item.type === 'assessment') {
+          const a = item.assess;
+          html += `<div class="cell-lesson assessment" title="${a.label}">
+            ${a.label}
+          </div>`;
+        }
+      });
+
+      html += `</div>`;
+      d.setDate(d.getDate() + 1);
+    }
+  }
 
   html += `</div>`;
   return html;
@@ -1251,9 +1913,7 @@ function detectBehind(unit) {
 function renderAdjustPacingBtn(unit) {
   const detection = detectBehind(unit);
   const pulseClass = detection.behind ? ' pulsing' : '';
-  const dot = detection.behind ? '<span class="pulse-dot"></span>' : '';
   return `<button class="adjust-pacing-btn${pulseClass}" onclick="openAIPanel()">
-    ${dot}
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
     Adjust Pacing
   </button>`;
@@ -2455,12 +3115,66 @@ function buildCombinedPlan(lessonA, lessonB) {
     });
   }
 
-  // Calculate total time
-  const totalTime = plan.reduce((sum, a) => {
-    if (a.action === 'skip') return sum;
-    return sum + (parseInt(a.time) || 0);
-  }, 0);
+  // Enforce time budget: ~60 min per instructional day
+  const TIME_BUDGET = 60;
 
+  function getActiveTime() {
+    return plan.reduce((sum, a) => a.action === 'skip' ? sum : sum + (parseInt(a.time) || 0), 0);
+  }
+
+  // Pass 1: If over budget, compress the second warm-up (if both kept)
+  if (getActiveTime() > TIME_BUDGET) {
+    const keptWarmups = plan.filter(a => a.label === 'Warm-Up' && a.action !== 'skip');
+    if (keptWarmups.length > 1) {
+      // Skip the second warm-up unless it introduces a new routine
+      const second = keptWarmups[1];
+      if (!second.reason?.includes('Introduces a new routine')) {
+        second.action = 'skip';
+        second.reason = 'Skipped to fit combined lesson within one day';
+      } else {
+        // Compress it instead
+        second.action = 'compress';
+        second.time = '5 min';
+        second.reason = 'Compressed to fit within one day';
+      }
+    }
+  }
+
+  // Pass 2: If still over, compress all kept activities from lesson B
+  if (getActiveTime() > TIME_BUDGET) {
+    plan.forEach(a => {
+      if (a.action === 'keep' && a.lesson === lessonB.id && a.label !== 'Warm-Up') {
+        const origTime = parseInt(a.time) || 10;
+        a.action = 'compress';
+        a.time = Math.max(5, Math.floor(origTime * 0.6)) + ' min';
+        a.reason = 'Compressed to fit combined lesson within one day';
+      }
+    });
+  }
+
+  // Pass 3: If still over, skip lowest-priority activities (centers, extras) from lesson B
+  if (getActiveTime() > TIME_BUDGET) {
+    const bActivities = plan.filter(a => a.lesson === lessonB.id && a.action !== 'skip' && a.label !== 'Warm-Up');
+    // Skip from the end (lowest priority)
+    for (let i = bActivities.length - 1; i >= 0 && getActiveTime() > TIME_BUDGET; i--) {
+      bActivities[i].action = 'skip';
+      bActivities[i].reason = 'Skipped to fit combined lesson within one day';
+    }
+  }
+
+  // Pass 4: Last resort, compress lesson A activities
+  if (getActiveTime() > TIME_BUDGET) {
+    plan.forEach(a => {
+      if (a.action === 'keep' && a.lesson === lessonA.id) {
+        const origTime = parseInt(a.time) || 10;
+        a.action = 'compress';
+        a.time = Math.max(5, Math.floor(origTime * 0.7)) + ' min';
+        a.reason = 'Compressed to fit combined lesson within one day';
+      }
+    });
+  }
+
+  const totalTime = getActiveTime();
   return { activities: plan, totalTime };
 }
 
@@ -2502,257 +3216,144 @@ function renderLessonView(unit, section, lesson) {
     const isCooldown = a.label === 'Cool-Down';
     return {
       type: isWarmup ? 'warmup' : (isCooldown ? 'cooldown' : (isSynthesis ? 'synthesis' : 'activity')),
-      headerCls: isWarmup ? 'warmup' : (isCooldown ? 'cooldown' : (isSynthesis ? 'cooldown' : 'activity')),
       label: a.label, time: a.time,
       title: (isSynthesis && !a.title) ? 'Lesson Synthesis' : a.title,
       desc: a.desc,
-      stds: isWarmup ? displayStds.slice(0,1) : (isSynthesis || isCooldown ? [] : displayStds.slice(0,2)),
-      assessed: isCooldown || isSynthesis,
-      grouping: a.grouping,
-      transitionNote: ''
+      grouping: a.grouping
     };
   }) : [
-    {type:'warmup', headerCls:'warmup', label:'Warm-Up', time:'10 min',
-     title:'Warm-Up Activity', desc:'Students engage in a warm-up routine.',
-     stds: displayStds.slice(0,1), assessed: false, grouping: 'Whole Class', transitionNote: ''},
-    {type:'activity', headerCls:'activity', label:'Activity 1', time:'25 min',
-     title:'Main Activity', desc:'Students work on the main lesson activity.',
-     stds: displayStds.slice(0,2), assessed: false, grouping: 'Partners', transitionNote: ''},
-    {type:'synthesis', headerCls:'cooldown', label:'Lesson Synthesis', time:'5 min',
-     title:'Lesson Synthesis', desc:'Students reflect on what they learned.',
-     stds: [], assessed: true, grouping: 'Whole Class', transitionNote: ''}
+    {type:'warmup', label:'Warm-Up', time:'10 min', title:'Warm-Up Activity', desc:'Students engage in a warm-up routine.', grouping:'Whole Class'},
+    {type:'activity', label:'Activity 1', time:'25 min', title:'Main Activity', desc:'Students work on the main lesson activity.', grouping:'Partners'},
+    {type:'synthesis', label:'Lesson Synthesis', time:'5 min', title:'Lesson Synthesis', desc:'Students reflect on what they learned.', grouping:'Whole Class'}
   ];
 
-  // I Can Statements (generated from lesson context)
-  const iCanStatements = [
-    'I can represent this idea in two different ways',
-    'I can explain my thinking to a partner',
-    'I can check my work'
-  ];
-
-  // Materials from Kiddom data or fallback
   const materials = lessonData ? lessonData.materials : ['Counters (two-color)', 'Pattern blocks', 'Whiteboards and markers', 'Math journals'];
+  const totalTime = activities.reduce((sum, a) => sum + (parseInt(a.time) || 0), 0);
 
-  // Compute total lesson time from activities
-  const totalTime = activities.reduce((sum, a) => {
-    const mins = parseInt(a.time) || 0;
-    return sum + mins;
-  }, 0);
+  // Find the date for this lesson
+  const lessonDate = getLessonDate(unit.id, lesson.id);
+  const weekStart = lessonDate ? getWeekStart(lessonDate) : getWeekStart(new Date());
+  const today = new Date();
+  const todayKey = dateToKey(today);
 
-  let html = `<div class="lesson-view"><div class="lesson-layout">`;
+  // Day view header
+  const dowNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const dateStr = lessonDate
+    ? `${dowNames[lessonDate.getDay()]}, ${MONTHS_FULL[lessonDate.getMonth()]} ${lessonDate.getDate()}, ${lessonDate.getFullYear()}`
+    : '';
 
-  // ---- MAIN COLUMN ----
-  html += `<div class="lesson-main">`;
+  let html = `<div class="lesson-view">`;
 
-  // Prev/Next nav at top
-  html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">`;
-  if (prev) {
-    html += `<div onclick="goLesson(${unit.id},${prev.id})" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      <span style="font-size:16px">&larr;</span>
-      <div><div style="font-size:11px;color:var(--mid)">Previous</div><div style="font-size:13px;font-weight:600">Lesson ${prev.id}: ${prev.name}</div></div>
-    </div>`;
-  } else {
-    html += `<div></div>`;
+  // Day view layout: full width (sidebar hidden for now)
+  html += `<div style="flex:1">`;
+
+  // Main: day column with activities
+  html += `<div style="background:var(--white);padding:24px 32px;overflow-y:auto">`;
+
+  // Check if this lesson is part of a combine pair
+  const pairInfo = getCombinePartner(unit.id, lesson.id);
+  const isCombined = pairInfo !== null;
+  let partnerLesson = null;
+  let combinedPlan = null;
+  if (isCombined) {
+    partnerLesson = allLessons.find(l => l.id === pairInfo.partner);
+    const lessonA = pairInfo.isFirst ? lesson : partnerLesson;
+    const lessonB = pairInfo.isFirst ? partnerLesson : lesson;
+    combinedPlan = buildCombinedPlan(lessonA, lessonB);
   }
-  if (next) {
-    html += `<div onclick="goLesson(${unit.id},${next.id})" style="cursor:pointer;display:flex;align-items:center;gap:8px;text-align:right">
-      <div><div style="font-size:11px;color:var(--mid)">Next</div><div style="font-size:13px;font-weight:600">Lesson ${next.id}: ${next.name}</div></div>
-      <span style="font-size:16px">&rarr;</span>
-    </div>`;
+
+  // Date header
+  html += `<div style="font-size:13px;color:var(--mid);margin-bottom:4px">${dateStr}</div>`;
+  if (isCombined && partnerLesson) {
+    const lA = pairInfo.isFirst ? lesson : partnerLesson;
+    const lB = pairInfo.isFirst ? partnerLesson : lesson;
+    html += `<h2 style="font-size:20px;font-weight:700;margin-bottom:4px">Lessons ${lA.id} + ${lB.id}: ${lA.name} & ${lB.name}</h2>`;
+    html += `<div style="font-size:13px;color:var(--mid);margin-bottom:4px">Combined session${combinedPlan ? ' &middot; ' + combinedPlan.totalTime + ' min' : ''}</div>`;
+    html += `<div style="font-size:11px;color:var(--light);margin-bottom:24px;font-style:italic">Activities retained from the pacing plan</div>`;
   } else {
-    html += `<div></div>`;
+    html += `<h2 style="font-size:20px;font-weight:700;margin-bottom:4px">Lesson ${lesson.id}: ${lesson.name}</h2>`;
+    html += `<div style="font-size:13px;color:var(--mid);margin-bottom:24px">${totalTime} min total${lesson.optional ? ' &middot; Optional' : ''}</div>`;
   }
-  html += `</div>`;
 
-  // Lesson header
-  html += `<div class="lesson-header">
-    <div class="lesson-header-text">
-      <h2>Lesson ${lesson.id}: ${lesson.name}</h2>
-      <div class="lesson-subtitle">Unit ${unit.id} &middot; ${totalTime} min total${lesson.optional ? ' &middot; Optional' : ''}${(() => {
-        const pt = getPlanTag(unit.id, lesson.id);
-        return pt ? ` &middot; <span class="plan-badge-inline ${pt.tagClass}">${pt.label}</span>` : '';
-      })()}</div>
-    </div>
-  </div>`;
+  // Activity cards
+  if (isCombined && combinedPlan) {
+    // Show retained activities grouped by lesson sequence
+    const retained = combinedPlan.activities.filter(a => a.action !== 'skip' && a.label !== 'Lesson Synthesis');
+    const lA = pairInfo.isFirst ? lesson : partnerLesson;
+    const lB = pairInfo.isFirst ? partnerLesson : lesson;
+    const lessonIds = [lA.id, lB.id];
 
-  // Description
-  html += `<div class="lesson-desc">Students practice ${lesson.name.toLowerCase()} using multiple representations and explain their thinking to a partner.</div>`;
+    lessonIds.forEach(lid => {
+      const lessonActivities = retained.filter(a => a.lesson === lid);
+      if (lessonActivities.length === 0) return;
+      const lObj = lid === lA.id ? lA : lB;
+      const lUrl = getKiddomLessonUrl(unit.id, lid);
 
-  // Activity Sequence
-  html += `<div class="activity-seq-label">Activity Sequence</div>`;
-  html += `<div class="activity-seq">`;
-  activities.forEach((a, i) => {
-    html += `<div class="activity-card">
-      <div class="activity-card-header ${a.headerCls}">
-        <span>${a.label}</span><span>${a.time}</span>
-      </div>
-      <div class="activity-card-body">
-        <h4>${a.title}</h4>
-        <p>${a.desc}</p>
-        <div class="activity-card-tags">`;
-    a.stds.forEach(s => { html += `<span class="atag">${s}</span>`; });
-    if (a.assessed) html += `<span class="atag atag-assessed">Assessed</span>`;
-    html += `</div>
-        <div style="font-size:11px;color:var(--mid);margin-top:8px;display:flex;align-items:center;gap:4px">
-          <span style="font-weight:600">${a.grouping}</span>
+      html += `<div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px">
+          Lesson ${lid}: ${lObj.name}
+        </div>`;
+      const cols = Math.min(lessonActivities.length, 3);
+      html += `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:12px">`;
+      lessonActivities.forEach((a, i) => {
+        const isCompressed = a.action === 'compress';
+        const hasSubmissions = unit.id === 1 && lid >= 1 && lid <= 7;
+        const submitted = hasSubmissions ? 14 + ((lid * 3 + i * 7) % 10) : 0;
+        const total = 24;
+        const cardUrl = getKiddomLessonUrl(unit.id, lid);
+        const cardClick = cardUrl ? `onclick="window.open('${cardUrl}','_blank')" style="border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;background:var(--white);display:flex;flex-direction:column;cursor:pointer;transition:all .15s${isCompressed ? ';border-style:dashed' : ''}" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'"` : `style="border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;background:var(--white);display:flex;flex-direction:column${isCompressed ? ';border-style:dashed' : ''}"`;
+        html += `<div ${cardClick}>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--mid);margin-bottom:6px">${a.label} &middot; ${a.time}${isCompressed ? ' &middot; Compressed' : ''}</div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px">${a.title || a.label}</div>
+          <div style="font-size:12px;color:var(--mid);line-height:1.5;margin-bottom:12px;flex:1">${a.desc || ''}</div>
+          <div style="font-size:12px;color:var(--mid);margin-bottom:6px">${submitted}/${total} submitted</div>
+          <div style="height:6px;background:#F0F0F0;border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${Math.round(submitted/total*100)}%;background:var(--black);border-radius:3px"></div>
+          </div>
+        </div>`;
+      });
+      html += `</div></div>`;
+    });
+  } else {
+    // Normal lesson: show assignable activities
+    const assignable = activities.filter(a => a.type !== 'synthesis');
+    const cols = Math.min(assignable.length, 3);
+    html += `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:12px">`;
+    assignable.forEach((a, i) => {
+      const hasSubmissions = unit.id === 1 && lesson.id >= 1 && lesson.id <= 7;
+      const submitted = hasSubmissions ? 14 + ((lesson.id * 3 + i * 7) % 10) : 0;
+      const total = 24;
+      const cardUrl = getKiddomLessonUrl(unit.id, lesson.id);
+      const clickAttr = cardUrl ? `onclick="window.open('${cardUrl}','_blank')" style="border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;background:var(--white);display:flex;flex-direction:column;cursor:pointer;transition:all .15s" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'"` : `style="border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;background:var(--white);display:flex;flex-direction:column"`;
+      html += `<div ${clickAttr}>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--mid);margin-bottom:6px">${lesson.id}.${i + 1}: ${a.label}</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px">${a.title}</div>
+        <div style="font-size:12px;color:var(--mid);line-height:1.5;margin-bottom:12px;flex:1">${a.desc}</div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:6px">${submitted}/${total} submitted</div>
+        <div style="height:6px;background:#F0F0F0;border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${Math.round(submitted/total*100)}%;background:var(--black);border-radius:3px"></div>
         </div>
-      </div></div>`;
-    if (i < activities.length - 1) {
-      html += `<div class="activity-arrow" title="${activities[i].transitionNote || ''}">&rarr;</div>`;
-    }
-  });
-  html += `</div>`;
-
-  // Combined Lesson Plan (when this lesson has a combine tag)
-  const planTag = getPlanTag(unit.id, lesson.id);
-  if (planTag && planTag.tag === 'combine') {
-    const pairInfo = getCombinePartner(unit.id, lesson.id);
-    if (pairInfo) {
-      const partnerLesson = allLessons.find(l => l.id === pairInfo.partner);
-      if (partnerLesson) {
-        const lessonA = pairInfo.isFirst ? lesson : partnerLesson;
-        const lessonB = pairInfo.isFirst ? partnerLesson : lesson;
-        const combinedPlan = buildCombinedPlan(lessonA, lessonB);
-        if (combinedPlan) {
-          const originalTimeA = (LESSON_ACTIVITY_DATA[lessonA.id]?.activities || []).reduce((s, a) => s + (parseInt(a.time) || 0), 0);
-          const originalTimeB = (LESSON_ACTIVITY_DATA[lessonB.id]?.activities || []).reduce((s, a) => s + (parseInt(a.time) || 0), 0);
-          const originalTotal = originalTimeA + originalTimeB;
-          const timeSaved = originalTotal - combinedPlan.totalTime;
-
-          html += `<div class="combined-plan-section">`;
-          html += `<div class="combined-plan-header">
-            <span style="font-size:18px">&#x1F517;</span>
-            <h3>Combined Lesson Plan: L${lessonA.id} + L${lessonB.id}</h3>
-          </div>`;
-          html += `<div class="combined-plan-meta">
-            Lessons ${lessonA.id} (${lessonA.name}) and ${lessonB.id} (${lessonB.name}) combined into a single session.
-            Original: ${originalTotal} min total. Combined: ${combinedPlan.totalTime} min.
-          </div>`;
-
-          combinedPlan.activities.forEach(a => {
-            const actionCls = a.action === 'keep' ? 'cp-keep' : (a.action === 'compress' ? 'cp-compress' : 'cp-skip');
-            const actionBadgeCls = a.action === 'keep' ? 'cp-action-keep' : (a.action === 'compress' ? 'cp-action-compress' : 'cp-action-skip');
-            const actionLabel = a.action === 'keep' ? 'Keep' : (a.action === 'compress' ? 'Compress' : 'Skip');
-            const sourceLabel = a.lesson === 'combined' ? 'Combined' : ('From L' + a.lesson);
-
-            html += `<div class="cp-activity ${actionCls}">
-              <div class="cp-activity-top">
-                <span class="cp-activity-label">${a.label}</span>
-                <span class="cp-activity-action ${actionBadgeCls}">${actionLabel}</span>
-              </div>
-              <div class="cp-activity-title">${a.title || a.label}</div>
-              <div class="cp-activity-time">${a.action === 'skip' ? '<s>' + a.time + '</s>' : a.time}${a.grouping ? ' &middot; ' + a.grouping : ''}</div>
-              <div class="cp-activity-reason">${a.reason}</div>
-              <div class="cp-activity-source">${sourceLabel}</div>
-            </div>`;
-          });
-
-          if (timeSaved > 0) {
-            html += `<div class="cp-time-savings">
-              <span>&#x23F1;</span> ${timeSaved} minutes recovered by combining these lessons
-            </div>`;
-          }
-          html += `</div>`;
-        }
-      }
-    }
+      </div>`;
+    });
+    html += `</div>`;
   }
 
-  // Skip notice (when this lesson has a skip tag)
-  if (planTag && planTag.tag === 'skip') {
-    html += `<div style="margin-top:24px;padding:16px 18px;border-radius:var(--radius);background:#F8F8F8;border:1px solid var(--border);font-size:13px;color:var(--mid)">
-      <span style="font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-size:10px;color:var(--mid)">Skipped</span>
-      <div style="margin-top:6px">This ${lesson.optional ? 'optional ' : ''}lesson is skipped in the confirmed plan to recover pacing time.</div>
-    </div>`;
-  }
+  // Grade Assignments button
+  html += `<div style="margin-top:20px">
+    <button onclick="goGradebook(${unit.id},${lesson.id},0)" style="background:var(--black);color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'Lexend',sans-serif;transition:all .15s" onmouseover="this.style.background='var(--dark)'" onmouseout="this.style.background='var(--black)'">Grade Assignments</button>
+  </div>`;
 
   // Assessment notice
   if (assess) {
-    html += `<div style="margin-top:24px;padding:14px 18px;border-radius:var(--radius);background:#F0F0F0;font-size:13px;font-weight:600;color:var(--black);border:1px solid var(--border)">
+    html += `<div style="margin-top:16px;padding:14px 18px;border-radius:var(--radius);background:#F0EEFF;border:1px solid #D8D0FF;font-size:13px;font-weight:600;color:#6C5CE7">
       ${assess.label} follows this lesson
     </div>`;
   }
 
-  // Prev/Next navigation
-  html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">`;
-  if (prev) {
-    html += `<div onclick="goLesson(${unit.id},${prev.id})" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-      <span style="font-size:16px">&larr;</span>
-      <div><div style="font-size:11px;color:var(--mid)">Previous</div><div style="font-size:13px;font-weight:600">Lesson ${prev.id}: ${prev.name}</div></div>
-    </div>`;
-  } else {
-    html += `<div></div>`;
-  }
-  if (next) {
-    html += `<div onclick="goLesson(${unit.id},${next.id})" style="cursor:pointer;display:flex;align-items:center;gap:8px;text-align:right">
-      <div><div style="font-size:11px;color:var(--mid)">Next</div><div style="font-size:13px;font-weight:600">Lesson ${next.id}: ${next.name}</div></div>
-      <span style="font-size:16px">&rarr;</span>
-    </div>`;
-  } else {
-    html += `<div></div>`;
-  }
   html += `</div>`;
 
-  html += `</div>`; // end lesson-main
-
-  // ---- SIDEBAR ----
-  html += `<div class="lesson-sidebar">`;
-  html += `<div class="sidebar-title">Lesson ${lesson.id}: ${lesson.name}</div>`;
-  html += `<div class="sidebar-subtitle">Unit ${unit.id} &middot; ${totalTime} min total</div>`;
-
-  // Learning Goal
-  html += `<div class="sidebar-section">
-    <div class="sidebar-section-label">Learning Goal</div>
-    <p>Students practice ${lesson.name.toLowerCase()} using multiple representations and explain their thinking to a partner.</p>
-  </div>`;
-
-  // I Can Statements
-  html += `<div class="sidebar-section">
-    <div class="sidebar-section-label">I Can Statements</div>`;
-  iCanStatements.forEach(s => {
-    html += `<div class="sidebar-ican">${s}</div>`;
-  });
-  html += `</div>`;
-
-  // Standards
-  html += `<div class="sidebar-section">
-    <div class="sidebar-section-label">Standards</div>
-    <div class="sidebar-std-tags">`;
-  displayStds.forEach(s => { html += `<span class="sidebar-std-tag">${s}</span>`; });
-  html += `</div></div>`;
-
-  // Materials
-  html += `<div class="sidebar-section">
-    <div class="sidebar-section-label">Materials</div>
-    <ul>`;
-  materials.forEach(m => { html += `<li>${m}</li>`; });
-  html += `</ul></div>`;
-
-  // Grouping sequence
-  html += `<div class="sidebar-section">
-    <div class="sidebar-section-label">Grouping</div>
-    <ul>`;
-  activities.forEach((a, i) => {
-    html += `<li><strong>${a.label}:</strong> ${a.grouping}</li>`;
-    if (a.transitionNote && i < activities.length - 1) {
-      html += `<li style="font-size:11px;color:var(--mid);font-style:italic;padding:1px 0">${a.transitionNote}</li>`;
-    }
-  });
-  html += `</ul></div>`;
-
-  // Actions
-  html += `<div style="margin-top:20px;display:flex;flex-direction:column;gap:8px">
-    <button class="status-toggle ${isCompleted ? 'completed-toggle' : ''}" onclick="toggleComplete(${unit.id},${lesson.id})" style="width:100%;justify-content:center">
-      ${isCompleted ? 'Completed' : 'Mark as Complete'}
-    </button>`;
-  if (kiddomUrl) {
-    html += `<a href="${kiddomUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:8px;border:1px solid var(--border);font-size:13px;font-weight:600;color:var(--black);text-decoration:none;transition:all .15s;font-family:'Lexend',sans-serif" onmouseover="this.style.borderColor='var(--black)'" onmouseout="this.style.borderColor='var(--border)'">Full Lesson Details &rarr;</a>`;
-  }
-  html += `</div>`;
-
-  html += `</div>`; // end sidebar
-
-  html += `</div></div>`; // end layout, end lesson-view
+  html += `</div>`; // end layout
+  html += `</div>`; // end lesson-view
   return html;
 }
 
@@ -2760,7 +3361,10 @@ function renderLessonView(unit, section, lesson) {
 // SETUP BAR: Modals
 // ============================================
 function updateStartDateDisplay() {
-  document.getElementById('startDateDisplay').textContent = formatDateDisplay(yearStartDate);
+  const el = document.getElementById('startDateDisplay');
+  if (el) el.textContent = formatDateDisplay(yearStartDate);
+  const el2 = document.getElementById('endDateDisplay');
+  if (el2) el2.textContent = formatDateDisplay(yearEndDate);
 }
 
 // ---- Holiday Calendar Modal ----
@@ -2889,21 +3493,34 @@ function renderHolidayModal() {
 
 // ---- Start Date Modal ----
 function openStartDateModal() {
-  const isoDate = yearStartDate.getFullYear() + '-' +
+  const isoStart = yearStartDate.getFullYear() + '-' +
     String(yearStartDate.getMonth()+1).padStart(2,'0') + '-' +
     String(yearStartDate.getDate()).padStart(2,'0');
+  const isoEnd = yearEndDate.getFullYear() + '-' +
+    String(yearEndDate.getMonth()+1).padStart(2,'0') + '-' +
+    String(yearEndDate.getDate()).padStart(2,'0');
 
   const html = `<div class="modal-overlay" onclick="if(event.target===this)closeStartDateModal()">
-    <div class="modal" style="width:340px">
+    <div class="modal" style="width:380px">
       <div class="modal-header">
-        <h3>Adjust Start Date</h3>
+        <h3>Adjust Dates</h3>
         <button class="modal-close" onclick="closeStartDateModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <label style="font-size:13px;font-weight:600;color:var(--dark);display:block;margin-bottom:8px">
-          First day of instruction
-        </label>
-        <input type="date" class="date-input" id="startDateInput" value="${isoDate}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <label style="font-size:13px;font-weight:600;color:var(--dark);display:block;margin-bottom:8px">
+              Start date
+            </label>
+            <input type="date" class="date-input" id="startDateInput" value="${isoStart}">
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:600;color:var(--dark);display:block;margin-bottom:8px">
+              End date
+            </label>
+            <input type="date" class="date-input" id="endDateInput" value="${isoEnd}">
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="modal-btn" onclick="closeStartDateModal()">Cancel</button>
@@ -2919,19 +3536,31 @@ function closeStartDateModal() {
 }
 
 function saveStartDate() {
-  const val = document.getElementById('startDateInput').value;
-  if (val) {
-    const parts = val.split('-');
+  const startVal = document.getElementById('startDateInput').value;
+  const endVal = document.getElementById('endDateInput').value;
+  if (startVal) {
+    const parts = startVal.split('-');
     yearStartDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-    updateStartDateDisplay();
   }
+  if (endVal) {
+    const parts = endVal.split('-');
+    yearEndDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  }
+  // Re-prefill bank holidays for the new school year
+  holidays.clear();
+  holidayLabels = {};
+  prefillBankHolidays();
+  updateStartDateDisplay();
   document.getElementById('modal-root').innerHTML = '';
-  render(); // Recalculate timeline with new start date
+  render();
 }
 
 // ============================================
 // INIT
 // ============================================
+// Pre-populate completed lessons: Unit 1, Lessons 1-7
+state.completed[1] = new Set([1, 2, 3, 4, 5, 6, 7]);
+
 render();
 </script>
 </body>
