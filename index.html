@@ -3250,6 +3250,10 @@ function renderLessonView(unit, section, lesson) {
   // Main: day column with activities
   html += `<div style="background:var(--white);padding:24px 32px;overflow-y:auto">`;
 
+  // Check plan tags for this lesson
+  const lessonPlanTag = (state.confirmedPlans && state.confirmedPlans[unit.id] && state.confirmedPlans[unit.id][lesson.id]) || null;
+  const isSkipped = lessonPlanTag && lessonPlanTag.tag === 'skip';
+
   // Check if this lesson is part of a combine pair
   const pairInfo = getCombinePartner(unit.id, lesson.id);
   const isCombined = pairInfo !== null;
@@ -3273,6 +3277,14 @@ function renderLessonView(unit, section, lesson) {
   } else {
     html += `<h2 style="font-size:20px;font-weight:700;margin-bottom:4px">Lesson ${lesson.id}: ${lesson.name}</h2>`;
     html += `<div style="font-size:13px;color:var(--mid);margin-bottom:24px">${totalTime} min total${lesson.optional ? ' &middot; Optional' : ''}</div>`;
+  }
+
+  // Skip banner if pacing plan marks this lesson as skipped
+  if (isSkipped) {
+    html += `<div style="background:#F5F5F5;border:1px solid #E0E0E0;border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <span style="background:#E0E0E0;color:var(--mid);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 10px;border-radius:4px">Skipped</span>
+      <span style="font-size:13px;color:var(--mid)">This lesson was removed from the pacing plan to recover 1 instructional day.</span>
+    </div>`;
   }
 
   // Activity cards
