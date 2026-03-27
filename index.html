@@ -226,6 +226,40 @@
   .adjust-pacing-btn.pulsing svg{animation:boltBlink 1.5s ease-in-out infinite}
   @keyframes boltBlink{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
 
+  /* Inline pacing button + dropdown */
+  .adjust-pacing-btn-inline{background:var(--black);color:#fff;border:none;
+    padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
+    transition:var(--transition);display:flex;align-items:center;gap:5px;font-family:'Lexend',sans-serif}
+  .adjust-pacing-btn-inline:hover{background:var(--dark)}
+  .adjust-pacing-btn-inline svg{width:14px;height:14px}
+  .adjust-pacing-btn-inline.pulsing svg{animation:boltBlink 1.5s ease-in-out infinite}
+  .pacing-dropdown{position:absolute;top:100%;right:0;margin-top:8px;background:var(--white);
+    border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;
+    box-shadow:var(--shadow-lg);z-index:100;width:340px}
+  .adjust-pacing-action{background:var(--black);color:#fff;border:none;padding:8px 14px;
+    border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;display:flex;
+    align-items:center;gap:5px;font-family:'Lexend',sans-serif;transition:var(--transition)}
+  .adjust-pacing-action:hover{background:var(--dark)}
+
+  /* Week view */
+  .week-nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:12px 0}
+  .week-nav-btn{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:6px 12px;cursor:pointer;font-size:14px;font-family:'Lexend',sans-serif;transition:var(--transition)}
+  .week-nav-btn:hover:not(:disabled){background:var(--bg)}
+  .week-nav-btn:disabled{opacity:.3;cursor:default}
+  .week-nav-label{font-size:13px;font-weight:600;min-width:180px;text-align:center}
+  .k-week-grid{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+    display:grid;grid-template-columns:repeat(5,1fr)}
+  .k-week-header-cell{padding:10px 8px;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.3px;color:var(--mid);text-align:center;background:var(--bg);
+    border-bottom:1px solid var(--border);border-right:1px solid var(--border)}
+  .k-week-header-cell:last-child{border-right:none}
+  .k-week-cell{min-height:200px;padding:10px;border-right:1px solid var(--border);
+    background:var(--white)}
+  .k-week-cell:nth-child(5n){border-right:none}
+  .k-week-cell.outside-unit{background:var(--bg)}
+  .k-week-cell.today-cell{background:#FAFAFA}
+
   /* Mode selector in AI panel */
   .mode-selector{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
   .mode-option{flex:1;padding:14px 16px;cursor:pointer;background:var(--white);border:none;
@@ -1161,7 +1195,9 @@ let state = {
   aiMode: 'assessment',
   targetAssess: 'auto',
   completed: {},
-  perfSlider: 50
+  perfSlider: 50,
+  weekIdx: 0,
+  insightsOpen: false
 };
 
 function getCompleted(unitId) {
@@ -1180,12 +1216,15 @@ function toggleComplete(unitId, lessonId) {
 // NAVIGATION
 // ============================================
 function goYear() { state.view='year'; if(!state.unitId) state.unitId=1; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
-function goUnit(id) { state.view='year'; state.unitId=id; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
+function goUnit(id) { state.view='year'; state.unitId=id; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; state.weekIdx=0; state.insightsOpen=false; render(); }
 function goReports(unitId) { state.view='reports'; state.unitId=unitId||null; render(); }
 function goGradebook(unitId, lessonId, actIdx) { state.view='gradebook'; state.unitId=unitId; state.lessonId=lessonId; state.activityIdx=actIdx; render(); }
 function switchHero(tab) { state.heroTab=tab; render(); }
 function goLesson(unitId, lessonId) { state.view='lesson'; state.unitId=unitId; state.lessonId=lessonId; state.assessType=null; state.aiPanelOpen=false; state.aiScenario=null; render(); }
 function goAssessment(unitId, assessType) { state.view='assessment'; state.unitId=unitId; state.assessType=assessType; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; render(); }
+function prevWeek() { if (state.weekIdx > 0) { state.weekIdx--; render(); } }
+function nextWeek(maxWeeks) { if (state.weekIdx < maxWeeks - 1) { state.weekIdx++; render(); } }
+function toggleInsights() { state.insightsOpen = !state.insightsOpen; render(); }
 
 // ============================================
 // RENDER
@@ -1378,12 +1417,18 @@ function navToday() {
     state.lessonId = null;
     state.monthOffset = null;
     state.monthYear = null;
+    // Find which week contains today
+    const entry = schedule.find(s => s.unit.id === targetUnit.id);
+    if (entry) {
+      let gridStart = new Date(entry.startDate);
+      while (gridStart.getDay() !== 1) gridStart.setDate(gridStart.getDate() - 1);
+      const diffMs = today - gridStart;
+      const diffDays = Math.floor(diffMs / (1000*60*60*24));
+      state.weekIdx = Math.max(0, Math.floor(diffDays / 7));
+    } else {
+      state.weekIdx = 0;
+    }
     render();
-    // Scroll to today's cell if visible
-    setTimeout(() => {
-      const todayCell = document.querySelector('.k-month-cell.today-cell');
-      if (todayCell) todayCell.scrollIntoView({behavior:'smooth', block:'center'});
-    }, 100);
   }
 }
 
@@ -1415,7 +1460,7 @@ function render() {
 
   if (state.view === 'year') {
     const u = UNITS.find(x => x.id === (state.unitId || 1));
-    app.innerHTML = '<div class="container">' + renderYearView() + '</div>' + renderAdjustPacingBtn(u);
+    app.innerHTML = '<div class="container">' + renderYearView() + '</div>';
     if (state.aiPanelOpen) app.innerHTML += renderAIPanel(u);
   } else if (state.view === 'lesson') {
     const u = UNITS.find(x => x.id === state.unitId);
@@ -1569,7 +1614,7 @@ function renderYearView() {
   });
   html += `</div></div>`;
 
-  // Unit title + pacing insights
+  // Build pacing insights
   const completed = getCompleted(selectedId);
   const totalLessons = [];
   const optLessons = [];
@@ -1579,15 +1624,11 @@ function renderYearView() {
   }));
   const instrDays = buildUnitDayItems(selectedUnit).length;
 
-  // Rank all units by flex (optional count)
   const flexRanking = UNITS.map(u => ({ id: u.id, opt: u.optionalLessons.length })).sort((a,b) => b.opt - a.opt);
-  const thisRank = flexRanking.findIndex(f => f.id === selectedId);
   const mostFlexUnits = flexRanking.filter(f => f.opt === flexRanking[0].opt);
   const leastFlexUnits = flexRanking.filter(f => f.opt === flexRanking[flexRanking.length-1].opt);
 
   const insights = [];
-
-  // 1. Flex rating with cross-unit comparison
   if (mostFlexUnits.some(f => f.id === selectedId)) {
     insights.push(`Most flexible unit (${optLessons.length} optional lessons). Recover lost days here first.`);
   } else if (leastFlexUnits.some(f => f.id === selectedId)) {
@@ -1597,36 +1638,25 @@ function renderYearView() {
     const topFlex = flexRanking.slice(0, 2).map(f => 'Unit ' + f.id);
     insights.push(`${optLessons.length} optional lesson${optLessons.length !== 1 ? 's' : ''} give moderate flex. ${topFlex.join(' and ')} have the most room to recover.`);
   }
-
-  // 2. Buffer days (only show if positive)
   const bufferDays = instrDays - totalLessons.length - selectedUnit.assessments.length;
   if (bufferDays > 0) {
     insights.push(`${bufferDays} buffer day${bufferDays !== 1 ? 's' : ''} beyond lessons and assessments. Use for reteaching or enrichment.`);
   }
-
-  // 3. Holiday count
   const unitEntry = schedule.find(s => s.unit.id === selectedId);
   if (unitEntry) {
     let holidayCount = 0;
     const hd = new Date(unitEntry.startDate);
     while (hd <= unitEntry.endDate) {
-      const key = dateToKey(hd);
-      if (holidays.has(key)) holidayCount++;
+      if (holidays.has(dateToKey(hd))) holidayCount++;
       hd.setDate(hd.getDate() + 1);
     }
-    if (holidayCount > 0) {
-      insights.push(`${holidayCount} day${holidayCount !== 1 ? 's' : ''} off fall within this unit.`);
-    }
+    if (holidayCount > 0) insights.push(`${holidayCount} day${holidayCount !== 1 ? 's' : ''} off fall within this unit.`);
   }
-
-  // 4. Combine candidates (skip first pair in each section, suggest from middle/end of sections)
   const combineCandidates = [];
   selectedUnit.sections.forEach(sec => {
     for (let i = 2; i < sec.lessons.length - 1; i++) {
       const a = sec.lessons[i], b = sec.lessons[i+1];
-      if (!a.optional && !b.optional) {
-        combineCandidates.push([a, b]);
-      }
+      if (!a.optional && !b.optional) { combineCandidates.push([a, b]); break; }
     }
   });
   if (combineCandidates.length > 0) {
@@ -1634,22 +1664,159 @@ function renderYearView() {
     insights.push(`L${pair[0].id} + L${pair[1].id} are candidates to combine if you need to recover a day.`);
   }
 
-  html += `<div style="padding:16px 0 8px">
-    <div style="text-align:center;margin-bottom:12px">
-      <span style="font-size:15px;font-weight:700">Unit ${selectedId}: ${selectedUnit.name}</span>
-    </div>
-    <div class="pacing-intel" style="margin:0">
-      <div class="pacing-intel-title">Pacing Insights</div>
-      <ul class="pacing-intel-list">
-        ${insights.map(i => `<li>${i}</li>`).join('')}
-      </ul>
-    </div>
+  // Unit header with pacing button (upper right)
+  const detection = detectBehind(selectedUnit);
+  const pulseClass = detection.behind ? ' pulsing' : '';
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0 8px">
+    <span style="font-size:15px;font-weight:700">Unit ${selectedId}: ${selectedUnit.name}</span>
+    <button class="adjust-pacing-btn-inline${pulseClass}" onclick="openAIPanel()">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      Adjust Pacing
+    </button>
   </div>`;
 
-  // Unit month calendar
-  html += renderMonthCalendar(selectedUnit, completed);
+  // Persistent pacing insights
+  html += `<div class="pacing-intel" style="margin:0 0 12px">
+    <div class="pacing-intel-title">Pacing Insights</div>
+    <ul class="pacing-intel-list">
+      ${insights.map(i => `<li>${i}</li>`).join('')}
+    </ul>
+  </div>`;
+
+  // Weekly view
+  html += renderWeekView(selectedUnit, completed, schedule);
 
   html += `</div>`;
+  return html;
+}
+
+// ============================================
+// WEEKLY VIEW
+// ============================================
+function renderWeekView(unit, completed, schedule) {
+  const entry = schedule.find(s => s.unit.id === unit.id);
+  if (!entry) return '';
+
+  // Build dayMap: dateKey -> [items]
+  const dayMap = {};
+  const items = buildUnitDayItems(unit);
+  let cursor = new Date(entry.startDate);
+  for (const item of items) {
+    while (true) {
+      const dow = cursor.getDay();
+      const key = dateToKey(cursor);
+      if (dow !== 0 && dow !== 6 && !holidays.has(key)) break;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    const key = dateToKey(cursor);
+    if (!dayMap[key]) dayMap[key] = [];
+    dayMap[key].push(item);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  // Build weeks array (Mon-Fri rows)
+  let gridStart = new Date(entry.startDate);
+  while (gridStart.getDay() !== 1) gridStart.setDate(gridStart.getDate() - 1);
+  let gridEnd = new Date(entry.endDate);
+  while (gridEnd.getDay() !== 5) gridEnd.setDate(gridEnd.getDate() + 1);
+
+  const weeks = [];
+  let d = new Date(gridStart);
+  while (d <= gridEnd) {
+    const week = [];
+    for (let dow = 0; dow < 5; dow++) {
+      week.push(new Date(d));
+      d.setDate(d.getDate() + 1);
+    }
+    // Skip to next Monday
+    while (d.getDay() !== 1 && d <= gridEnd) d.setDate(d.getDate() + 1);
+    weeks.push(week);
+  }
+
+  const totalWeeks = weeks.length;
+  const weekIdx = Math.min(state.weekIdx, totalWeeks - 1);
+  const weekDays = weeks[weekIdx];
+  const today = new Date();
+  const todayKey = dateToKey(today);
+
+  // Week date range label
+  const wStart = weekDays[0];
+  const wEnd = weekDays[4];
+  const weekLabel = `${MONTHS_FULL[wStart.getMonth()].slice(0,3)} ${wStart.getDate()} \u2013 ${MONTHS_FULL[wEnd.getMonth()].slice(0,3)} ${wEnd.getDate()}, ${wEnd.getFullYear()}`;
+
+  let html = `<div class="week-nav">
+    <button class="week-nav-btn" onclick="prevWeek()" ${weekIdx === 0 ? 'disabled' : ''}>&larr;</button>
+    <span class="week-nav-label">${weekLabel}</span>
+    <button class="week-nav-btn" onclick="nextWeek(${totalWeeks})" ${weekIdx >= totalWeeks - 1 ? 'disabled' : ''}>&rarr;</button>
+  </div>`;
+
+  // DOW header
+  const DOW_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  html += `<div class="k-week-grid">`;
+  DOW_NAMES.forEach(d => { html += `<div class="k-week-header-cell">${d}</div>`; });
+
+  // Week cells
+  weekDays.forEach(day => {
+    const key = dateToKey(day);
+    const isToday = key === todayKey;
+    const isHoliday = holidays.has(key);
+    const dayItems = dayMap[key] || [];
+    const isInUnit = day >= entry.startDate && day <= entry.endDate;
+
+    html += `<div class="k-week-cell${isToday ? ' today-cell' : ''}${!isInUnit ? ' outside-unit' : ''}">`;
+
+    // Date
+    if (isToday) {
+      html += `<div class="cell-date" style="color:#fff;background:#111;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px">${day.getDate()}</div>`;
+    } else {
+      html += `<div class="cell-date" style="${!isInUnit ? 'opacity:.3' : ''}">${MONTHS_FULL[day.getMonth()].slice(0,3)} ${day.getDate()}</div>`;
+    }
+
+    if (isHoliday) {
+      html += `<div class="cell-holiday">No Class</div>`;
+    }
+
+    dayItems.forEach(item => {
+      if (item.type === 'lesson') {
+        const l = item.lesson;
+        const planTag = getPlanTag(unit.id, l.id);
+        const ld = LESSON_ACTIVITY_DATA[unit.id + '-' + l.id];
+        const assignCount = ld ? ld.activities.filter(a => a.label !== 'Lesson Synthesis' && a.label !== 'Cool-Down').length : 0;
+        let cls = 'cell-lesson';
+        if (l.optional) cls += ' optional';
+        html += `<div class="${cls}" onclick="goLesson(${unit.id},${l.id})" title="Lesson ${l.id}: ${l.name}">
+          <div style="font-weight:700;font-size:9px;color:var(--mid);text-transform:uppercase;letter-spacing:.3px">Lesson ${l.id}</div>
+          <div style="font-weight:600;font-size:12px;margin-top:2px">${l.name}</div>`;
+        if (assignCount > 0) html += `<div style="font-size:10px;color:var(--mid);margin-top:4px">${assignCount} assignment${assignCount !== 1 ? 's' : ''}</div>`;
+        if (planTag) html += `<div style="font-size:9px;font-weight:700;color:var(--light);margin-top:2px">${planTag.label}</div>`;
+        if (l.optional) html += `<span class="opt-tag">Optional</span>`;
+        html += `</div>`;
+      } else if (item.type === 'combined') {
+        const [lA, lB] = item.lessons;
+        const ldA = LESSON_ACTIVITY_DATA[unit.id + '-' + lA.id];
+        const ldB = LESSON_ACTIVITY_DATA[unit.id + '-' + lB.id];
+        const countA = ldA ? ldA.activities.filter(a => a.label !== 'Lesson Synthesis' && a.label !== 'Cool-Down').length : 0;
+        const countB = ldB ? ldB.activities.filter(a => a.label !== 'Lesson Synthesis' && a.label !== 'Cool-Down').length : 0;
+        const combinedCount = countA + countB;
+        html += `<div class="cell-lesson" onclick="goLesson(${unit.id},${lA.id})" title="Combined: Lesson ${lA.id} + ${lB.id}" style="border-left:3px solid var(--dark)">
+          <div style="font-weight:700;font-size:9px;color:var(--mid);text-transform:uppercase;letter-spacing:.3px">Lessons ${lA.id} + ${lB.id}</div>
+          <div style="font-weight:600;font-size:12px;margin-top:2px">${lA.name}</div>
+          <div style="font-weight:600;font-size:10px;color:var(--mid);margin-top:1px">+ ${lB.name}</div>`;
+        if (combinedCount > 0) html += `<div style="font-size:10px;color:var(--mid);margin-top:4px">${combinedCount} assignments</div>`;
+        html += `<div style="font-size:9px;font-weight:700;color:var(--light);margin-top:2px">Combined</div>
+        </div>`;
+      } else if (item.type === 'assessment') {
+        const a = item.assess;
+        html += `<div class="cell-lesson assessment" title="${a.label}" onclick="goAssessment(${unit.id},'${a.type}')" style="cursor:pointer">
+          ${a.label}
+        </div>`;
+      }
+    });
+
+    html += `</div>`;
+  });
+  html += `</div>`;
+
   return html;
 }
 
