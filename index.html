@@ -44,6 +44,9 @@
     border-right:1px solid var(--border)}
   .timeline-unit:last-child{border-right:none}
   .timeline-unit:hover{background:#F0F0F0}
+  .timeline-unit.selected{background:var(--black);color:var(--white)}
+  .timeline-unit.selected:hover{background:#333}
+  .timeline-unit.selected .unit-num,.timeline-unit.selected .unit-days{opacity:.7}
   .timeline-unit .unit-num{font-size:10px;font-weight:700;opacity:.5;text-transform:uppercase;letter-spacing:.5px}
   .timeline-unit .unit-short{font-size:10px;font-weight:600;line-height:1.25;text-align:center;
     max-width:95%;word-wrap:break-word;overflow-wrap:break-word}
@@ -479,13 +482,13 @@
 
   /* Left sidebar */
   .k-sidebar{width:56px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;position:fixed;top:0;left:0;bottom:0;z-index:150}
-  .k-sidebar-logo{width:36px;height:36px;border-radius:10px;background:#E8573A;display:flex;align-items:center;justify-content:center;margin-bottom:20px;cursor:pointer}
+  .k-sidebar-logo{width:36px;height:36px;border-radius:10px;background:#666;display:flex;align-items:center;justify-content:center;margin-bottom:20px;cursor:pointer}
   .k-sidebar-logo svg{width:20px;height:20px;fill:#fff}
   .k-sidebar-top,.k-sidebar-bottom{display:flex;flex-direction:column;align-items:center;gap:4px}
   .k-sidebar-bottom{margin-top:auto}
   .k-sidebar-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;color:var(--light);position:relative}
   .k-sidebar-icon:hover{background:#F0F0F0;color:var(--dark)}
-  .k-sidebar-icon.active{color:#6C5CE7;background:#F0EEFF}
+  .k-sidebar-icon.active{color:#111;background:#F0F0F0}
   .k-sidebar-icon svg{width:20px;height:20px}
 
   /* Main content area */
@@ -493,7 +496,7 @@
 
   /* Class header bar */
   .k-class-header{display:flex;align-items:center;gap:16px;padding:14px 24px;background:var(--white);border-bottom:1px solid var(--border);position:relative;z-index:60}
-  .k-class-icon{width:36px;height:36px;border-radius:8px;background:#6C5CE7;display:flex;align-items:center;justify-content:center}
+  .k-class-icon{width:36px;height:36px;border-radius:8px;background:#111;display:flex;align-items:center;justify-content:center}
   .k-class-icon svg{width:18px;height:18px;fill:#fff}
   .k-class-info{display:flex;flex-direction:column}
   .k-class-name{font-size:16px;font-weight:700;color:var(--black);line-height:1.2}
@@ -521,33 +524,33 @@
   /* Day-of-week header row for calendar views */
   .k-dow-row{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--border);background:var(--white)}
   .k-dow-cell{padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mid);text-align:center}
-  .k-dow-cell.today-col{color:#6C5CE7}
+  .k-dow-cell.today-col{color:#111}
 
   /* Month calendar grid */
   .k-month-grid{display:grid;grid-template-columns:repeat(5,1fr);flex:1;background:var(--white);padding-bottom:80px}
   .k-month-cell{border-right:1px dashed var(--border);border-bottom:1px solid var(--border);min-height:120px;padding:8px;position:relative}
   .k-month-cell:nth-child(5n){border-right:none}
-  .k-month-cell.today-cell{background:#EEF0FF}
+  .k-month-cell.today-cell{background:#F0F0F0}
   .k-month-cell .cell-date{font-size:12px;font-weight:600;color:var(--mid);margin-bottom:6px}
-  .k-month-cell.today-cell .cell-date{color:#6C5CE7;background:#6C5CE7;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+  .k-month-cell.today-cell .cell-date{color:#111;background:#111;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
   .k-month-cell .cell-lesson{font-size:11px;padding:4px 8px;border-radius:4px;margin-bottom:3px;cursor:pointer;transition:all .15s;line-height:1.3;background:#F8F8F8}
   .k-month-cell .cell-lesson:hover{background:#EFEFEF;transform:translateX(2px)}
   .k-month-cell .cell-lesson.optional{border-left:3px dashed var(--light);background:#FAFAFA;opacity:1;font-style:italic}
   .k-month-cell .cell-lesson.optional .opt-tag{font-size:9px;font-weight:700;color:var(--light);font-style:normal;text-transform:uppercase;letter-spacing:.3px;display:block;margin-top:2px}
-  .k-month-cell .cell-lesson.assessment{border-left-color:#6C5CE7;background:#F0EEFF;font-weight:600}
-  .k-month-cell .cell-holiday{font-size:10px;color:#E8573A;font-weight:600}
+  .k-month-cell .cell-lesson.assessment{border-left-color:#111;background:#F0F0F0;font-weight:600}
+  .k-month-cell .cell-holiday{font-size:10px;color:#666;font-weight:600}
 
   /* Week calendar grid */
   .k-week-grid{display:grid;grid-template-columns:repeat(5,1fr);flex:1;background:var(--white)}
   .k-week-cell{border-right:1px dashed var(--border);min-height:400px;padding:12px;position:relative}
   .k-week-cell:nth-child(5n){border-right:none}
-  .k-week-cell.today-cell{background:#EEF0FF}
+  .k-week-cell.today-cell{background:#F0F0F0}
   .k-week-cell .cell-date{font-size:13px;font-weight:600;color:var(--mid);margin-bottom:12px}
   .k-week-activity{padding:10px 12px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border);background:var(--white);transition:all .15s}
   .k-week-activity:hover{box-shadow:var(--shadow)}
   .k-week-activity .wa-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
-  .k-week-activity .wa-label.warmup{color:#E8573A}
-  .k-week-activity .wa-label.activity{color:#6C5CE7}
+  .k-week-activity .wa-label.warmup{color:#666}
+  .k-week-activity .wa-label.activity{color:#111}
   .k-week-activity .wa-label.synthesis{color:var(--mid)}
   .k-week-activity .wa-title{font-size:12px;font-weight:600;margin-bottom:2px}
   .k-week-activity .wa-time{font-size:11px;color:var(--mid)}
@@ -758,7 +761,7 @@ const KIDDOM_ASSESS_NODES = {
 
 // Real lesson activity data from Kiddom MCP (Unit 1)
 const LESSON_ACTIVITY_DATA = {
-  1: {
+  '1-1': {
     activities: [
       {label:'Warm-Up', title:'Notice and Wonder: Connecting Cubes', time:'15 min', grouping:'Partners', desc:'Students observe connecting cubes and share what they notice and wonder with a partner.'},
       {label:'Activity 1', title:'Introduce Connecting Cubes, Explore', time:'15 min', grouping:'Partners', desc:'Students freely explore connecting cubes, building objects and sharing what they made with a partner.'},
@@ -766,7 +769,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Connecting cubes', 'Chart paper'],
   },
-  2: {
+  '1-2': {
     activities: [
       {label:'Warm-Up', title:'Notice and Wonder: Pattern Blocks', time:'10 min', grouping:'Partners', desc:'Students observe pattern blocks and share what they notice and wonder with a partner.'},
       {label:'Activity 1', title:'Introduce Pattern Blocks, Explore', time:'15 min', grouping:'Partners', desc:'Students freely explore pattern blocks, creating designs or sorting shapes, then share with a partner.'},
@@ -774,7 +777,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Pattern blocks', 'Math community poster'],
   },
-  3: {
+  '1-3': {
     activities: [
       {label:'Warm-Up', title:'Notice and Wonder: Counters and 5-Frames', time:'15 min', grouping:'Partners', desc:'Students observe four math tools (5-frame, counters, connecting cubes, pattern blocks) and share what they notice and wonder.'},
       {label:'Activity 1', title:'Explore Counters and 5-Frames', time:'15 min', grouping:'Individual', desc:'Students freely explore two-color counters and 5-frames, placing counters on frames or creating designs.'},
@@ -782,7 +785,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Two-color counters', '5-frame (blackline master)', 'Math community poster'],
   },
-  4: {
+  '1-4': {
     activities: [
       {label:'Warm-Up', title:'Notice and Wonder: Geoblocks', time:'10 min', grouping:'Partners', desc:'Students observe geoblocks and share what they notice and wonder with a partner.'},
       {label:'Activity 1', title:'Introduce Geoblocks, Explore', time:'15 min', grouping:'Partners', desc:'Students freely explore geoblocks, building structures and describing what they made to a partner.'},
@@ -791,7 +794,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Geoblocks', 'Solid shapes', 'Geoblocks Stage 2 Cards (blackline master)', 'Math community poster'],
   },
-  5: {
+  '1-5': {
     activities: [
       {label:'Warm-Up', title:'Notice and Wonder: Using Different Tools', time:'10 min', grouping:'Partners', desc:'Students consider how different tools can be used to represent the same thing.'},
       {label:'Activity 1', title:'Introduce Connecting Cubes: Build to Match', time:'10 min', grouping:'Partners', desc:'Students use cubes to build objects pictured on cards.'},
@@ -801,7 +804,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Connecting cubes', 'Pattern blocks', 'Connecting Cubes Stage 2 Cards', 'Pattern Blocks Stage 2 Mats', 'Materials from previous centers'],
   },
-  6: {
+  '1-6': {
     activities: [
       {label:'Warm-Up', title:'Act It Out: Introduction', time:'10 min', grouping:'Partners', desc:'Students are introduced to the Act It Out routine, which will be used throughout the year.'},
       {label:'Activity 1', title:'How Many Do You See: Introduction', time:'10 min', grouping:'Partners', desc:'Students are introduced to the How Many Do You See? routine, which will be used throughout the year.'},
@@ -811,7 +814,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Math community poster', 'Picture books', 'Materials from previous centers'],
   },
-  7: {
+  '1-7': {
     activities: [
       {label:'Warm-Up', title:'Act It Out: How Can We Show It?', time:'10 min', grouping:'Partners', desc:'Students revisit a story and consider ways to act it out.'},
       {label:'Activity 1', title:'How Many Do You See: Two Images', time:'10 min', grouping:'Partners', desc:'Students recognize quantities without counting and describe how they know how many dots are displayed.'},
@@ -821,7 +824,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Materials from previous centers'],
   },
-  8: {
+  '1-8': {
     activities: [
       {label:'Warm-Up', title:'Act It Out: Another Way', time:'10 min', grouping:'Partners', desc:'Students consider different ways of acting out a story.'},
       {label:'Activity 1', title:'How Many Do You See: 1, 2, 3', time:'10 min', grouping:'Partners', desc:'Students recognize and name small groups of dots and describe how they see them.'},
@@ -831,7 +834,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Card Sort Different Groups Same Quantity Cards', 'Materials from previous centers'],
   },
-  9: {
+  '1-9': {
     activities: [
       {label:'Warm-Up', title:'Act It Out: The Story Changes', time:'10 min', grouping:'Partners', desc:'Students revisit a story with a new verse and suggest different ways to act it out.'},
       {label:'Activity 1', title:'How Many Do You See: What Do You Notice?', time:'10 min', grouping:'Partners', desc:'Students recognize and name small groups of dots, then discuss different arrangements of 2 dots.'},
@@ -841,7 +844,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Colored pencils or crayons', 'Picture Books Stage 2 Recording Sheet', 'Materials from previous centers'],
   },
-  10: {
+  '1-10': {
     activities: [
       {label:'Warm-Up', title:'How Many Do You See: Building On', time:'10 min', grouping:'Partners', desc:'Students recognize and name small groups of dots and may notice images are the same with one additional dot.'},
       {label:'Activity 1', title:'Act It Out: 4 Frogs (Part 1)', time:'10 min', grouping:'Partners', desc:'Students are introduced to a new story about frogs, make sense of it, and orally explain what it is about.'},
@@ -851,7 +854,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Pencils', 'Erasers', 'Materials from previous centers'],
   },
-  11: {
+  '1-11': {
     activities: [
       {label:'Warm-Up', title:'How Many Do You See: In a Flash', time:'10 min', grouping:'Partners', desc:'Students see groups of dots flashed quickly and determine how many without counting.'},
       {label:'Activity 1', title:'Act It Out: 4 Frogs (Part 2)', time:'10 min', grouping:'Partners', desc:'Students hear the frog story a second time and suggest ways to act it out using objects, fingers, or pictures.'},
@@ -861,7 +864,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Pencils (at least 8 per group of 4)', 'Materials from previous centers'],
   },
-  12: {
+  '1-12': {
     activities: [
       {label:'Warm-Up', title:'Questions About Us: How Many of Us Are Here Today?', time:'10 min', grouping:'Whole Class', desc:'Students are introduced to the Questions About Us routine, counting how many students are present.'},
       {label:'Activity 1', title:'Counting Collections', time:'15 min', grouping:'Individual', desc:'Students count collections of 6-10 objects in a way that makes sense to them.'},
@@ -871,7 +874,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['5-frames', 'Collections of up to 20 small objects', 'Bags', 'Counting Mat', 'Pattern blocks', 'Pattern Blocks Stage 3 Directions', 'Materials from previous centers'],
   },
-  13: {
+  '1-13': {
     activities: [
       {label:'Warm-Up', title:'Questions About Us: Attendance', time:'10 min', grouping:'Whole Class', desc:'Students figure out how many are present and develop ideas for keeping track of which students have been counted.'},
       {label:'Activity 1', title:'Counting Collections', time:'15 min', grouping:'Individual', desc:'Students count collections of 6-10 objects, focusing on keeping track of which objects have been counted.'},
@@ -881,7 +884,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Counting mats', '5-frames', 'Collections of up to 20 small objects', 'Bags', 'Collections of up to 10 small objects', 'Buckets or containers', 'Materials from previous centers'],
   },
-  14: {
+  '1-14': {
     activities: [
       {label:'Warm-Up', title:'Questions About Us: Represent Attendance (Part 1)', time:'10 min', grouping:'Whole Class', desc:'Students brainstorm and create a representation showing how many students are present today.'},
       {label:'Activity 1', title:'Counting Collections: How Many?', time:'15 min', grouping:'Partners', desc:'Students count a collection of up to 10 objects and answer "how many?" questions to develop cardinality understanding.'},
@@ -891,7 +894,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Chart paper', '5-frames', 'Counting mats', 'Collections of up to 10 small objects', 'Egg cartons', 'Connecting cubes', 'Materials from previous centers'],
   },
-  15: {
+  '1-15': {
     activities: [
       {label:'Warm-Up', title:'Questions About Us: Represent Attendance (Part 2)', time:'10 min', grouping:'Whole Class', desc:'Students continue developing ways to represent class attendance by drawing or writing names on a poster.'},
       {label:'Activity 1', title:'Counting Collections: Share How You Counted', time:'15 min', grouping:'Partners', desc:'Students count collections of up to 20 objects and explain their counting strategy to a partner.'},
@@ -901,7 +904,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Chart paper', 'Counting mats', '5-frames', 'Collections of up to 20 small objects', 'Materials from previous centers'],
   },
-  16: {
+  '1-16': {
     activities: [
       {label:'Warm-Up', title:'Questions About Us: Attendance Display', time:'10 min', grouping:'Whole Class', desc:'Students use 5-frames to represent how many students are present and compare it to the previous attendance poster.'},
       {label:'Activity 1', title:'Counting Collections: Show How Many', time:'15 min', grouping:'Partners', desc:'Students count collections of 6-10 objects and create a representation to show how many.'},
@@ -911,7 +914,7 @@ const LESSON_ACTIVITY_DATA = {
     ],
     materials: ['Chart paper', 'Counting mats', '5-frames', 'Collections of 6-10 small objects', 'Egg cartons', 'Materials from previous centers'],
   },
-  17: {
+  '1-17': {
     activities: [
       {label:'Warm-Up', title:'Notice and Wonder: Made of Bricks', time:'10 min', grouping:'Partners', desc:'Students observe an image of buildings made from toy bricks and discuss what they notice and wonder.'},
       {label:'Activity 1', title:'Creating Classroom Objects', time:'20 min', grouping:'Partners', desc:'Students choose a math tool (connecting cubes, pattern blocks, counters, or geoblocks) to build a model of a classroom object.'},
@@ -919,6 +922,15 @@ const LESSON_ACTIVITY_DATA = {
       {label:'Lesson Synthesis', title:'Lesson Synthesis', time:'10 min', grouping:'Whole Class', desc:'Students reflect on the choices they made when selecting objects to model and which math tools to use.'},
     ],
     materials: ['Two-color counters', 'Connecting cubes', 'Geoblocks', 'Pattern blocks'],
+  },
+  '7-8': {
+    activities: [
+      {label:'Warm-Up', title:'Notice and Wonder: Seesaw', time:'10 min', grouping:'Whole Class', desc:'Students observe an image of a seesaw and share what they notice and wonder.'},
+      {label:'Activity 1', title:'Compare Weights of Boxes and Bags', time:'15 min', grouping:'Partners', desc:'Students hold pairs of objects (boxes and bags) and compare which feels heavier or lighter.'},
+      {label:'Activity 2', title:'Compare Weights', time:'15 min', grouping:'Partners', desc:'Students compare the weights of various classroom objects by holding one in each hand.'},
+      {label:'Cool-Down', title:'Compare Weights of Books and Pencils', time:'5 min', grouping:'Individual', desc:'Students compare the weight of a book and a pencil and explain which is heavier.'},
+    ],
+    materials: ['Boxes of different weights', 'Bags of different weights', 'Classroom objects of varying weights'],
   },
 };
 
@@ -1141,7 +1153,7 @@ function buildStandardLessonMap(unit) {
 // ============================================
 let state = {
   view: 'year',
-  unitId: null,
+  unitId: 1,
   lessonId: null,
   heroTab: 1,
   aiPanelOpen: false,
@@ -1167,12 +1179,13 @@ function toggleComplete(unitId, lessonId) {
 // ============================================
 // NAVIGATION
 // ============================================
-function goYear() { state.view='year'; state.unitId=null; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
-function goUnit(id) { state.view='unit'; state.unitId=id; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
+function goYear() { state.view='year'; if(!state.unitId) state.unitId=1; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
+function goUnit(id) { state.view='year'; state.unitId=id; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
 function goReports(unitId) { state.view='reports'; state.unitId=unitId||null; render(); }
 function goGradebook(unitId, lessonId, actIdx) { state.view='gradebook'; state.unitId=unitId; state.lessonId=lessonId; state.activityIdx=actIdx; render(); }
 function switchHero(tab) { state.heroTab=tab; render(); }
-function goLesson(unitId, lessonId) { state.view='lesson'; state.unitId=unitId; state.lessonId=lessonId; state.aiPanelOpen=false; state.aiScenario=null; render(); }
+function goLesson(unitId, lessonId) { state.view='lesson'; state.unitId=unitId; state.lessonId=lessonId; state.assessType=null; state.aiPanelOpen=false; state.aiScenario=null; render(); }
+function goAssessment(unitId, assessType) { state.view='assessment'; state.unitId=unitId; state.assessType=assessType; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; render(); }
 
 // ============================================
 // RENDER
@@ -1183,7 +1196,7 @@ const MONTHS_FULL = ['January','February','March','April','May','June','July','A
 function updateNavBar() {
   const dowRow = document.getElementById('dowRow');
 
-  if (state.view === 'year' || state.view === 'reports' || state.view === 'lesson' || state.view === 'gradebook') {
+  if (state.view === 'year' || state.view === 'reports' || state.view === 'lesson' || state.view === 'gradebook' || state.view === 'assessment') {
     dowRow.style.display = 'none';
   } else if (state.view === 'unit') {
     const { schedule } = buildSchedule();
@@ -1244,6 +1257,28 @@ function getLessonDate(unitId, lessonId) {
       return new Date(cursor);
     }
     if (item.type === 'combined' && item.lessons.some(l => l.id === lessonId)) {
+      return new Date(cursor);
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return null;
+}
+
+function getAssessmentDate(unitId, assessType) {
+  const { schedule } = buildSchedule();
+  const s = schedule.find(x => x.unit.id === unitId);
+  if (!s) return null;
+  const unit = s.unit;
+  const allItems = buildUnitDayItems(unit);
+  let cursor = new Date(s.startDate);
+  for (const item of allItems) {
+    while (true) {
+      const dow = cursor.getDay();
+      const key = dateToKey(cursor);
+      if (dow !== 0 && dow !== 6 && !holidays.has(key)) break;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    if (item.type === 'assessment' && item.assess.type === assessType) {
       return new Date(cursor);
     }
     cursor.setDate(cursor.getDate() + 1);
@@ -1319,13 +1354,36 @@ function navNext() {
 }
 
 function navToday() {
-  if (state.view === 'unit') {
-    const today = new Date();
-    state.monthOffset = today.getMonth();
-    state.monthYear = today.getFullYear();
+  const today = new Date();
+  const {schedule} = buildSchedule();
+  // Find which unit contains today
+  let targetUnit = null;
+  for (const entry of schedule) {
+    if (today >= entry.startDate && today <= entry.endDate) {
+      targetUnit = entry.unit;
+      break;
+    }
+  }
+  // If today is before the first unit, go to unit 1; if after last, go to last unit
+  if (!targetUnit) {
+    if (schedule.length > 0 && today < schedule[0].startDate) {
+      targetUnit = schedule[0].unit;
+    } else if (schedule.length > 0) {
+      targetUnit = schedule[schedule.length - 1].unit;
+    }
+  }
+  if (targetUnit) {
+    state.view = 'unit';
+    state.unitId = targetUnit.id;
+    state.lessonId = null;
+    state.monthOffset = null;
+    state.monthYear = null;
     render();
-  } else if (state.view === 'year') {
-    // scroll to current position in timeline
+    // Scroll to today's cell if visible
+    setTimeout(() => {
+      const todayCell = document.querySelector('.k-month-cell.today-cell');
+      if (todayCell) todayCell.scrollIntoView({behavior:'smooth', block:'center'});
+    }, 100);
   }
 }
 
@@ -1356,10 +1414,8 @@ function render() {
   const app = document.getElementById('app');
 
   if (state.view === 'year') {
-    app.innerHTML = '<div class="container">' + renderYearView() + '</div>';
-  } else if (state.view === 'unit') {
-    const u = UNITS.find(x => x.id === state.unitId);
-    app.innerHTML = renderUnitView(u) + renderAdjustPacingBtn(u);
+    const u = UNITS.find(x => x.id === (state.unitId || 1));
+    app.innerHTML = '<div class="container">' + renderYearView() + '</div>' + renderAdjustPacingBtn(u);
     if (state.aiPanelOpen) app.innerHTML += renderAIPanel(u);
   } else if (state.view === 'lesson') {
     const u = UNITS.find(x => x.id === state.unitId);
@@ -1368,6 +1424,9 @@ function render() {
     app.innerHTML = renderLessonView(u, section, lesson);
   } else if (state.view === 'reports') {
     app.innerHTML = '<div class="container">' + renderReportsView() + '</div>';
+  } else if (state.view === 'assessment') {
+    const u = UNITS.find(x => x.id === state.unitId);
+    app.innerHTML = renderAssessmentView(u, state.assessType);
   } else if (state.view === 'gradebook') {
     app.innerHTML = renderGradebookView();
   }
@@ -1380,12 +1439,13 @@ function render() {
   const yoLink = document.getElementById('yearOverviewLink');
   const yoSep = document.getElementById('yearOverviewSep');
   if (yoLink && yoSep) {
-    if (state.view === 'unit') {
-      yoLink.textContent = 'Year Overview';
-      yoLink.onclick = function() { goYear(); };
+    if (state.view === 'lesson') {
+      const u = UNITS.find(x => x.id === state.unitId);
+      yoLink.textContent = 'Unit ' + u.id;
+      yoLink.onclick = function() { goUnit(u.id); };
       yoLink.style.display = 'inline';
       yoSep.style.display = 'block';
-    } else if (state.view === 'lesson') {
+    } else if (state.view === 'assessment') {
       const u = UNITS.find(x => x.id === state.unitId);
       yoLink.textContent = 'Unit ' + u.id;
       yoLink.onclick = function() { goUnit(u.id); };
@@ -1403,25 +1463,9 @@ function render() {
   // Peek nav
   const peekNav = document.getElementById('peekNav');
   if (peekNav) {
-    if (state.view === 'unit') {
-      const u = UNITS.find(x => x.id === state.unitId);
-      const prevUnit = UNITS.find(x => x.id === u.id - 1);
-      const nextUnit = UNITS.find(x => x.id === u.id + 1);
-      let phtml = `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:var(--white);border-bottom:1px solid var(--border);gap:12px">`;
-      if (prevUnit) {
-        phtml += `<div class="peek-block" onclick="goUnit(${prevUnit.id})"><span style="font-size:18px">&larr;</span><div><div class="peek-label">Unit ${prevUnit.id}</div><div class="peek-name">${prevUnit.short}</div></div></div>`;
-      } else {
-        phtml += `<div style="min-width:120px"></div>`;
-      }
-      phtml += `<span style="font-size:15px;font-weight:700;text-align:center">Unit ${u.id}: ${u.name}</span>`;
-      if (nextUnit) {
-        phtml += `<div class="peek-block" onclick="goUnit(${nextUnit.id})" style="flex-direction:row-reverse;text-align:right"><span style="font-size:18px">&rarr;</span><div><div class="peek-label">Unit ${nextUnit.id}</div><div class="peek-name">${nextUnit.short}</div></div></div>`;
-      } else {
-        phtml += `<div style="min-width:120px"></div>`;
-      }
-      phtml += `</div>`;
-      peekNav.innerHTML = phtml;
-      peekNav.style.display = 'block';
+    if (state.view === 'year') {
+      peekNav.innerHTML = '';
+      peekNav.style.display = 'none';
     } else if (state.view === 'lesson') {
       const u = UNITS.find(x => x.id === state.unitId);
       const allLessons = [];
@@ -1438,6 +1482,32 @@ function render() {
         phtml += `<div class="peek-block" onclick="goUnit(${u.id})"><span style="font-size:18px">&larr;</span><div><div class="peek-label">Back</div><div class="peek-name">Unit ${u.id}</div></div></div>`;
       }
       phtml += `<span style="font-size:15px;font-weight:700;text-align:center">Lesson ${lesson.id}: ${lesson.name}</span>`;
+      if (nextL) {
+        phtml += `<div class="peek-block" onclick="goLesson(${u.id},${nextL.id})" style="flex-direction:row-reverse;text-align:right"><span style="font-size:18px">&rarr;</span><div><div class="peek-label">Lesson ${nextL.id}</div><div class="peek-name">${nextL.name}</div></div></div>`;
+      } else {
+        phtml += `<div style="min-width:120px"></div>`;
+      }
+      phtml += `</div>`;
+      peekNav.innerHTML = phtml;
+      peekNav.style.display = 'block';
+    } else if (state.view === 'assessment') {
+      const u = UNITS.find(x => x.id === state.unitId);
+      const assess = u.assessments.find(a => a.type === state.assessType);
+      const prevLessonId = assess ? assess.afterLesson : null;
+      const allLessons = [];
+      u.sections.forEach(s => s.lessons.forEach(l => allLessons.push(l)));
+      const prevL = prevLessonId ? allLessons.find(l => l.id === prevLessonId) : null;
+      // Next lesson is the one after afterLesson
+      const nextIdx = prevL ? allLessons.findIndex(l => l.id === prevLessonId) + 1 : -1;
+      const nextL = nextIdx >= 0 && nextIdx < allLessons.length ? allLessons[nextIdx] : null;
+
+      let phtml = `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:var(--white);border-bottom:1px solid var(--border);gap:12px">`;
+      if (prevL) {
+        phtml += `<div class="peek-block" onclick="goLesson(${u.id},${prevL.id})"><span style="font-size:18px">&larr;</span><div><div class="peek-label">Lesson ${prevL.id}</div><div class="peek-name">${prevL.name}</div></div></div>`;
+      } else {
+        phtml += `<div style="min-width:120px"></div>`;
+      }
+      phtml += `<span style="font-size:15px;font-weight:700;text-align:center">${assess ? assess.label : 'Assessment'}</span>`;
       if (nextL) {
         phtml += `<div class="peek-block" onclick="goLesson(${u.id},${nextL.id})" style="flex-direction:row-reverse;text-align:right"><span style="font-size:18px">&rarr;</span><div><div class="peek-label">Lesson ${nextL.id}</div><div class="peek-name">${nextL.name}</div></div></div>`;
       } else {
@@ -1472,17 +1542,21 @@ function render() {
 function renderYearView() {
   const { schedule, totalInstrDays } = buildSchedule();
   const holidayNote = holidays.size > 0 ? ` &middot; ${holidays.size} holiday${holidays.size !== 1 ? 's' : ''}` : '';
+  const selectedId = state.unitId || 1;
+  const selectedUnit = UNITS.find(u => u.id === selectedId);
 
   const endYear = yearStartDate.getFullYear() + 1;
   let html = `<div class="year-view">
-    <h1 class="year-title">Kindergarten ${yearStartDate.getFullYear()}&ndash;${endYear} Year Overview</h1>
+    <h1 class="year-title">Kindergarten ${yearStartDate.getFullYear()}&ndash;${endYear}</h1>
     <p class="year-subtitle" style="margin-bottom:16px">${totalInstrDays} instructional days &middot; 8 units${holidayNote}</p>
     <div class="timeline-wrapper">
       <div class="timeline">`;
 
   schedule.forEach(s => {
     const td = s.instrDays;
-    html += `<div class="timeline-unit" style="flex:${td}" onclick="goUnit(${s.unit.id})">
+    const isSelected = s.unit.id === selectedId;
+    const bg = isSelected ? 'background:var(--black);color:var(--white)' : '';
+    html += `<div class="timeline-unit${isSelected ? ' selected' : ''}" style="flex:${td};${bg}" onclick="goUnit(${s.unit.id})">
       <span class="unit-num">Unit ${s.unit.id}</span>
       <span class="unit-short">${s.unit.short}</span>
       <span class="unit-days">${td} days</span>
@@ -1495,28 +1569,85 @@ function renderYearView() {
   });
   html += `</div></div>`;
 
-  // Curriculum Overview + Pacing Intelligence (from v2)
-  html += `<div class="overview-panel">
-    <div>
-      <div class="overview-lbl">Curriculum Overview</div>`;
-  UNITS.forEach(u => {
-    html += `<div class="overview-row">
-      <div class="overview-dot"></div>
-      <div class="overview-name">Unit ${u.id}: ${u.name}</div>
-      <div class="overview-meta">${unitTotalDays(u)} days &middot; ${u.optionalLessons.length} optional &middot; ${u.assessments.length} assessments</div>
-    </div>`;
+  // Unit title + pacing insights
+  const completed = getCompleted(selectedId);
+  const totalLessons = [];
+  const optLessons = [];
+  selectedUnit.sections.forEach(s => s.lessons.forEach(l => {
+    totalLessons.push(l);
+    if (l.optional) optLessons.push(l);
+  }));
+  const instrDays = buildUnitDayItems(selectedUnit).length;
+
+  // Rank all units by flex (optional count)
+  const flexRanking = UNITS.map(u => ({ id: u.id, opt: u.optionalLessons.length })).sort((a,b) => b.opt - a.opt);
+  const thisRank = flexRanking.findIndex(f => f.id === selectedId);
+  const mostFlexUnits = flexRanking.filter(f => f.opt === flexRanking[0].opt);
+  const leastFlexUnits = flexRanking.filter(f => f.opt === flexRanking[flexRanking.length-1].opt);
+
+  const insights = [];
+
+  // 1. Flex rating with cross-unit comparison
+  if (mostFlexUnits.some(f => f.id === selectedId)) {
+    insights.push(`Most flexible unit (${optLessons.length} optional lessons). Recover lost days here first.`);
+  } else if (leastFlexUnits.some(f => f.id === selectedId)) {
+    const topFlex = flexRanking.slice(0, 2).map(f => 'Unit ' + f.id);
+    insights.push(`Tightest unit (${optLessons.length} optional). If you fall behind, ${topFlex.join(' and ')} have the most room to recover.`);
+  } else {
+    const topFlex = flexRanking.slice(0, 2).map(f => 'Unit ' + f.id);
+    insights.push(`${optLessons.length} optional lesson${optLessons.length !== 1 ? 's' : ''} give moderate flex. ${topFlex.join(' and ')} have the most room to recover.`);
+  }
+
+  // 2. Buffer days (only show if positive)
+  const bufferDays = instrDays - totalLessons.length - selectedUnit.assessments.length;
+  if (bufferDays > 0) {
+    insights.push(`${bufferDays} buffer day${bufferDays !== 1 ? 's' : ''} beyond lessons and assessments. Use for reteaching or enrichment.`);
+  }
+
+  // 3. Holiday count
+  const unitEntry = schedule.find(s => s.unit.id === selectedId);
+  if (unitEntry) {
+    let holidayCount = 0;
+    const hd = new Date(unitEntry.startDate);
+    while (hd <= unitEntry.endDate) {
+      const key = dateToKey(hd);
+      if (holidays.has(key)) holidayCount++;
+      hd.setDate(hd.getDate() + 1);
+    }
+    if (holidayCount > 0) {
+      insights.push(`${holidayCount} holiday${holidayCount !== 1 ? 's' : ''} fall within this unit.`);
+    }
+  }
+
+  // 4. Combine candidates (skip first pair in each section, suggest from middle/end of sections)
+  const combineCandidates = [];
+  selectedUnit.sections.forEach(sec => {
+    for (let i = 2; i < sec.lessons.length - 1; i++) {
+      const a = sec.lessons[i], b = sec.lessons[i+1];
+      if (!a.optional && !b.optional) {
+        combineCandidates.push([a, b]);
+      }
+    }
   });
-  html += `</div>
-    <div class="pacing-intel">
-      <div class="pacing-intel-title">Pacing Intelligence</div>
+  if (combineCandidates.length > 0) {
+    const pair = combineCandidates[0];
+    insights.push(`L${pair[0].id} + L${pair[1].id} are candidates to combine if you need to recover a day.`);
+  }
+
+  html += `<div style="padding:16px 0 8px">
+    <div style="text-align:center;margin-bottom:12px">
+      <span style="font-size:15px;font-weight:700">Unit ${selectedId}: ${selectedUnit.name}</span>
+    </div>
+    <div class="pacing-intel" style="margin:0">
+      <div class="pacing-intel-title">Pacing Insights</div>
       <ul class="pacing-intel-list">
-        <li>Units 2 and 8 have the most flex (3 and 6 optional lessons). Recover days there first.</li>
-        <li>Unit 6 is the tightest unit at 14 days with only 2 optional lessons.</li>
-        <li>18 total optional lessons across the curriculum provide built-in flexibility.</li>
-        <li>Each unit includes a mid-unit formative check and an end-of-unit summative assessment.</li>
+        ${insights.map(i => `<li>${i}</li>`).join('')}
       </ul>
     </div>
   </div>`;
+
+  // Unit month calendar
+  html += renderMonthCalendar(selectedUnit, completed);
 
   html += `</div>`;
   return html;
@@ -1586,7 +1717,7 @@ function renderGradebookView() {
   unit.sections.forEach(s => s.lessons.forEach(l => { if (l.id === state.lessonId) lesson = l; }));
   if (!lesson) return '';
 
-  const lessonData = LESSON_ACTIVITY_DATA[lesson.id] || null;
+  const lessonData = LESSON_ACTIVITY_DATA[unit.id + '-' + lesson.id] || null;
   const activities = lessonData ? lessonData.activities.filter(a => a.label !== 'Lesson Synthesis' && a.label !== 'Cool-Down') : [];
   const actIdx = state.activityIdx || 0;
   const activity = activities[actIdx] || { label: 'Activity', title: 'Activity', time: '15 min' };
@@ -1692,11 +1823,11 @@ function renderGradebookView() {
         <tr style="border-bottom:1px solid var(--border);background:#F8F8F8">
           <td style="padding:10px 20px;font-weight:700">Class Total</td>
           <td style="padding:10px 20px;font-weight:700">${submitted > 0 ? Math.round(statuses.filter(s=>s.score).reduce((a,s)=>a+s.score,0)/submitted) : '-'}%</td>
-          <td style="padding:10px 20px"><span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;background:${submitted===total?'#E8F5E9;color:#2E7D32':'#FFF3E0;color:#E65100'}">${submitted===total?'COMPLETE':'INCOMPLETE'}</span></td>
+          <td style="padding:10px 20px"><span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;background:${submitted===total?'#F0F0F0;color:#333':'#F5F5F5;color:#666'}">${submitted===total?'COMPLETE':'INCOMPLETE'}</span></td>
         </tr>`;
   statuses.forEach(s => {
     const statusLabel = s.status === 'submitted' ? 'SUBMITTED' : (s.status === 'in_progress' ? 'IN PROGRESS' : 'NOT STARTED');
-    const statusColor = s.status === 'submitted' ? 'background:#E8F5E9;color:#2E7D32' : (s.status === 'in_progress' ? 'background:#FFF3E0;color:#E65100' : 'background:#F0F0F0;color:var(--mid)');
+    const statusColor = s.status === 'submitted' ? 'background:#F0F0F0;color:#333' : (s.status === 'in_progress' ? 'background:#F5F5F5;color:#666' : 'background:#F0F0F0;color:var(--mid)');
     html += `<tr style="border-bottom:1px solid var(--border)">
       <td style="padding:10px 20px;display:flex;align-items:center;gap:8px">
         <div style="width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--dark)">${s.name[0]}</div>
@@ -1778,6 +1909,7 @@ function renderMonthCalendar(unit, completed) {
   // Month labels for week rows
   let html = `<div class="k-month-grid">`;
 
+  const monthLabelShown = new Set();
   let d = new Date(gridStart);
   while (d <= gridEnd) {
     for (let dow = 1; dow <= 5; dow++) {
@@ -1794,13 +1926,16 @@ function renderMonthCalendar(unit, completed) {
 
       html += `<div class="${cellCls}">`;
 
-      // Show month name on the 1st of each month
-      const dateLabel = d.getDate() === 1
+      // Show month name on first weekday appearance of each month
+      const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
+      const showMonth = !monthLabelShown.has(monthKey);
+      if (showMonth) monthLabelShown.add(monthKey);
+      const dateLabel = showMonth
         ? `${MONTHS_FULL[d.getMonth()].slice(0,3)} ${d.getDate()}`
         : `${d.getDate()}`;
 
       if (isToday) {
-        html += `<div class="cell-date" style="color:#fff;background:#6C5CE7;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px">${d.getDate()}</div>`;
+        html += `<div class="cell-date" style="color:#fff;background:#111;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px">${d.getDate()}</div>`;
       } else if (isInUnit) {
         html += `<div class="cell-date">${dateLabel}</div>`;
       } else {
@@ -1835,7 +1970,7 @@ function renderMonthCalendar(unit, completed) {
           </div>`;
         } else if (item.type === 'assessment') {
           const a = item.assess;
-          html += `<div class="cell-lesson assessment" title="${a.label}">
+          html += `<div class="cell-lesson assessment" title="${a.label}" onclick="goAssessment(${unit.id},'${a.type}')" style="cursor:pointer">
             ${a.label}
           </div>`;
         }
@@ -2774,7 +2909,7 @@ function modifyImpact(type, delta, unitId) {
       el.textContent = newVal;
       // Visual feedback based on limits
       if (newVal > modifyState.maxRecoverable) {
-        el.style.color = '#C62828';
+        el.style.color = '#333';
       } else {
         el.style.color = '';
       }
@@ -2783,7 +2918,7 @@ function modifyImpact(type, delta, unitId) {
     if (warningEl) {
       if (newVal > modifyState.maxRecoverable) {
         const over = newVal - modifyState.maxRecoverable;
-        warningEl.innerHTML = `<span style="color:#C62828;font-weight:600">Exceeds recoverable days by ${over}.</span> This will require skipping required lessons or shortening activities, which may leave gaps in student understanding before the assessment.`;
+        warningEl.innerHTML = `<span style="color:#333;font-weight:600">Exceeds recoverable days by ${over}.</span> This will require skipping required lessons or shortening activities, which may leave gaps in student understanding before the assessment.`;
         warningEl.style.display = 'block';
       } else if (newVal === modifyState.maxRecoverable) {
         warningEl.innerHTML = 'At the maximum recoverable days. All optional lessons skipped and available pairs combined.';
@@ -3004,9 +3139,9 @@ function getPlanTag(unitId, lessonId) {
 }
 
 // Build a combined lesson plan showing which activities to keep, compress, or skip
-function buildCombinedPlan(lessonA, lessonB) {
-  const dataA = LESSON_ACTIVITY_DATA[lessonA.id];
-  const dataB = LESSON_ACTIVITY_DATA[lessonB.id];
+function buildCombinedPlan(lessonA, lessonB, unitId) {
+  const dataA = LESSON_ACTIVITY_DATA[unitId + '-' + lessonA.id];
+  const dataB = LESSON_ACTIVITY_DATA[unitId + '-' + lessonB.id];
   if (!dataA || !dataB) return null;
 
   const plan = [];
@@ -3190,6 +3325,71 @@ function getCombinePartner(unitId, lessonId) {
 }
 
 // ============================================
+// ASSESSMENT VIEW
+// ============================================
+function renderAssessmentView(unit, assessType) {
+  const assess = unit.assessments.find(a => a.type === assessType);
+  if (!assess) return '';
+
+  const assessDate = getAssessmentDate(unit.id, assessType);
+  const dowNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const dateStr = assessDate
+    ? `${dowNames[assessDate.getDay()]}, ${MONTHS_FULL[assessDate.getMonth()]} ${assessDate.getDate()}, ${assessDate.getFullYear()}`
+    : '';
+
+  const kiddomUrl = getKiddomAssessUrl(unit.id, assessType === 'summative' ? 'end' : 'mid');
+
+  // Determine if this unit has fake submission data (Unit 1 only)
+  const hasSubmissions = unit.id === 1;
+  const submitted = hasSubmissions ? 24 : 0;
+  const total = 24;
+  const pct = Math.round((submitted / total) * 100);
+
+  let html = `<div class="lesson-view">`;
+  html += `<div style="flex:1">`;
+  html += `<div style="background:var(--white);padding:24px 32px;overflow-y:auto">`;
+
+  // Date header
+  html += `<div style="font-size:13px;color:var(--mid);margin-bottom:4px">${dateStr}</div>`;
+  html += `<h2 style="font-size:20px;font-weight:700;margin-bottom:4px">${assess.label}</h2>`;
+  html += `<div style="font-size:13px;color:var(--mid);margin-bottom:24px">Unit ${unit.id}: ${unit.name}</div>`;
+
+  // Assessment card
+  html += `<div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:400px">`;
+  html += `<div onclick="${kiddomUrl ? "window.open('" + kiddomUrl + "','_blank')" : ''}" style="border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;background:var(--white);display:flex;flex-direction:column;${kiddomUrl ? 'cursor:pointer;' : ''}transition:all .15s" ${kiddomUrl ? 'onmouseover="this.style.boxShadow=\'0 2px 8px rgba(0,0,0,.08)\'" onmouseout="this.style.boxShadow=\'none\'"' : ''}>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--mid);margin-bottom:6px">${assess.type === 'formative' ? 'Formative Assessment' : 'Summative Assessment'}</div>
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">${assess.label}</div>
+    <div style="font-size:12px;color:var(--mid);line-height:1.5;margin-bottom:12px;flex:1">${assess.type === 'formative' ? 'Check student understanding of key concepts covered in the first half of the unit.' : 'Evaluate student mastery of all unit standards and learning goals.'}</div>
+    <div style="font-size:12px;color:var(--mid);margin-bottom:6px">${submitted}/${total} submitted</div>
+    <div style="height:6px;background:#F0F0F0;border-radius:3px;overflow:hidden">
+      <div style="height:100%;width:${pct}%;background:var(--black);border-radius:3px"></div>
+    </div>
+  </div>`;
+  html += `</div>`;
+
+  // Standards covered
+  const stdMap = buildStandardLessonMap(unit);
+  const assessStds = unit.standards.slice(0, assess.type === 'formative' ? Math.ceil(unit.standards.length / 2) : unit.standards.length);
+  if (assessStds.length > 0) {
+    html += `<div style="margin-top:24px">`;
+    html += `<div style="font-size:13px;font-weight:700;margin-bottom:8px">Standards Assessed</div>`;
+    html += `<div style="display:flex;flex-wrap:wrap;gap:6px">`;
+    assessStds.forEach(std => {
+      html += `<span style="font-size:11px;padding:4px 10px;border-radius:4px;background:#F0F0F0;color:var(--dark);font-weight:600">${std}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Grade Assignments button
+  html += `<div style="margin-top:24px">
+    <button onclick="goGradebook(${unit.id}, null, null)" style="background:var(--black);color:#fff;border:none;padding:12px 24px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer">Grade Assignments</button>
+  </div>`;
+
+  html += `</div></div></div>`;
+  return html;
+}
+
+// ============================================
 // LESSON VIEW
 // ============================================
 function renderLessonView(unit, section, lesson) {
@@ -3209,7 +3409,7 @@ function renderLessonView(unit, section, lesson) {
   const next = idx < allLessons.length - 1 ? allLessons[idx+1] : null;
 
   // Activity sequence data from Kiddom MCP
-  const lessonData = (LESSON_ACTIVITY_DATA[lesson.id]) || null;
+  const lessonData = (LESSON_ACTIVITY_DATA[unit.id + '-' + lesson.id]) || null;
   const activities = lessonData ? lessonData.activities.map((a, i) => {
     const isWarmup = a.label === 'Warm-Up';
     const isSynthesis = a.label === 'Lesson Synthesis';
@@ -3263,7 +3463,7 @@ function renderLessonView(unit, section, lesson) {
     partnerLesson = allLessons.find(l => l.id === pairInfo.partner);
     const lessonA = pairInfo.isFirst ? lesson : partnerLesson;
     const lessonB = pairInfo.isFirst ? partnerLesson : lesson;
-    combinedPlan = buildCombinedPlan(lessonA, lessonB);
+    combinedPlan = buildCombinedPlan(lessonA, lessonB, unit.id);
   }
 
   // Date header
@@ -3357,7 +3557,7 @@ function renderLessonView(unit, section, lesson) {
 
   // Assessment notice
   if (assess) {
-    html += `<div style="margin-top:16px;padding:14px 18px;border-radius:var(--radius);background:#F0EEFF;border:1px solid #D8D0FF;font-size:13px;font-weight:600;color:#6C5CE7">
+    html += `<div style="margin-top:16px;padding:14px 18px;border-radius:var(--radius);background:#F0F0F0;border:1px solid #D0D0D0;font-size:13px;font-weight:600;color:#111">
       ${assess.label} follows this lesson
     </div>`;
   }
