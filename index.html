@@ -1591,9 +1591,19 @@ function renderYearView() {
   const selectedUnit = UNITS.find(u => u.id === selectedId);
 
   const endYear = yearStartDate.getFullYear() + 1;
+  const detection = detectBehind(selectedUnit);
+  const pulseClass = detection.behind ? ' pulsing' : '';
   let html = `<div class="year-view">
-    <h1 class="year-title">Kindergarten ${yearStartDate.getFullYear()}&ndash;${endYear}</h1>
-    <p class="year-subtitle" style="margin-bottom:16px">${totalInstrDays} instructional days &middot; 8 units${holidayNote}</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <h1 class="year-title">Kindergarten ${yearStartDate.getFullYear()}&ndash;${endYear}</h1>
+        <p class="year-subtitle" style="margin-bottom:16px">${totalInstrDays} instructional days &middot; 8 units${holidayNote}</p>
+      </div>
+      <button class="adjust-pacing-btn-inline${pulseClass}" onclick="openAIPanel()" style="margin-top:4px">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Adjust Pacing
+      </button>
+    </div>
     <div class="timeline-wrapper">
       <div class="timeline">`;
 
@@ -1652,6 +1662,14 @@ function renderYearView() {
     }
     if (holidayCount > 0) insights.push(`${holidayCount} day${holidayCount !== 1 ? 's' : ''} off fall within this unit.`);
   }
+  // Lesson breakdown around mid-unit assessment
+  const midAssess = selectedUnit.assessments.find(a => a.type === 'formative');
+  if (midAssess) {
+    const beforeMid = totalLessons.filter(l => l.id <= midAssess.afterLesson).length;
+    const afterMid = totalLessons.filter(l => l.id > midAssess.afterLesson).length;
+    insights.push(`${beforeMid} lessons before ${midAssess.label}, ${afterMid} lessons after through end of unit.`);
+  }
+
   const combineCandidates = [];
   selectedUnit.sections.forEach(sec => {
     for (let i = 2; i < sec.lessons.length - 1; i++) {
@@ -1664,15 +1682,9 @@ function renderYearView() {
     insights.push(`L${pair[0].id} + L${pair[1].id} are candidates to combine if you need to recover a day.`);
   }
 
-  // Unit header with pacing button (upper right)
-  const detection = detectBehind(selectedUnit);
-  const pulseClass = detection.behind ? ' pulsing' : '';
-  html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0 8px">
+  // Unit header
+  html += `<div style="padding:16px 0 8px">
     <span style="font-size:15px;font-weight:700">Unit ${selectedId}: ${selectedUnit.name}</span>
-    <button class="adjust-pacing-btn-inline${pulseClass}" onclick="openAIPanel()">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-      Adjust Pacing
-    </button>
   </div>`;
 
   // Persistent pacing insights
@@ -2494,28 +2506,9 @@ function buildModePlan(unit, mode) {
 
   let steps = [];
   let daysRecovered = 0;
-  let sliderHtml = '';
 
   if (mode === 'performance') {
-    // Show slider, then plan based on slider value
     const perfVal = state.perfSlider || 50;
-    const tier = getPerformanceTier(perfVal);
-    sliderHtml = `<div class="perf-slider-section">
-      <div class="perf-slider-label">How is your class performing on this unit's standards?</div>
-      <div class="perf-tier-indicator">
-        <span class="tier-dot${tier === 'developing' ? ' active' : ''}" data-tier="developing">Developing</span>
-        <span class="tier-dot${tier === 'approaching' ? ' active' : ''}" data-tier="approaching">Approaching</span>
-        <span class="tier-dot${tier === 'mastery' ? ' active' : ''}" data-tier="mastery">Mastery</span>
-        <span class="tier-dot${tier === 'exceeds' ? ' active' : ''}" data-tier="exceeds">Exceeds</span>
-      </div>
-      <div class="perf-slider-wrap">
-        <div class="perf-slider-track">
-          <input type="range" min="0" max="100" value="${perfVal}" oninput="onPerfSlider(this.value)">
-        </div>
-      </div>
-      <div class="perf-slider-desc" id="perfSliderDesc">${getPerfDescription(perfVal)}</div>
-    </div>`;
-
     const plan = buildPerformancePlan(unit, perfVal);
     steps = plan.steps;
     daysRecovered = plan.daysRecovered;
@@ -2567,21 +2560,6 @@ function buildModePlan(unit, mode) {
     }
     const progressPct = progressTotal > 0 ? Math.round((progressDone / progressTotal) * 100) : 0;
 
-    sliderHtml = `<div class="perf-slider-section" style="display:block">
-      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
-        <div>
-          <div style="font-size:13px;font-weight:700">Progress toward ${assessLabel}</div>
-          <div style="font-size:12px;color:var(--mid);margin-top:2px">${progressDone} of ${progressTotal} required lessons completed</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:22px;font-weight:700">${lessonsUntilAssess}</div>
-          <div style="font-size:11px;color:var(--mid)">lessons remaining</div>
-        </div>
-      </div>
-      <div style="height:6px;background:#E0E0E0;border-radius:3px;overflow:hidden">
-        <div style="height:100%;background:var(--black);border-radius:3px;width:${progressPct}%;transition:width .6s ease"></div>
-      </div>
-    </div>`;
 
     // Scope remaining lessons to target assessment
     let scopedRemaining = remaining;
@@ -2644,7 +2622,7 @@ function buildModePlan(unit, mode) {
 
   }
 
-  let stepsHtml = sliderHtml;
+  let stepsHtml = '';
   stepsHtml += `<div style="font-size:12px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px">Suggested Plan</div>`;
 
   steps.forEach((s, i) => {
@@ -2701,17 +2679,6 @@ function renderAIPanel(unit) {
         <button class="ai-close" onclick="closeAIPanel()">&times;</button>
       </div>
       <div class="ai-panel-body">
-        <div class="mode-selector">
-          <button class="mode-option${mode === 'assessment' ? ' active' : ''}" onclick="switchAIMode('assessment')">
-            <span class="mode-title">Approaching Assessment</span>
-            <span class="mode-desc">Focus on what matters most for the upcoming assessment</span>
-          </button>
-          <button class="mode-option${mode === 'performance' ? ' active' : ''}" onclick="switchAIMode('performance')">
-            <span class="mode-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="12" fill="#7C6CB0"/><path d="M12 5.5L7.5 17h2.3l.7-2h3l.7 2h2.3L12 5.5zm0 4.5l1 3h-2l1-3z" fill="white"/><path d="M12 4l1.2 2.5h-2.4L12 4z" fill="white"/></svg>Class Performance</span>
-            <span class="mode-desc">Adjust based on where your class is relative to expectations</span>
-          </button>
-        </div>
-
         <div id="aiPlanArea">${buildModePlan(unit, mode)}</div>
       </div>
     </div>
