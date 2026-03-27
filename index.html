@@ -642,7 +642,7 @@
       <span class="setup-label">&ndash;</span>
       <span class="setup-value" id="endDateDisplay">Jun 26, 2026</span>
       <div class="setup-sep"></div>
-      <button class="setup-btn" onclick="openHolidayModal()">Set holidays</button>
+      <button class="setup-btn" onclick="openHolidayModal()">Manage days off</button>
       <div class="setup-sep"></div>
       <button class="setup-btn" onclick="openStartDateModal()">Adjust dates</button>
     </div>
@@ -1615,7 +1615,7 @@ function renderYearView() {
       hd.setDate(hd.getDate() + 1);
     }
     if (holidayCount > 0) {
-      insights.push(`${holidayCount} holiday${holidayCount !== 1 ? 's' : ''} fall within this unit.`);
+      insights.push(`${holidayCount} day${holidayCount !== 1 ? 's' : ''} off fall within this unit.`);
     }
   }
 
@@ -1943,8 +1943,7 @@ function renderMonthCalendar(unit, completed) {
       }
 
       if (isHoliday) {
-        const hLabel = holidayLabels[key] || 'Holiday';
-        html += `<div class="cell-holiday">${hLabel}</div>`;
+        html += `<div class="cell-holiday">No Class</div>`;
       }
 
       dayItems.forEach(item => {
