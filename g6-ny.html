@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiddom - IM v.360 Math Grade 6 NY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --black:#111;--dark:#333;--mid:#666;--light:#999;--border:#D0D0D0;--bg:#F5F5F5;--white:#fff;
+    --shadow:0 2px 8px rgba(0,0,0,.08);--radius:10px;--transition:0.3s cubic-bezier(.4,0,.2,1);
+  }
+  body{font-family:'Lexend',sans-serif;background:var(--bg);color:var(--black);min-height:100vh;overflow-x:hidden}
+
+  /* Header */
+  .header{background:var(--black);color:#fff;padding:16px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+  .header-logo{width:36px;height:36px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center}
+  .header-logo svg{width:20px;height:20px}
+  .header-title{font-weight:700;font-size:16px}
+  .header-sub{font-size:12px;color:rgba(255,255,255,.5)}
+  .header-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .header-dropdown{background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;
+    border-radius:6px;font-family:inherit;font-size:13px;cursor:pointer}
+
+  /* Container */
+  .container{max-width:960px;min-width:700px;margin:0 auto;padding:24px 32px}
+
+  /* Timeline section */
+  .pacing-section{background:var(--bg);padding:0 0 8px}
+  .year-title{font-size:22px;font-weight:700;margin-bottom:2px}
+  .year-subtitle{font-size:13px;color:var(--mid);margin-bottom:16px}
+
+  .timeline-wrapper{position:relative;margin-bottom:4px}
+  .timeline{display:flex;gap:0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);
+    height:52px;transition:all .3s ease}
+  .timeline-unit{position:relative;cursor:pointer;display:flex;align-items:center;
+    justify-content:center;gap:4px;background:var(--white);color:var(--black);transition:var(--transition);
+    overflow:hidden;border-right:1px solid var(--border)}
+  .timeline-unit:last-child{border-right:none}
+  .timeline-unit:hover{background:#F0F0F0}
+  .timeline-unit.selected{background:#666;color:var(--white)}
+  .timeline-unit.selected:hover{background:#555}
+  .timeline-unit .unit-num{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+
+  /* Expanded unit */
+  .expanded-unit{flex:1 !important}
+  .expanded-unit.selected{background:var(--white) !important;color:var(--black) !important}
+  .expanded-unit.selected:hover{background:var(--white) !important}
+  .section-groups{flex:1;display:flex;min-width:0;overflow:hidden;height:100%}
+  .section-group{display:flex;flex-direction:column;border-right:1px dashed var(--border);min-width:0}
+  .section-group:last-child{border-right:none}
+  .lessons-row{flex:1;display:flex}
+  .lesson-col{flex:1 1 0;border-right:1px solid #eee;display:flex;flex-direction:column;
+    justify-content:center;align-items:center;padding:1px;min-width:0;overflow:hidden;background:var(--white)}
+  .lesson-col:last-child{border-right:none}
+  .lesson-col-num{font-size:10px;font-weight:700}
+
+  /* Assessment slots */
+  .assess-slot{flex:0 0 24px;display:flex;align-items:center;justify-content:center;background:var(--black);color:var(--white)}
+  .assess-slot-label{writing-mode:vertical-lr;transform:rotate(180deg);font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+
+  /* Lesson counts */
+  .timeline-counts{display:flex;gap:0;margin-top:4px;font-size:10px;color:var(--light);font-weight:500}
+  .tc-segment{text-align:center}
+  .tc-assess{flex:0 0 24px}
+
+  /* Month ruler */
+  .day-ruler{display:flex;gap:0;height:20px;font-size:10px;color:var(--mid);margin-top:4px}
+  .day-ruler-seg{display:flex;align-items:center;justify-content:center;font-weight:600;letter-spacing:.3px}
+
+  /* Hint */
+  .click-hint{text-align:center;font-size:11px;color:var(--light);margin-top:6px;cursor:pointer}
+  .click-hint:hover{color:var(--dark)}
+
+  /* Pacing Insights */
+  .pacing-insights{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 20px;margin-top:14px;box-shadow:var(--shadow)}
+  .pacing-insights h3{font-size:14px;font-weight:700;margin-bottom:8px}
+  .pacing-insights ul{font-size:12px;color:var(--dark);padding-left:18px;line-height:1.8}
+
+  /* Weekly calendar placeholder */
+  .weekly-calendar{margin-top:20px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .week-nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:12px 20px;border-bottom:1px solid var(--border)}
+  .week-nav-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 14px;
+    font-family:inherit;font-size:13px;cursor:pointer;font-weight:500}
+  .week-nav-btn:hover{background:#f5f5f5}
+  .week-label{font-size:14px;font-weight:600}
+  .week-grid{display:grid;grid-template-columns:repeat(5,1fr)}
+  .week-day{padding:12px 16px;border-right:1px solid var(--border);min-height:120px}
+  .week-day:last-child{border-right:none}
+  .week-day-header{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:4px}
+  .week-day-num{font-size:22px;font-weight:700;margin-bottom:8px}
+  .week-day.muted{opacity:.4}
+
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .fade-in{animation:fadeIn .3s ease}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="#111"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="#111"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="#111"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="#111"/></svg>
+  </div>
+  <div>
+    <div class="header-title">Middle School Math</div>
+    <div class="header-sub">KC-S76CH</div>
+  </div>
+  <div class="header-right">
+    <select class="header-dropdown"><option>Assignments</option></select>
+  </div>
+</div>
+
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<script>
+const units = [
+  {id:1,name:'Area & Surface Area',lessons:19,mid:11,
+   sections:[{l:'A',c:3},{l:'B',c:3},{l:'C',c:5},{l:'D',c:5},{l:'E',c:2},{l:'F',c:1}],opt:1,
+   insights:['19 lessons with 1 optional. Mid-unit assessment after Lesson 11.','If you fall behind, Unit 9 and Unit 2 have the most room to recover.']},
+  {id:2,name:'Introducing Ratios',lessons:17,mid:null,
+   sections:[{l:'A',c:2},{l:'B',c:3},{l:'C',c:5},{l:'D',c:4},{l:'E',c:2},{l:'F',c:1}],opt:1,
+   insights:['17 lessons with 1 optional. No mid-unit assessment.','Lightest unit in terms of lesson density, good candidate for acceleration.']},
+  {id:3,name:'Rates & Percentages',lessons:17,mid:null,
+   sections:[{l:'A',c:3},{l:'B',c:6},{l:'C',c:7},{l:'D',c:1}],opt:0,
+   insights:['17 lessons, 0 optional. Heaviest section is C (Percentages) with 7 lessons.','No mid-unit assessment for this unit.']},
+  {id:4,name:'Dividing Fractions',lessons:17,mid:9,
+   sections:[{l:'A',c:3},{l:'B',c:6},{l:'C',c:2},{l:'D',c:4},{l:'E',c:2}],opt:0,
+   insights:['17 lessons. Mid-unit assessment after Lesson 9.','Section B (Meanings of Fraction Division) is the longest at 6 lessons.']},
+  {id:5,name:'Base Ten Arithmetic',lessons:15,mid:8,
+   sections:[{l:'A',c:4},{l:'B',c:4},{l:'C',c:5},{l:'D',c:2}],opt:0,
+   insights:['Shortest core unit at 15 lessons. Mid-unit assessment after Lesson 8.','If you need to make up time, this unit has the tightest margin.']},
+  {id:6,name:'Expressions & Equations',lessons:19,mid:11,
+   sections:[{l:'A',c:6},{l:'B',c:5},{l:'C',c:4},{l:'D',c:3},{l:'E',c:1}],opt:1,
+   insights:['19 lessons with 1 optional. Mid-unit assessment after Lesson 11.','Largest section is A (Equations in One Variable) at 6 lessons.']},
+  {id:7,name:'Rational Numbers',lessons:19,mid:null,
+   sections:[{l:'A',c:7},{l:'B',c:3},{l:'C',c:5},{l:'D',c:3},{l:'E',c:1}],opt:1,
+   insights:['19 lessons with 1 optional. No mid-unit assessment.','Section A (Negative Numbers) is the longest at 7 lessons.']},
+  {id:8,name:'Data & Distributions',lessons:18,mid:12,
+   sections:[{l:'A',c:2},{l:'B',c:6},{l:'C',c:4},{l:'D',c:5},{l:'E',c:1}],opt:1,
+   insights:['Tightest unit (1 optional). If you fall behind, Unit 9 and Unit 2 have the most room to recover.','Mid-unit assessment after Lesson 12.']},
+  {id:9,name:'Putting It Together',lessons:11,mid:null,
+   sections:[{l:'A',c:4},{l:'B',c:5},{l:'C',c:2}],opt:0,
+   insights:['End-of-year project unit. 11 lessons, no assessments.','Most flexible unit for pacing recovery.']}
+];
+
+const totalLessons = units.reduce((s,u) => s + u.lessons, 0);
+const months = ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+const monthWeights = [19,23,18,15,19,19,22,21,20,14];
+const monthTotal = monthWeights.reduce((s,d) => s+d, 0);
+const currentUnit = 6;
+
+// Default to current unit expanded
+let selU = currentUnit;
+
+function render() {
+  const el = document.getElementById('app');
+  const isZoomed = selU !== null;
+  const selUnit = isZoomed ? units.find(u => u.id === selU) : null;
+
+  let barsHTML = '', countsHTML = '';
+
+  if (!isZoomed) {
+    // Year view: all units as bars
+    barsHTML = units.map(u => {
+      const pct = (u.lessons / totalLessons * 100).toFixed(2);
+      const sel = u.id === currentUnit ? ' selected' : '';
+      return '<div class="timeline-unit' + sel + '" style="flex:0 0 ' + pct + '%" data-uid="' + u.id + '">' +
+        '<span class="unit-num">Unit ' + u.id + '</span></div>';
+    }).join('');
+  } else {
+    // Expanded unit view
+    const u = selUnit;
+    let fullHTML = '', cumL = 0, midInserted = false;
+
+    u.sections.forEach(sec => {
+      let cols = '';
+      for (let i = 0; i < sec.c; i++) {
+        cumL++;
+        cols += '<div class="lesson-col"><span class="lesson-col-num">' + cumL + '</span></div>';
+      }
+      fullHTML += '<div class="section-group" style="flex:' + sec.c + '"><div class="lessons-row">' + cols + '</div></div>';
+      if (u.mid && cumL >= u.mid && !midInserted) {
+        fullHTML += '<div class="assess-slot"><span class="assess-slot-label">Mid</span></div>';
+        midInserted = true;
+      }
+    });
+    fullHTML += '<div class="assess-slot"><span class="assess-slot-label">End</span></div>';
+
+    if (u.mid) {
+      countsHTML = '<div class="timeline-counts">' +
+        '<div class="tc-segment" style="flex:' + u.mid + '">' + u.mid + ' lessons</div>' +
+        '<div class="tc-assess"></div>' +
+        '<div class="tc-segment" style="flex:' + (u.lessons - u.mid) + '">' + (u.lessons - u.mid) + ' lessons</div>' +
+        '<div class="tc-assess"></div></div>';
+    } else {
+      countsHTML = '<div class="timeline-counts"><div class="tc-segment" style="flex:' + u.lessons + '">' +
+        u.lessons + ' lessons</div><div class="tc-assess"></div></div>';
+    }
+
+    const sel = u.id === currentUnit ? ' selected' : '';
+    barsHTML = '<div class="timeline-unit expanded-unit' + sel + '" style="flex:1" data-uid="' + u.id + '">' +
+      '<div class="section-groups">' + fullHTML + '</div></div>';
+  }
+
+  // Title
+  let titleHTML;
+  if (isZoomed) {
+    titleHTML = '<div class="year-title">Unit ' + selUnit.id + ': ' + selUnit.name + '</div>' +
+      '<div class="year-subtitle">' + selUnit.lessons + ' lessons' +
+      (selUnit.opt ? ' \u00B7 ' + selUnit.opt + ' optional' : '') +
+      (selUnit.mid ? ' \u00B7 Mid-unit assessment after L' + selUnit.mid : '') + '</div>';
+  } else {
+    titleHTML = '<div class="year-title">IM\u00AE v.360 New York: 6th Grade 2025\u20132026</div>' +
+      '<div class="year-subtitle">' + totalLessons + ' lessons \u00B7 9 units</div>';
+  }
+
+  // Month ruler (year view only)
+  let rulerHTML = '';
+  if (!isZoomed) {
+    rulerHTML = '<div class="day-ruler">' + months.map((m, i) =>
+      '<div class="day-ruler-seg" style="flex:0 0 ' + (monthWeights[i] / monthTotal * 100).toFixed(2) + '%">' + m + '</div>'
+    ).join('') + '</div>';
+  }
+
+  // Hint
+  const hintHTML = '<div class="click-hint">' +
+    (isZoomed ? 'Click timeline to return to year view' : 'Click a unit to zoom in') + '</div>';
+
+  // Pacing insights (zoomed only)
+  let insightsHTML = '';
+  if (isZoomed && selUnit.insights) {
+    insightsHTML = '<div class="pacing-insights"><h3>Pacing Insights</h3><ul>' +
+      selUnit.insights.map(i => '<li>' + i + '</li>').join('') + '</ul></div>';
+  }
+
+  // Weekly calendar placeholder
+  const weekHTML = '<div class="weekly-calendar"><div class="week-nav">' +
+    '<button class="week-nav-btn">\u2190</button>' +
+    '<span class="week-label">Mar 24 \u2013 Mar 28, 2026</span>' +
+    '<button class="week-nav-btn">\u2192</button>' +
+    '</div><div class="week-grid">' +
+    '<div class="week-day"><div class="week-day-header">Monday</div><div class="week-day-num">24</div></div>' +
+    '<div class="week-day"><div class="week-day-header">Tuesday</div><div class="week-day-num">25</div></div>' +
+    '<div class="week-day"><div class="week-day-header">Wednesday</div><div class="week-day-num">26</div></div>' +
+    '<div class="week-day"><div class="week-day-header">Thursday</div><div class="week-day-num">27</div></div>' +
+    '<div class="week-day"><div class="week-day-header">Friday</div><div class="week-day-num">28</div></div>' +
+    '</div></div>';
+
+  el.innerHTML = '<div class="fade-in">' + titleHTML +
+    '<div class="timeline-wrapper">' +
+    '<div class="timeline">' + barsHTML + '</div>' +
+    countsHTML + '</div>' +
+    rulerHTML + hintHTML + insightsHTML + weekHTML + '</div>';
+
+  // Click handlers
+  if (isZoomed) {
+    el.querySelector('.timeline').style.cursor = 'pointer';
+    el.querySelector('.timeline').addEventListener('click', function() { selU = null; render(); });
+    el.querySelector('.click-hint').addEventListener('click', function() { selU = null; render(); });
+  } else {
+    el.querySelectorAll('.timeline-unit').forEach(b => {
+      b.addEventListener('click', function() {
+        selU = parseInt(this.getAttribute('data-uid'));
+        render();
+      });
+    });
+  }
+}
+
+render();
+</script>
+</body>
+</html>
