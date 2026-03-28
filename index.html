@@ -49,6 +49,8 @@
   .timeline-unit:hover{background:#F0F0F0}
   .timeline-unit.selected{background:#666;color:var(--white)}
   .timeline-unit.selected:hover{background:#555}
+  .timeline-unit.selected.expanded-unit{background:var(--white);color:var(--black)}
+  .timeline-unit.selected.expanded-unit:hover{background:var(--white)}
   .timeline-unit .unit-num{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
   .timeline-today-marker{position:absolute;top:34px;height:56px;width:2px;background:var(--black);z-index:5;pointer-events:none}
   .timeline-today-marker::before{content:'🏁 Pace';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
@@ -1212,7 +1214,7 @@ function buildStandardLessonMap(unit) {
 // ============================================
 let state = {
   view: 'year',
-  unitId: null,
+  unitId: 7,
   lessonId: null,
   heroTab: 1,
   aiPanelOpen: false,
@@ -1721,10 +1723,7 @@ function renderYearView() {
 
     html += `</div>`;
 
-    // Today marker (positioned in wrapper, not inside timeline, so it extends above/below)
-    if (todayPct >= 0) {
-      html += `<div class="timeline-today-marker" style="left:${todayPct.toFixed(1)}%"></div>`;
-    }
+    // Today marker removed per design review
 
     html += `<div class="day-ruler">`;
     const months = ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
