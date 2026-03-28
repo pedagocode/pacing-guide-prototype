@@ -30,39 +30,64 @@
   .breadcrumb .current{color:var(--black);font-weight:600}
 
   /* Container */
-  .container{max-width:1200px;margin:0 auto;padding:24px 32px}
+  .container{max-width:960px;min-width:700px;margin:0 auto;padding:24px 32px}
 
   /* Year View */
   .year-view{animation:fadeIn .35s ease}
   .year-title{font-size:26px;font-weight:700;margin-bottom:4px}
   .year-subtitle{font-size:14px;color:var(--mid);margin-bottom:24px}
 
-  .timeline-wrapper{position:relative;margin-bottom:8px}
-  .timeline{display:flex;gap:2px;height:88px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
-  .timeline-unit{position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;background:var(--white);color:var(--black);transition:var(--transition);overflow:hidden;
+  .timeline-wrapper{position:relative;margin-bottom:4px;padding-top:34px}
+  .timeline{display:flex;gap:0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);
+    position:relative;transition:height .3s cubic-bezier(.4,0,.2,1)}
+  .timeline.year-mode{height:56px}
+  .timeline.unit-mode{height:56px}
+  .timeline-unit{position:relative;cursor:pointer;display:flex;align-items:center;
+    justify-content:center;gap:6px;background:var(--white);color:var(--black);transition:var(--transition);overflow:hidden;
     border-right:1px solid var(--border)}
   .timeline-unit:last-child{border-right:none}
   .timeline-unit:hover{background:#F0F0F0}
-  .timeline-unit.selected{background:var(--black);color:var(--white)}
-  .timeline-unit.selected:hover{background:#333}
-  .timeline-unit.selected .unit-num,.timeline-unit.selected .unit-days{opacity:.7}
-  .timeline-unit .unit-num{font-size:10px;font-weight:700;opacity:.5;text-transform:uppercase;letter-spacing:.5px}
-  .timeline-unit .unit-short{font-size:10px;font-weight:600;line-height:1.25;text-align:center;
-    max-width:95%;word-wrap:break-word;overflow-wrap:break-word}
-  .timeline-unit .unit-days{font-size:10px;opacity:.5;margin-top:2px}
+  .timeline-unit.selected{background:#666;color:var(--white)}
+  .timeline-unit.selected:hover{background:#555}
+  .timeline-unit .unit-num{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+  .timeline-today-marker{position:absolute;top:34px;height:56px;width:2px;background:var(--black);z-index:5;pointer-events:none}
+  .timeline-today-marker::before{content:'🏁 Pace';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+    font-size:10px;font-weight:800;letter-spacing:.3px;color:var(--black);white-space:nowrap;
+    margin-bottom:2px;background:var(--white);padding:1px 4px;border-radius:3px}
 
-  /* Day ruler */
-  .day-ruler{display:flex;gap:2px;height:22px;font-size:10px;color:var(--mid)}
-  .day-ruler-seg{display:flex;align-items:center;justify-content:flex-end;padding-right:4px;
-    border-right:1px solid var(--border);font-weight:500;position:relative;transition:background .3s ease}
+  /* Expanded unit in timeline */
+  .expanded-unit{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .section-groups{flex:1;display:flex;min-width:0;overflow:hidden}
+  .section-group{display:flex;flex-direction:column;border-right:1px dashed var(--border);min-width:0}
+  .section-group:last-child{border-right:none}
+  .section-hdr{display:none}
+  .sec-letter{font-size:9px;font-weight:800}
+  .sec-name{font-size:8px;color:var(--mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lessons-row{flex:1;display:flex}
+  .lesson-col{flex:1 1 0;border-right:1px solid var(--border);display:flex;flex-direction:column;
+    justify-content:center;align-items:center;padding:2px;min-width:0;overflow:hidden}
+  .lesson-col:last-child{border-right:none}
+  .lesson-col.optional{opacity:.5}
+  .lesson-col-num{font-size:10px;font-weight:700}
+  .lesson-col-name{font-size:7px;color:var(--mid);text-align:center;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+  /* Assessment slots within expanded bar */
+  .assess-slot{flex:0 0 22px;display:flex;align-items:center;justify-content:center;
+    background:var(--black);color:var(--white)}
+  .assess-slot-label{writing-mode:vertical-lr;transform:rotate(180deg);font-size:7px;
+    font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+
+  /* Lesson count labels below timeline */
+  .timeline-counts{display:flex;gap:0;margin-top:4px;font-size:10px;color:var(--mid);font-weight:500}
+  .tc-segment{text-align:center}
+  .tc-assess{flex:0 0 22px}
+
+  /* Month ruler */
+  .day-ruler{display:flex;gap:0;height:20px;font-size:10px;color:var(--mid);margin-top:4px;position:relative}
+  .day-ruler-seg{display:flex;align-items:center;justify-content:center;
+    font-weight:600;position:relative;transition:background .3s ease;letter-spacing:.3px}
   .day-ruler-seg:last-child{border-right:none}
-  .day-ruler-seg.wk-changed{animation:wkFlash 2.5s ease}
-  .day-ruler-seg .wk-shift{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font-size:9px;font-weight:700;color:var(--black);background:#E8E8E8;border-radius:3px;
-    animation:wkShiftFade 2.5s ease forwards;pointer-events:none}
-  @keyframes wkFlash{0%{background:#E8E8E8}40%{background:#E8E8E8}100%{background:transparent}}
-  @keyframes wkShiftFade{0%{opacity:1}60%{opacity:1}100%{opacity:0}}
 
   /* Curriculum Overview + Pacing Intelligence panel */
   .overview-panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
@@ -1187,7 +1212,7 @@ function buildStandardLessonMap(unit) {
 // ============================================
 let state = {
   view: 'year',
-  unitId: 1,
+  unitId: null,
   lessonId: null,
   heroTab: 1,
   aiPanelOpen: false,
@@ -1215,7 +1240,7 @@ function toggleComplete(unitId, lessonId) {
 // ============================================
 // NAVIGATION
 // ============================================
-function goYear() { state.view='year'; if(!state.unitId) state.unitId=1; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
+function goYear() { state.view='year'; state.unitId=null; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; render(); }
 function goUnit(id) { state.view='year'; state.unitId=id; state.lessonId=null; state.aiPanelOpen=false; state.aiScenario=null; state.monthOffset=null; state.monthYear=null; state.weekIdx=0; state.insightsOpen=false; render(); }
 function goReports(unitId) { state.view='reports'; state.unitId=unitId||null; render(); }
 function goGradebook(unitId, lessonId, actIdx) { state.view='gradebook'; state.unitId=unitId; state.lessonId=lessonId; state.activityIdx=actIdx; render(); }
@@ -1587,11 +1612,11 @@ function render() {
 function renderYearView() {
   const { schedule, totalInstrDays } = buildSchedule();
   const holidayNote = holidays.size > 0 ? ` &middot; ${holidays.size} holiday${holidays.size !== 1 ? 's' : ''}` : '';
-  const selectedId = state.unitId || 1;
-  const selectedUnit = UNITS.find(u => u.id === selectedId);
+  const selectedId = state.unitId;
+  const selectedUnit = selectedId ? UNITS.find(u => u.id === selectedId) : null;
 
   const endYear = yearStartDate.getFullYear() + 1;
-  const detection = detectBehind(selectedUnit);
+  const detection = selectedUnit ? detectBehind(selectedUnit) : { behind: false };
   const pulseClass = detection.behind ? ' pulsing' : '';
   let html = `<div class="year-view">
     <div style="display:flex;justify-content:space-between;align-items:flex-start">
@@ -1605,98 +1630,200 @@ function renderYearView() {
       </button>
     </div>
     <div class="timeline-wrapper">
-      <div class="timeline">`;
+      <div class="timeline ${selectedId ? 'unit-mode' : 'year-mode'}">`;
 
-  schedule.forEach(s => {
-    const td = s.instrDays;
-    const isSelected = s.unit.id === selectedId;
-    const bg = isSelected ? 'background:var(--black);color:var(--white)' : '';
-    html += `<div class="timeline-unit${isSelected ? ' selected' : ''}" style="flex:${td};${bg}" onclick="goUnit(${s.unit.id})">
-      <span class="unit-num">Unit ${s.unit.id}</span>
-      <span class="unit-short">${s.unit.short}</span>
-      <span class="unit-days">${td} days</span>
+  if (selectedId) {
+    // === EXPANDED UNIT VIEW ===
+    const midA = selectedUnit.assessments.find(a => a.type === 'formative');
+    const endA = selectedUnit.assessments.find(a => a.type === 'summative');
+    const allLessons = [];
+    selectedUnit.sections.forEach(s => s.lessons.forEach(l => allLessons.push(l)));
+    const beforeMidCount = midA ? allLessons.filter(l => l.id <= midA.afterLesson).length : allLessons.length;
+    const afterMidCount = midA ? allLessons.filter(l => l.id > midA.afterLesson).length : 0;
+
+    // Expanded unit container (click bar to zoom back out)
+    html += `<div class="expanded-unit" onclick="goYear()">
+      <div class="section-groups">`;
+
+    selectedUnit.sections.forEach((sec, si) => {
+      const secLessons = sec.lessons.length;
+
+      html += `<div class="section-group" style="flex:${secLessons}">
+        <div class="section-hdr">
+          <span class="sec-letter">${sec.id}</span>
+          <span class="sec-name">${sec.name}</span>
+        </div>
+        <div class="lessons-row">`;
+
+      sec.lessons.forEach(l => {
+        const optClass = l.optional ? ' optional' : '';
+        html += `<div class="lesson-col${optClass}">
+          <span class="lesson-col-num">${l.id}</span>
+        </div>`;
+      });
+
+      html += `</div></div>`;
+
+      // Insert mid-unit assessment slot after the section that contains the mid-assess lesson
+      if (midA) {
+        const secEnd = sec.lessons[sec.lessons.length - 1].id;
+        const secStart = sec.lessons[0].id;
+        if (midA.afterLesson >= secStart && midA.afterLesson <= secEnd) {
+          html += `<div class="assess-slot"><span class="assess-slot-label">Mid</span></div>`;
+        }
+      }
+    });
+
+    // End-of-unit assessment slot
+    if (endA) {
+      html += `<div class="assess-slot"><span class="assess-slot-label">End</span></div>`;
+    }
+
+    html += `</div></div></div>`;
+
+    // Lesson count labels below the bar
+    if (midA) {
+      html += `<div class="timeline-counts">
+        <div style="flex:${beforeMidCount}" class="tc-segment">${beforeMidCount} lessons</div>
+        <div class="tc-assess"></div>
+        <div style="flex:${afterMidCount}" class="tc-segment">${afterMidCount} lessons</div>
+        <div class="tc-assess"></div>
+      </div>`;
+    }
+
+    html += `<div style="text-align:center;font-size:10px;color:var(--light);margin-top:6px">Click timeline to return to year view</div>
     </div>`;
-  });
 
-  html += `</div><div class="day-ruler">`;
-  schedule.forEach(s => {
-    html += `<div class="day-ruler-seg" style="flex:${s.instrDays}">Week ${s.calendarWeeks}</div>`;
-  });
-  html += `</div></div>`;
-
-  // Build pacing insights
-  const completed = getCompleted(selectedId);
-  const totalLessons = [];
-  const optLessons = [];
-  selectedUnit.sections.forEach(s => s.lessons.forEach(l => {
-    totalLessons.push(l);
-    if (l.optional) optLessons.push(l);
-  }));
-  const instrDays = buildUnitDayItems(selectedUnit).length;
-
-  const flexRanking = UNITS.map(u => ({ id: u.id, opt: u.optionalLessons.length })).sort((a,b) => b.opt - a.opt);
-  const mostFlexUnits = flexRanking.filter(f => f.opt === flexRanking[0].opt);
-  const leastFlexUnits = flexRanking.filter(f => f.opt === flexRanking[flexRanking.length-1].opt);
-
-  const insights = [];
-  if (mostFlexUnits.some(f => f.id === selectedId)) {
-    insights.push(`Most flexible unit (${optLessons.length} optional lessons). Recover lost days here first.`);
-  } else if (leastFlexUnits.some(f => f.id === selectedId)) {
-    const topFlex = flexRanking.slice(0, 2).map(f => 'Unit ' + f.id);
-    insights.push(`Tightest unit (${optLessons.length} optional). If you fall behind, ${topFlex.join(' and ')} have the most room to recover.`);
   } else {
-    const topFlex = flexRanking.slice(0, 2).map(f => 'Unit ' + f.id);
-    insights.push(`${optLessons.length} optional lesson${optLessons.length !== 1 ? 's' : ''} give moderate flex. ${topFlex.join(' and ')} have the most room to recover.`);
-  }
-  const bufferDays = instrDays - totalLessons.length - selectedUnit.assessments.length;
-  if (bufferDays > 0) {
-    insights.push(`${bufferDays} buffer day${bufferDays !== 1 ? 's' : ''} beyond lessons and assessments. Use for reteaching or enrichment.`);
-  }
-  const unitEntry = schedule.find(s => s.unit.id === selectedId);
-  if (unitEntry) {
-    let holidayCount = 0;
-    const hd = new Date(unitEntry.startDate);
-    while (hd <= unitEntry.endDate) {
-      if (holidays.has(dateToKey(hd))) holidayCount++;
-      hd.setDate(hd.getDate() + 1);
+    // === YEAR VIEW (no unit selected) ===
+    const totalDays = schedule.reduce((sum, s) => sum + s.instrDays, 0);
+    const today = new Date(); today.setHours(0,0,0,0);
+    let todayPct = -1;
+    let daysBefore = 0;
+
+    schedule.forEach(s => {
+      const td = s.instrDays;
+      html += `<div class="timeline-unit" style="flex:${td}" onclick="goUnit(${s.unit.id})">
+        <span class="unit-num">Unit ${s.unit.id}</span>
+      </div>`;
+      if (todayPct < 0 && s.startDate && s.endDate) {
+        const start = new Date(s.startDate); start.setHours(0,0,0,0);
+        const end = new Date(s.endDate); end.setHours(0,0,0,0);
+        if (today >= start && today <= end) {
+          const totalMs = end - start;
+          const elapsedMs = today - start;
+          const unitFraction = totalMs > 0 ? elapsedMs / totalMs : 0;
+          todayPct = ((daysBefore + td * unitFraction) / totalDays) * 100;
+        }
+      }
+      daysBefore += td;
+    });
+
+    html += `</div>`;
+
+    // Today marker (positioned in wrapper, not inside timeline, so it extends above/below)
+    if (todayPct >= 0) {
+      html += `<div class="timeline-today-marker" style="left:${todayPct.toFixed(1)}%"></div>`;
     }
-    if (holidayCount > 0) insights.push(`${holidayCount} day${holidayCount !== 1 ? 's' : ''} off fall within this unit.`);
-  }
-  // Lesson breakdown around mid-unit assessment
-  const midAssess = selectedUnit.assessments.find(a => a.type === 'formative');
-  if (midAssess) {
-    const beforeMid = totalLessons.filter(l => l.id <= midAssess.afterLesson).length;
-    const afterMid = totalLessons.filter(l => l.id > midAssess.afterLesson).length;
-    insights.push(`${beforeMid} lessons before ${midAssess.label}, ${afterMid} lessons after through end of unit.`);
+
+    html += `<div class="day-ruler">`;
+    const months = ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+    months.forEach(m => {
+      html += `<div class="day-ruler-seg" style="flex:1">${m}</div>`;
+    });
+    html += `</div>
+      <div style="text-align:center;font-size:10px;color:var(--light);margin-top:6px">Click a unit to zoom in</div>
+    </div>`;
   }
 
-  const combineCandidates = [];
-  selectedUnit.sections.forEach(sec => {
-    for (let i = 2; i < sec.lessons.length - 1; i++) {
-      const a = sec.lessons[i], b = sec.lessons[i+1];
-      if (!a.optional && !b.optional) { combineCandidates.push([a, b]); break; }
+  // Determine which unit to show the weekly view for
+  // If a unit is selected (zoomed in), use that. Otherwise, detect from today's date.
+  let weekUnit = selectedUnit;
+  let weekUnitId = selectedId;
+  if (!weekUnit) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const todayEntry = schedule.find(s => {
+      const start = new Date(s.startDate); start.setHours(0,0,0,0);
+      const end = new Date(s.endDate); end.setHours(0,0,0,0);
+      return today >= start && today <= end;
+    });
+    if (todayEntry) {
+      weekUnit = todayEntry.unit;
+      weekUnitId = weekUnit.id;
+    } else {
+      weekUnit = UNITS[0];
+      weekUnitId = 1;
     }
-  });
-  if (combineCandidates.length > 0) {
-    const pair = combineCandidates[0];
-    insights.push(`L${pair[0].id} + L${pair[1].id} are candidates to combine if you need to recover a day.`);
   }
 
-  // Unit header
+  const completed = getCompleted(weekUnitId);
+
+  if (selectedId && selectedUnit) {
+    // Build pacing insights (only when zoomed into a unit)
+    const totalLessons = [];
+    const optLessons = [];
+    selectedUnit.sections.forEach(s => s.lessons.forEach(l => {
+      totalLessons.push(l);
+      if (l.optional) optLessons.push(l);
+    }));
+    const instrDays = buildUnitDayItems(selectedUnit).length;
+
+    const flexRanking = UNITS.map(u => ({ id: u.id, opt: u.optionalLessons.length })).sort((a,b) => b.opt - a.opt);
+    const mostFlexUnits = flexRanking.filter(f => f.opt === flexRanking[0].opt);
+    const leastFlexUnits = flexRanking.filter(f => f.opt === flexRanking[flexRanking.length-1].opt);
+
+    const insights = [];
+    if (mostFlexUnits.some(f => f.id === selectedId)) {
+      insights.push(`Most flexible unit (${optLessons.length} optional lessons). Recover lost days here first.`);
+    } else if (leastFlexUnits.some(f => f.id === selectedId)) {
+      const topFlex = flexRanking.slice(0, 2).map(f => 'Unit ' + f.id);
+      insights.push(`Tightest unit (${optLessons.length} optional). If you fall behind, ${topFlex.join(' and ')} have the most room to recover.`);
+    } else {
+      const topFlex = flexRanking.slice(0, 2).map(f => 'Unit ' + f.id);
+      insights.push(`${optLessons.length} optional lesson${optLessons.length !== 1 ? 's' : ''} give moderate flex. ${topFlex.join(' and ')} have the most room to recover.`);
+    }
+    const bufferDays = instrDays - totalLessons.length - selectedUnit.assessments.length;
+    if (bufferDays > 0) {
+      insights.push(`${bufferDays} buffer day${bufferDays !== 1 ? 's' : ''} beyond lessons and assessments. Use for reteaching or enrichment.`);
+    }
+    const unitEntry = schedule.find(s => s.unit.id === selectedId);
+    if (unitEntry) {
+      let holidayCount = 0;
+      const hd = new Date(unitEntry.startDate);
+      while (hd <= unitEntry.endDate) {
+        if (holidays.has(dateToKey(hd))) holidayCount++;
+        hd.setDate(hd.getDate() + 1);
+      }
+      if (holidayCount > 0) insights.push(`${holidayCount} day${holidayCount !== 1 ? 's' : ''} off fall within this unit.`);
+    }
+
+    const combineCandidates = [];
+    selectedUnit.sections.forEach(sec => {
+      for (let i = 2; i < sec.lessons.length - 1; i++) {
+        const a = sec.lessons[i], b = sec.lessons[i+1];
+        if (!a.optional && !b.optional) { combineCandidates.push([a, b]); break; }
+      }
+    });
+    if (combineCandidates.length > 0) {
+      const pair = combineCandidates[0];
+      insights.push(`L${pair[0].id} + L${pair[1].id} are candidates to combine if you need to recover a day.`);
+    }
+
+    // Persistent pacing insights
+    html += `<div class="pacing-intel" style="margin:0 0 12px">
+      <div class="pacing-intel-title">Pacing Insights</div>
+      <ul class="pacing-intel-list">
+        ${insights.map(i => `<li>${i}</li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  // Unit header + weekly view (always visible)
   html += `<div style="padding:16px 0 8px">
-    <span style="font-size:15px;font-weight:700">Unit ${selectedId}: ${selectedUnit.name}</span>
+    <span style="font-size:15px;font-weight:700">Unit ${weekUnitId}: ${weekUnit.name}</span>
   </div>`;
 
-  // Persistent pacing insights
-  html += `<div class="pacing-intel" style="margin:0 0 12px">
-    <div class="pacing-intel-title">Pacing Insights</div>
-    <ul class="pacing-intel-list">
-      ${insights.map(i => `<li>${i}</li>`).join('')}
-    </ul>
-  </div>`;
-
-  // Weekly view
-  html += renderWeekView(selectedUnit, completed, schedule);
+  html += renderWeekView(weekUnit, completed, schedule);
 
   html += `</div>`;
   return html;
