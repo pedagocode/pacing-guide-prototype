@@ -1,0 +1,530 @@
+// Pacing Guide Injection for Kiddom Timeline Page
+// Usage: Create a bookmarklet with: javascript:void(fetch('http://localhost:3001/inject.js').then(r=>r.text()).then(eval))
+// Or paste this entire file into Chrome DevTools console on app-local.kiddom.co
+
+(function(){
+// Clean previous
+document.getElementById('pi')?.remove();
+document.getElementById('pi-style')?.remove();
+document.getElementById('pi-demo')?.remove();
+
+// ============================================
+// STYLES
+// ============================================
+const style = document.createElement('style');
+style.id = 'pi-style';
+style.textContent = `
+#pi{font-family:system-ui,-apple-system,sans-serif;padding:16px 20px;background:#fff;border-bottom:1px solid #e5e5e5;
+  --bk:#111;--dk:#333;--md:#666;--lt:#999;--bd:#D0D0D0;--bg:#F5F5F5;--wh:#fff;--rd:10px;--tr:.3s cubic-bezier(.4,0,.2,1)}
+#pi *{box-sizing:border-box;margin:0;padding:0}
+#pi .pt{font-size:17px;font-weight:700;margin-bottom:1px}
+#pi .ps{font-size:11px;color:var(--md);margin-bottom:10px}
+#pi .tl{display:flex;border-radius:var(--rd);overflow:hidden;border:1px solid var(--bd);height:46px;transition:all .3s ease;margin-bottom:3px}
+#pi .tu{position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--wh);color:var(--bk);transition:var(--tr);overflow:hidden;border-right:1px solid var(--bd)}
+#pi .tu:last-child{border-right:none}
+#pi .tu:hover{background:#F0F0F0}
+#pi .tu.sel{background:#666;color:var(--wh)}
+#pi .tu .un{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+#pi .tu.exp{flex:1!important}
+#pi .tu.exp.sel{background:var(--wh)!important;color:var(--bk)!important}
+#pi .sg{flex:1;display:flex;min-width:0;overflow:hidden;height:100%}
+#pi .sg-g{display:flex;flex-direction:column;border-right:1px dashed var(--bd);min-width:0}
+#pi .sg-g:last-child{border-right:none}
+#pi .lr{flex:1;display:flex}
+#pi .lc{flex:1 1 0;border-right:1px solid #eee;display:flex;justify-content:center;align-items:center;padding:1px;min-width:0;background:var(--wh)}
+#pi .lc:last-child{border-right:none}
+#pi .ln{font-size:9px;font-weight:700}
+#pi .as{flex:0 0 22px;display:flex;align-items:center;justify-content:center;background:var(--bk);color:var(--wh)}
+#pi .al{writing-mode:vertical-lr;transform:rotate(180deg);font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+#pi .tc{display:flex;margin-top:3px;font-size:9px;color:var(--lt);font-weight:500}
+#pi .tc-s{text-align:center}
+#pi .tc-a{flex:0 0 22px}
+#pi .dr{display:flex;height:16px;font-size:9px;color:var(--md);margin-top:3px}
+#pi .dr-s{display:flex;align-items:center;justify-content:center;font-weight:600}
+#pi .ch{text-align:center;font-size:10px;color:var(--lt);margin-top:5px;cursor:pointer}
+#pi .ch:hover{color:var(--dk)}
+#pi .ip{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rd);padding:12px 16px;margin-top:12px}
+#pi .ip-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+#pi .ip h3{font-size:12px;font-weight:700}
+#pi .ip .sc{display:flex;gap:4px;flex-wrap:wrap}
+#pi .sb{background:var(--wh);border:1px solid var(--bd);border-radius:5px;padding:4px 10px;font-family:inherit;font-size:10px;cursor:pointer;font-weight:500;color:var(--dk);transition:var(--tr)}
+#pi .sb:hover{background:#eee}
+#pi .sb.act{background:var(--bk);color:var(--wh);border-color:var(--bk)}
+#pi .ip p{font-size:12px;color:var(--dk);line-height:1.6;margin:0}
+#pi .ta{display:inline-block;background:#FFF3E0;color:#E65100;font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;margin-right:4px}
+#pi .th{display:inline-block;background:#E8F5E9;color:#2E7D32;font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;margin-right:4px}
+#pi .to{display:inline-block;background:#E3F2FD;color:#1565C0;font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;margin-right:4px}
+#pi .ia{margin-top:8px;display:flex;gap:5px}
+#pi .ib{background:none;border:1px solid var(--bd);border-radius:5px;padding:4px 11px;font-family:inherit;font-size:10px;cursor:pointer;font-weight:500;color:var(--dk)}
+#pi .ib:hover{background:#f5f5f5}
+#pi .ib.pr{background:var(--bk);color:var(--wh);border-color:var(--bk)}
+#pi .lc.sk{background:#FFF3E0!important;opacity:.5}
+#pi .lc.sk .ln{text-decoration:line-through}
+#pi .cx{display:none;flex-direction:column;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)}
+#pi .cx.open{display:flex}
+#pi .cx-row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+#pi .cx-f{display:flex;flex-direction:column;gap:2px}
+#pi .cx-f label{font-size:9px;font-weight:600;color:var(--md)}
+#pi .cx-f select,#pi .cx-f input{font-family:inherit;font-size:11px;padding:5px 8px;border:1px solid var(--bd);border-radius:5px;background:var(--wh);color:var(--bk)}
+#pi .cx-f input[type=range]{width:120px;padding:3px 0}
+#pi .cx-rv{font-size:10px;color:var(--md);font-weight:600}
+#pi .cx-ap{background:var(--bk);color:var(--wh);border:none;border-radius:5px;padding:6px 14px;font-family:inherit;font-size:11px;cursor:pointer;font-weight:600}
+#pi .lc.done{background:#E8F5E9!important}
+#pi .lc.clickable{cursor:pointer}
+#pi .lc.clickable:hover{background:#f0f0f0!important}
+#pi-demo{position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:9999;font-family:system-ui,-apple-system,sans-serif}
+#pi-demo .demo-toggle{writing-mode:vertical-lr;transform:rotate(180deg);background:#7C4DFF;color:#fff;border:none;
+  padding:10px 6px;font-size:10px;font-weight:700;cursor:pointer;border-radius:6px 0 0 6px;letter-spacing:.5px}
+#pi-demo .demo-toggle:hover{background:#651FFF}
+#pi-demo .demo-panel{display:none;position:absolute;right:100%;top:50%;transform:translateY(-50%);
+  background:#fff;border:2px dashed #7C4DFF;border-radius:10px 0 0 10px;padding:14px 16px;width:240px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+#pi-demo .demo-panel.open{display:block}
+#pi-demo .demo-label{font-size:9px;font-weight:700;color:#7C4DFF;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+#pi-demo .demo-sc{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+#pi-demo .dsb{width:100%;text-align:left;background:#fff;border:1px solid #D0D0D0;border-radius:5px;padding:6px 10px;
+  font-family:inherit;font-size:11px;cursor:pointer;font-weight:500;color:#333;transition:.2s}
+#pi-demo .dsb:hover{background:#F5F0FF}
+#pi-demo .dsb.act{background:#7C4DFF;color:#fff;border-color:#7C4DFF}
+#pi-demo .demo-f{display:flex;flex-direction:column;gap:3px;margin-top:8px}
+#pi-demo .demo-f label{font-size:9px;font-weight:600;color:#666}
+#pi-demo .demo-f input{font-family:inherit;font-size:11px;padding:5px 8px;border:1px solid #D0D0D0;border-radius:5px}
+@keyframes pf{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#pi .fi{animation:pf .25s ease}
+`;
+document.head.appendChild(style);
+
+// ============================================
+// CURRICULUM DATA
+// ============================================
+// comp: lessons with optional activities that can be dropped to save ~0.5 day each
+// comb: pairs of related lessons that can be merged into one day, saving 1 day each
+const U = [
+  {id:1,name:'Area & Surface Area',L:19,mid:11,
+   sec:[{c:3},{c:3},{c:5},{c:5},{c:2},{c:1}],opt:[14],on:['L14: Nets & Surface Area'],d:23,
+   comp:[{l:3,n:'Comparing Areas'},{l:8,n:'Finding Surface Area'},{l:16,n:'Distinguishing Volume & SA'}],
+   comb:[{a:1,b:2,na:'What is Area?',nb:'Decomposing Regions'},{a:11,b:12,na:'Polyhedra Vocab',nb:'Building Polyhedra'}]},
+  {id:2,name:'Introducing Ratios',L:17,mid:null,
+   sec:[{c:2},{c:3},{c:5},{c:4},{c:2},{c:1}],opt:[10],on:['L10: Tables of Equiv. Ratios'],d:21,
+   comp:[{l:4,n:'Equivalent Ratios'},{l:13,n:'Tables & Double Number Lines'}],
+   comb:[{a:2,b:3,na:'Representing Ratios',nb:'Ratios in Recipes'},{a:6,b:7,na:'Part-Part-Whole',nb:'Solving Ratio Problems'}]},
+  {id:3,name:'Rates & Percentages',L:17,mid:null,
+   sec:[{c:3},{c:6},{c:7},{c:1}],opt:[],on:[],d:20,
+   comp:[{l:5,n:'Comparing Speeds'},{l:9,n:'Solving Rate Problems'},{l:14,n:'Benchmark Percentages'}],
+   comb:[{a:3,b:4,na:'Unit Price Intro',nb:'Comparing Unit Prices'},{a:11,b:12,na:'Finding Percentages',nb:'Percentages of Quantities'}]},
+  {id:4,name:'Dividing Fractions',L:17,mid:9,
+   sec:[{c:3},{c:6},{c:2},{c:4},{c:2}],opt:[],on:[],d:20,
+   comp:[{l:2,n:'Meanings of Division'},{l:7,n:'Fraction Division Strategies'}],
+   comb:[{a:4,b:5,na:'How Many Groups?',nb:'How Much in Each Group?'},{a:14,b:15,na:'Volume with Fractions',nb:'Fraction Word Problems'}]},
+  {id:5,name:'Base Ten Arithmetic',L:15,mid:8,
+   sec:[{c:4},{c:4},{c:5},{c:2}],opt:[],on:[],d:18,
+   comp:[{l:3,n:'Multiplying Decimals'},{l:10,n:'Long Division Practice'}],
+   comb:[{a:1,b:2,na:'Place Value Review',nb:'Decimal Addition'},{a:6,b:7,na:'Multiplying Larger Numbers',nb:'Estimation Strategies'}]},
+  {id:6,name:'Expressions & Equations',L:19,mid:11,
+   sec:[{c:6},{c:5},{c:4},{c:3},{c:1}],opt:[19],on:['L19: Review'],d:23,
+   comp:[{l:3,n:'Writing Expressions'},{l:9,n:'Equal & Equivalent'},{l:15,n:'Solving Equations'}],
+   comb:[{a:1,b:2,na:'Tape Diagrams',nb:'Equations from Diagrams'},{a:7,b:8,na:'Distributive Property',nb:'Combining Like Terms'},{a:12,b:13,na:'Inequalities Intro',nb:'Graphing Inequalities'}]},
+  {id:7,name:'Rational Numbers',L:19,mid:null,
+   sec:[{c:7},{c:3},{c:5},{c:3},{c:1}],opt:[15],on:['L15: Abs. Value Practice'],d:23,
+   comp:[{l:4,n:'Ordering Rational Numbers'},{l:10,n:'Subtracting Rationals'}],
+   comb:[{a:1,b:2,na:'Intro to Negatives',nb:'Number Line Placement'},{a:8,b:9,na:'Adding Rationals',nb:'Adding with Different Signs'}]},
+  {id:8,name:'Data & Distributions',L:18,mid:12,
+   sec:[{c:2},{c:6},{c:4},{c:5},{c:1}],opt:[18],on:['L18: Data Projects'],d:22,
+   comp:[{l:5,n:'Interpreting Histograms'},{l:11,n:'Comparing Data Sets'}],
+   comb:[{a:3,b:4,na:'Dot Plots',nb:'Histograms'},{a:13,b:14,na:'Mean & MAD',nb:'Median & IQR'}]},
+  {id:9,name:'Putting It Together',L:11,mid:null,
+   sec:[{c:4},{c:5},{c:2}],opt:[],on:[],d:14,
+   comp:[{l:3,n:'Cross-Topic Practice'}],
+   comb:[{a:1,b:2,na:'Review Ratios',nb:'Review Expressions'}]}
+];
+const TL = U.reduce((s,u) => s + u.L, 0);
+const mo = ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+const mw = [19,23,18,15,19,19,22,21,20,14];
+const mt = mw.reduce((s,d) => s+d, 0);
+const SS = new Date('2025-09-04');
+const SE = new Date('2026-06-26');
+
+// ============================================
+// PRESETS
+// ============================================
+const PR = {
+  'on-pace':        {l:'On pace',         u:7, c:{1:19,2:17,3:17,4:17,5:15,6:19,7:1,8:0,9:0}},
+  'slightly-behind':{l:'Slightly behind', u:6, c:{1:19,2:17,3:17,4:17,5:15,6:10,7:0,8:0,9:0}},
+  'very-behind':    {l:'Very behind',     u:6, c:{1:19,2:17,3:17,4:17,5:15,6:4,7:0,8:0,9:0}},
+  'ahead':          {l:'Ahead',           u:7, c:{1:19,2:17,3:17,4:17,5:15,6:19,7:8,8:0,9:0}}
+};
+
+let ap = 'slightly-behind';
+let TD = new Date('2026-03-30');
+let cu = 6;
+let cb = {...PR['slightly-behind'].c};
+let su = 6; // default to unit view
+let ua = false;
+let cxOpen = false;
+
+// ============================================
+// PACING ENGINE
+// ============================================
+function gde() {
+  const d = Math.floor((TD - SS) / 864e5);
+  const w = Math.floor(d / 7);
+  return Math.max(0, w * 5 + Math.min(d % 7, 5) - 22);
+}
+
+function gex(u) {
+  let db = 0;
+  for (const x of U) { if (x.id === u.id) break; db += x.d; }
+  const di = Math.max(0, gde() - db);
+  if (di <= 0) return 0;
+  if (di >= u.d) return u.L;
+  return Math.floor(di / u.d * u.L);
+}
+
+function gsl(u) { return u.d - u.L; }
+
+function fsl(eid) {
+  return U.filter(u => u.id > eid)
+    .map(u => ({u: u, s: gsl(u)}))
+    .filter(x => x.s > 0)
+    .sort((a, b) => b.s - a.s);
+}
+
+function ci(uid) {
+  const u = U.find(x => x.id === uid);
+  const co = cb[uid] || 0;
+  const ex = gex(u);
+  const df = co - ex;
+  const sl = gsl(u);
+  let nc = '';
+  if (u.mid && co < u.mid) nc = 'Mid-unit assessment in ' + (u.mid - co) + ' lessons.';
+  else nc = 'End-of-unit assessment in ' + (u.L - co) + ' lessons.';
+
+  const fs = fsl(uid);
+  const tfs = fs.reduce((s, x) => s + x.s, 0);
+
+  // Undo state: show raw behind
+  if (ua && df < -1) {
+    return {
+      tg: 'adj', tl: 'Behind',
+      tx: "You're " + Math.abs(df) + ' lesson' + (Math.abs(df) !== 1 ? 's' : '') +
+        ' behind expected pace. ' + nc + ' ' + sl + ' buffer day' + (sl !== 1 ? 's' : '') +
+        ' in this unit.' + (tfs > 0 ? ' ' + tfs + ' across future units.' : ''),
+      ac: [{l: 'Auto-adjust', id: 'auto'}, {l: 'Customize', id: 'cust'}]
+    };
+  }
+
+  // Behind: auto-adjust with 4 recovery levers
+  // Priority: keep assessment dates, compress instruction to fit
+  // 1. Skip optional lessons (already planned for, no impact on standards)
+  // 2. Compress a lesson (drop optional activities, keep core instruction)
+  // 3. Combine two related lessons into one day (merge related content)
+  // 4. Borrow buffer days from future units (last resort, shifts downstream)
+  if (df < -1) {
+    const bh = Math.abs(df);
+    let adj = [], rc = 0;
+
+    // 1. Skip optional lessons
+    for (const o of u.opt.filter(l => l > co)) {
+      if (rc >= bh) break;
+      adj.push({t: 'skip', ls: o, n: u.on[u.opt.indexOf(o)]});
+      rc++;
+    }
+
+    // 2. Compress lessons (drop optional activities, save ~1 day each)
+    if (rc < bh && u.comp) {
+      for (const c of u.comp.filter(c => c.l > co)) {
+        if (rc >= bh) break;
+        adj.push({t: 'compress', ls: c.l, n: c.n});
+        rc++;
+      }
+    }
+
+    // 3. Combine two related lessons into one day (save 1 day each pair)
+    if (rc < bh && u.comb) {
+      for (const c of u.comb.filter(c => c.a > co)) {
+        if (rc >= bh) break;
+        adj.push({t: 'combine', a: c.a, b: c.b, na: c.na, nb: c.nb});
+        rc++;
+      }
+    }
+
+    // 4. Borrow buffer days from future units (last resort)
+    if (rc < bh) {
+      for (const f of fs) {
+        if (rc >= bh) break;
+        const b = Math.min(f.s, bh - rc);
+        adj.push({t: 'borrow', fu: f.u, days: b, remaining: gsl(f.u) - b});
+        rc += b;
+      }
+    }
+
+    // Build narrative
+    let parts = [];
+    const sa = adj.filter(a => a.t === 'skip');
+    const ba = adj.filter(a => a.t === 'borrow');
+    const ca = adj.filter(a => a.t === 'compress');
+    const ma = adj.filter(a => a.t === 'combine');
+
+    if (sa.length) parts.push('Skipped ' + sa.map(a => 'L' + a.ls + ' (' + a.n + ')').join(', ') + ' (optional)');
+    if (ba.length) {
+      const p = ba.map(a => a.days + ' day' + (a.days !== 1 ? 's' : '') +
+        ' from Unit ' + a.fu.id + ' (' + a.remaining + ' buffer left)');
+      parts.push('Borrowed ' + p.join(', '));
+    }
+    if (ca.length) parts.push('Compressed ' + ca.map(a => 'L' + a.ls + ' (' + a.n + ', drop optional activities)').join(', '));
+    if (ma.length) parts.push('Combined ' + ma.map(a => 'L' + a.a + ' (' + a.na + ') + L' + a.b + ' (' + a.nb + ') into one day').join(', '));
+
+    let at = parts.join('. ');
+    if (rc < bh) at += '. Could not fully recover ' + (bh - rc) + ' day' + (bh - rc !== 1 ? 's' : '');
+
+    return {
+      tg: 'adj', tl: 'Adjusted',
+      tx: "You're " + bh + ' lesson' + (bh !== 1 ? 's' : '') + ' behind. ' + at + '. ' + nc,
+      ac: [{l: 'Customize', id: 'cust'}, {l: 'Undo', id: 'undo'}],
+      sk: sa.map(a => a.ls)
+    };
+  }
+
+  // Ahead
+  if (df > 1) {
+    const et = u.opt.filter(l => l > co).length
+      ? ' You could revisit ' + u.on[0] + ' or carry extra time into Unit ' + (uid + 1) + '.'
+      : ' You could go deeper or carry buffer into Unit ' + (uid + 1) + '.';
+    return {
+      tg: 'ahd', tl: 'Ahead',
+      tx: "You're " + df + ' lesson' + (df !== 1 ? 's' : '') + ' ahead. ' + nc + et,
+      ac: [{l: 'Customize', id: 'cust'}, {l: 'Undo', id: 'undo'}]
+    };
+  }
+
+  // On pace
+  let st = '';
+  if (fs.length) st = ' Unit ' + fs[0].u.id + ' has ' + fs[0].s + ' buffer day' + (fs[0].s !== 1 ? 's' : '') + ' if needed.';
+  return {
+    tg: 'ok', tl: 'On track',
+    tx: "You're on pace. " + nc + ' ' + sl + ' buffer day' + (sl !== 1 ? 's' : '') + ' in this unit.' + st,
+    ac: [{l: 'Customize', id: 'cust'}, {l: 'Undo', id: 'undo'}]
+  };
+}
+
+// ============================================
+// GLOBAL HANDLERS
+// ============================================
+window._pAP = function(k) {
+  const p = PR[k]; ap = k; cu = p.u; cb = {...p.c}; su = cu; ua = false; cxOpen = false; rn();
+};
+
+window._pAC = function() {
+  const us = document.getElementById('cx-u');
+  const ds = document.getElementById('cx-d');
+  const sl = document.getElementById('cx-c');
+  cu = parseInt(us.value);
+  TD = new Date(ds.value);
+  const cc = parseInt(sl.value);
+  cb = {};
+  for (const u of U) {
+    if (u.id < cu) cb[u.id] = u.L;
+    else if (u.id === cu) cb[u.id] = cc;
+    else cb[u.id] = 0;
+  }
+  ap = null; su = cu; ua = false; rn();
+};
+
+// ============================================
+// RENDER
+// ============================================
+function rn() {
+  const pi = document.getElementById('pi');
+  if (!pi) return;
+  const iz = su !== null;
+  const sn = iz ? U.find(x => x.id === su) : null;
+  const ins = iz ? ci(su) : null;
+
+  // Timeline bar
+  let bh = '', ch = '';
+  if (!iz) {
+    bh = U.map(u => {
+      const p = (u.L / TL * 100).toFixed(2);
+      const s = u.id === cu ? ' sel' : '';
+      return '<div class="tu' + s + '" style="flex:0 0 ' + p + '%" data-u="' + u.id + '"><span class="un">Unit ' + u.id + '</span></div>';
+    }).join('');
+  } else {
+    const u = sn;
+    let fh = '', cl = 0, mi = false;
+    const sks = new Set(ins && ins.sk ? ins.sk : []);
+    const co = cb[sn.id] || 0;
+    u.sec.forEach(sec => {
+      let cols = '';
+      for (let i = 0; i < sec.c; i++) {
+        cl++;
+        const classes = ['lc'];
+        if (sks.has(cl)) classes.push('sk');
+        if (cl <= co) classes.push('done');
+        cols += '<div class="' + classes.join(' ') + '"><span class="ln">' + cl + '</span></div>';
+      }
+      fh += '<div class="sg-g" style="flex:' + sec.c + '"><div class="lr">' + cols + '</div></div>';
+      if (u.mid && cl >= u.mid && !mi) {
+        fh += '<div class="as"><span class="al">Mid</span></div>';
+        mi = true;
+      }
+    });
+    fh += '<div class="as"><span class="al">End</span></div>';
+    if (u.mid) {
+      ch = '<div class="tc"><div class="tc-s" style="flex:' + u.mid + '">' + u.mid + ' lessons</div><div class="tc-a"></div>' +
+        '<div class="tc-s" style="flex:' + (u.L - u.mid) + '">' + (u.L - u.mid) + ' lessons</div><div class="tc-a"></div></div>';
+    } else {
+      ch = '<div class="tc"><div class="tc-s" style="flex:' + u.L + '">' + u.L + ' lessons</div><div class="tc-a"></div></div>';
+    }
+    bh = '<div class="tu exp' + (u.id === cu ? ' sel' : '') + '" style="flex:1" data-u="' + u.id + '"><div class="sg">' + fh + '</div></div>';
+  }
+
+  // Title
+  let th = iz
+    ? '<div class="pt">Unit ' + sn.id + ': ' + sn.name + '</div><div class="ps">' + sn.L + ' lessons' +
+      (sn.opt.length ? ' \u00B7 ' + sn.opt.length + ' optional' : '') +
+      (sn.mid ? ' \u00B7 Mid-unit after L' + sn.mid : '') + '</div>'
+    : '<div class="pt">IM\u00AE v.360 New York: 6th Grade 2025\u20132026</div><div class="ps">' + TL + ' lessons \u00B7 9 units</div>';
+
+  // Month ruler (year view)
+  let rh = '';
+  if (!iz) {
+    rh = '<div class="dr">' + mo.map((m, i) =>
+      '<div class="dr-s" style="flex:0 0 ' + (mw[i] / mt * 100).toFixed(2) + '%">' + m + '</div>'
+    ).join('') + '</div>';
+  }
+
+  const hh = '<div class="ch">' + (iz ? 'Click timeline to return to year view' : 'Click a unit to zoom in') + '</div>';
+
+  // Insight panel (no scenario buttons, those go in demo panel)
+  let insBody = '';
+  if (iz && ins) {
+    const tc = ins.tg === 'adj' ? 'ta' : ins.tg === 'ahd' ? 'th' : 'to';
+    let ah = '';
+    if (ins.ac && ins.ac.length) {
+      ah = '<div class="ia">' + ins.ac.map(a =>
+        '<button class="ib' + (a.id === 'auto' ? ' pr' : '') + '" data-a="' + a.id + '">' + a.l + '</button>'
+      ).join('') + '</div>';
+    }
+    insBody = '<p><span class="' + tc + '">' + ins.tl + '</span> ' + ins.tx + '</p>' + ah;
+  }
+
+  // Customize: clickable lesson completion hint
+  const cUnit = U.find(x => x.id === cu);
+  const cn = cb[cu] || 0;
+  const cxHTML = '<div class="cx' + (cxOpen ? ' open' : '') + '">' +
+    '<div style="font-size:11px;color:var(--dk);margin-bottom:6px"><strong>' + cn + ' of ' + (cUnit ? cUnit.L : 0) + '</strong> lessons completed. Click lessons in the timeline above to mark complete.</div>' +
+    '</div>';
+
+  const ipHTML = iz
+    ? '<div class="ip"><div class="ip-hdr"><h3>Pacing Insights</h3></div>' + insBody + cxHTML + '</div>'
+    : '';
+
+  pi.innerHTML = '<div class="fi">' + th + '<div class="tl">' + bh + '</div>' + ch + rh + hh + ipHTML + '</div>';
+
+  // Demo side panel
+  let dp = document.getElementById('pi-demo');
+  if (!dp) {
+    dp = document.createElement('div');
+    dp.id = 'pi-demo';
+    document.body.appendChild(dp);
+  }
+  const scBtns = Object.keys(PR).map(k =>
+    '<button class="dsb' + (k === ap ? ' act' : '') + '" data-p="' + k + '">' + PR[k].l + '</button>'
+  ).join('');
+  dp.innerHTML = '<button class="demo-toggle" id="demo-tog">DEMO</button>' +
+    '<div class="demo-panel" id="demo-pnl">' +
+    '<div class="demo-label">\u26A0 Demo only</div>' +
+    '<div class="demo-sc">' + scBtns + '</div>' +
+    '<div class="demo-f"><label>Simulate date</label><input type="date" id="cx-d" value="' + TD.toISOString().split('T')[0] + '" min="2025-09-04" max="2026-06-26"></div>' +
+    '<div class="demo-f" style="margin-top:6px"><label>Unit</label><select id="cx-u" style="font-family:inherit;font-size:11px;padding:5px 8px;border:1px solid #D0D0D0;border-radius:5px">' +
+    U.map(u => '<option value="' + u.id + '"' + (u.id === cu ? ' selected' : '') + '>U' + u.id + ': ' + u.name + '</option>').join('') +
+    '</select></div>' +
+    '<div class="demo-f" style="margin-top:6px"><label>Completed</label><div style="display:flex;align-items:center;gap:6px">' +
+    '<input type="range" id="cx-c" min="0" max="' + (cUnit ? cUnit.L : 19) + '" value="' + cn + '" style="width:100%">' +
+    '<span id="cx-v" style="font-size:10px;font-weight:600;color:#666;white-space:nowrap">' + cn + ' / ' + (cUnit ? cUnit.L : 19) + '</span></div></div>' +
+    '<button style="margin-top:8px;width:100%;background:#7C4DFF;color:#fff;border:none;border-radius:5px;padding:7px 14px;font-family:inherit;font-size:11px;cursor:pointer;font-weight:600" onclick="_pAC()">Apply</button>' +
+    '</div>';
+
+  // Demo panel toggle
+  document.getElementById('demo-tog').addEventListener('click', function() {
+    document.getElementById('demo-pnl').classList.toggle('open');
+  });
+  // Demo scenario buttons
+  dp.querySelectorAll('.dsb').forEach(b =>
+    b.addEventListener('click', function() { _pAP(this.getAttribute('data-p')); })
+  );
+  // Demo custom controls
+  const cxU = document.getElementById('cx-u');
+  const cxC = document.getElementById('cx-c');
+  const cxV = document.getElementById('cx-v');
+  if (cxU && cxC) {
+    cxU.addEventListener('change', function() {
+      const u = U.find(x => x.id === parseInt(this.value));
+      cxC.max = u.L;
+      cxC.value = Math.min(parseInt(cxC.value), u.L);
+      cxV.textContent = cxC.value + ' / ' + u.L;
+    });
+    cxC.addEventListener('input', function() {
+      const u = U.find(x => x.id === parseInt(cxU.value));
+      cxV.textContent = this.value + ' / ' + u.L;
+    });
+  }
+
+  // Main event handlers
+  if (iz) {
+    pi.querySelector('.tl').style.cursor = 'pointer';
+    pi.querySelector('.tl').addEventListener('click', () => { su = null; rn(); });
+    pi.querySelector('.ch').addEventListener('click', () => { su = null; rn(); });
+    pi.querySelectorAll('.ib').forEach(b => b.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const a = this.getAttribute('data-a');
+      if (a === 'undo') { ua = true; rn(); }
+      if (a === 'auto') { ua = false; rn(); }
+      if (a === 'cust') { cxOpen = !cxOpen; rn(); }
+    }));
+    // Clickable lesson blocks in customize mode
+    if (cxOpen) {
+      pi.querySelectorAll('.lc').forEach(lc => {
+        lc.classList.add('clickable');
+        lc.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const num = parseInt(this.querySelector('.ln').textContent);
+          if (num <= cn) {
+            // Uncomplete: set completed to num - 1
+            cb[su] = num - 1;
+          } else {
+            // Complete up to this lesson
+            cb[su] = num;
+          }
+          ap = null;
+          rn();
+        });
+      });
+    }
+  } else {
+    pi.querySelectorAll('.tu').forEach(b => b.addEventListener('click', function() {
+      su = parseInt(this.getAttribute('data-u'));
+      ua = false; cxOpen = false; rn();
+    }));
+  }
+}
+
+// ============================================
+// INSERT INTO PAGE
+// ============================================
+const pi = document.createElement('div');
+pi.id = 'pi';
+
+// Try to insert between calendar nav and grid
+const calBox = document.querySelector('.css-1ni8k6j');
+if (calBox && calBox.children.length >= 2) {
+  calBox.insertBefore(pi, calBox.children[1]);
+} else {
+  // Fallback: insert at top of main
+  const mainEl = document.querySelector('main');
+  if (mainEl) mainEl.prepend(pi);
+  else document.body.prepend(pi);
+}
+
+rn();
+console.log('Pacing guide injected');
+})();
